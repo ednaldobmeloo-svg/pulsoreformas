@@ -31,7 +31,7 @@ export async function onRequestPost(context) {
         messages: [
           {
             role: "system",
-            content: "Você é um assistente objetivo, claro e direto. Gere respostas enxutas, práticas e bem estruturadas."
+            content: "Você é um assistente objetivo, claro e direto."
           },
           {
             role: "user",
@@ -71,8 +71,5 @@ export async function onRequestPost(context) {
       status: 500,
       headers: { "Content-Type": "application/json" }
     });
-  }
-}
-    );
   }
 }
