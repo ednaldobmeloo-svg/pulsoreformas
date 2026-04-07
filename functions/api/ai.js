@@ -31,7 +31,7 @@ export async function onRequestPost(context) {
         messages: [
           {
             role: "system",
-            content: "Você é um assistente objetivo, claro e direto."
+            content: "Você é um assistente objetivo, claro e direto. Gere respostas práticas e bem estruturadas."
           },
           {
             role: "user",
