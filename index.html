@@ -887,6 +887,37 @@ select.fi option{background:#06121e}
 .cmr-del:hover{color:var(--rd)}
 .caixa-empty{text-align:center;padding:40px 20px;color:rgba(180,220,255,.25);font-size:13px}
 
+
+/* ── CAIXA POR OBRA ─────────────────────────────────── */
+.obra-caixa-contas{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px;margin-bottom:16px}
+.occ-card{background:rgba(0,8,24,.55);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;transition:border-color .15s}
+.occ-card:hover{border-color:var(--bd2)}
+.occ-card-icon{font-size:18px;margin-bottom:6px}
+.occ-card-name{font-size:10px;font-weight:700;color:rgba(180,220,255,.5);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.occ-card-saldo{font-size:20px;font-weight:800}
+.occ-card-saldo.pos{color:var(--gn)}
+.occ-card-saldo.neg{color:var(--rd)}
+.occ-card-saldo.zero{color:rgba(180,220,255,.2)}
+.occ-card-banco{font-size:10px;color:rgba(0,212,255,.3);margin-top:2px}
+.obra-caixa-transf-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:8px 16px;background:rgba(255,209,102,.06);border:1px dashed rgba(255,209,102,.25);color:rgba(255,209,102,.7);border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .15s;width:100%;margin-bottom:16px}
+.obra-caixa-transf-btn:hover{border-color:var(--yw);color:var(--yw);background:rgba(255,209,102,.1)}
+.ocm-row{display:grid;grid-template-columns:auto auto 1fr auto auto auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(0,212,255,.05);font-size:12px}
+.ocm-row:last-child{border:none}
+.ocm-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.ocm-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;white-space:nowrap}
+.ocm-desc{color:var(--cr);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ocm-conta{font-size:10px;color:rgba(0,212,255,.3);white-space:nowrap}
+.ocm-date{font-size:10px;color:rgba(0,212,255,.25);white-space:nowrap}
+.ocm-val{font-size:13px;font-weight:700;white-space:nowrap}
+.ocm-del{padding:2px 5px;background:transparent;border:none;color:rgba(255,68,102,.4);cursor:pointer;font-size:12px;transition:color .15s}
+.ocm-del:hover{color:var(--rd)}
+.ocm-empty{font-size:12px;color:rgba(180,220,255,.2);font-style:italic;padding:8px 0}
+/* Caixa consolidado por conta */
+.caixa-obra-line{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:5px 0;font-size:12px;border-bottom:1px solid rgba(0,212,255,.04)}
+.caixa-obra-line:last-child{border:none}
+.caixa-obra-line-name{color:rgba(180,220,255,.6);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.caixa-obra-line-val{font-weight:700;white-space:nowrap}
+
 </style>
 </head>
 <body>
@@ -2120,6 +2151,7 @@ function buildObraCard(b, obra) {
     {id:'etapas',   label:'📋 Etapas'},
     {id:'sections', label:'📦 Seções do Orçamento'},
     {id:'recebimentos', label:'💰 Recebimentos'},
+    {id:'caixa-obra',   label:'🏦 Caixa'},
     {id:'distribuicao', label:'💵 Distribuição'},
     {id:'info',         label:'ℹ️ Informações'}
   ];
@@ -2284,6 +2316,13 @@ function buildObraCard(b, obra) {
   body.appendChild(panelRec);
 
   // Panel: Distribuição de Lucros
+  // Panel: Caixa da Obra
+  var panelCaixaObra = document.createElement('div');
+  panelCaixaObra.className = 'obc-panel' + (activeTab==='caixa-obra'?' active':'');
+  panelCaixaObra.id = 'obc-panel-'+b.id+'-caixa-obra';
+  buildCaixaObraPanel(panelCaixaObra, b.id, b);
+  body.appendChild(panelCaixaObra);
+
   var panelDist = document.createElement('div');
   panelDist.className = 'obc-panel' + (activeTab==='distribuicao'?' active':'');
   panelDist.id = 'obc-panel-'+b.id+'-distribuicao';
@@ -5046,6 +5085,285 @@ var DEFAULT_CONTAS = [
 var CONTA_PADRAO = 'nubank'; // conta onde entram recebimentos e saem custos automaticamente
 
 
+
+// ════════════════════════════════════════════════════════════════
+// CAIXA POR OBRA
+// Stored in ODB: obras[bid].caixaMovs = [{id,tipo,conta,desc,val,date,autoGerado}]
+// tipos: 'entrada','saida','transferencia_in','transferencia_out'
+// ════════════════════════════════════════════════════════════════
+
+function getCaixaObraMovs(bid) {
+  var db = ODB.load();
+  return (db[bid] && db[bid].caixaMovs) ? db[bid].caixaMovs : [];
+}
+
+function saveCaixaObra(bid, movs) {
+  var db = ODB.load();
+  if (!db[bid]) db[bid] = {};
+  db[bid].caixaMovs = movs;
+  ODB.save(db);
+}
+
+function getSaldoContaObra(bid, contaId) {
+  return getCaixaObraMovs(bid).reduce(function(s, m) {
+    if (m.tipo === 'transferencia_out' && m.conta === contaId) return s - parseFloat(m.val||0);
+    if (m.tipo === 'transferencia_in'  && m.conta === contaId) return s + parseFloat(m.val||0);
+    if (m.conta !== contaId) return s;
+    return m.tipo === 'entrada' ? s + parseFloat(m.val||0) : s - parseFloat(m.val||0);
+  }, 0);
+}
+
+function getSaldoTotalObra(bid) {
+  var d = getCaixaData();
+  return d.contas.reduce(function(s, c) {
+    return s + getSaldoContaObra(bid, c.id);
+  }, 0);
+}
+
+function buildCaixaObraPanel(panel, bid, b) {
+  var d = getCaixaData();
+
+  function rebuild() {
+    panel.innerHTML = '';
+    var movs = getCaixaObraMovs(bid);
+
+    // ── Saldo total da obra ──
+    var totalObra = d.contas.reduce(function(s,c){ return s + getSaldoContaObra(bid,c.id); }, 0);
+    var totalHdr = document.createElement('div');
+    totalHdr.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(0,8,24,.5);border:1px solid rgba(0,212,255,.12);border-radius:10px;margin-bottom:14px';
+    totalHdr.innerHTML =
+      '<span style="font-size:12px;color:rgba(0,212,255,.5);text-transform:uppercase;letter-spacing:.06em">💰 Saldo Total desta Obra</span>'+
+      '<span style="font-size:22px;font-weight:800;color:'+(totalObra>=0?'var(--gn)':'var(--rd)')+'">'+fmt(totalObra)+'</span>';
+    panel.appendChild(totalHdr);
+
+    // ── Cards por conta ──
+    var grid = document.createElement('div');
+    grid.className = 'obra-caixa-contas';
+    d.contas.forEach(function(conta) {
+      var saldo = getSaldoContaObra(bid, conta.id);
+      var card = document.createElement('div');
+      card.className = 'occ-card';
+      card.innerHTML =
+        '<div class="occ-card-icon">'+conta.icon+'</div>'+
+        '<div class="occ-card-name">'+esc(conta.nome)+'</div>'+
+        '<div class="occ-card-saldo '+(saldo>0?'pos':saldo<0?'neg':'zero')+'">'+fmt(saldo)+'</div>'+
+        (conta.banco?'<div class="occ-card-banco">'+esc(conta.banco)+'</div>':'');
+      grid.appendChild(card);
+    });
+    panel.appendChild(grid);
+
+    // ── Transfer button (admin only) ──
+    if (isAdmin()) {
+      var transfBtn = document.createElement('button');
+      transfBtn.className = 'obra-caixa-transf-btn';
+      transfBtn.innerHTML = '⇄ Registrar transferência entre contas desta obra';
+      transfBtn.addEventListener('click', function(){ openObraTransfModal(bid, rebuild); });
+      panel.appendChild(transfBtn);
+    }
+
+    // ── Extrato ──
+    var exHdr = document.createElement('div');
+    exHdr.style.cssText = 'font-size:11px;font-weight:700;color:rgba(0,212,255,.4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px';
+    exHdr.textContent = 'Extrato desta obra';
+    panel.appendChild(exHdr);
+
+    var sorted = movs.slice().sort(function(a,b){ return (b.date||'').localeCompare(a.date||'') || (b.createdAt||0)-(a.createdAt||0); });
+
+    if (!sorted.length) {
+      var empty = document.createElement('div');
+      empty.className = 'ocm-empty';
+      empty.textContent = 'Nenhuma movimentação. Os recebimentos e custos entram automaticamente.';
+      panel.appendChild(empty);
+      return;
+    }
+
+    var list = document.createElement('div');
+    sorted.forEach(function(m) {
+      var isEntrada = m.tipo === 'entrada';
+      var isSaida   = m.tipo === 'saida';
+      var isTransf  = m.tipo === 'transferencia_in' || m.tipo === 'transferencia_out';
+      var isOut     = m.tipo === 'saida' || m.tipo === 'transferencia_out';
+      var dotColor  = isEntrada?'var(--gn)':isSaida?'var(--rd)':'var(--yw)';
+      var valClass  = isEntrada?'pos':isSaida?'neg':'neu';
+      var valSign   = isEntrada?'+':isOut?'−':'⇄';
+      var badgeCls  = isEntrada?'cmr-tipo-entrada':isSaida?'cmr-tipo-saida':isTransf?'cmr-tipo-transf':'';
+      var tipoLabel = {entrada:'Recebimento',saida:'Custo',transferencia_in:'Transf. entrada',transferencia_out:'Transf. saída'}[m.tipo]||m.tipo;
+
+      function contaNome(id) {
+        var c = d.contas.find(function(x){ return x.id===id; });
+        return c ? c.icon+' '+c.nome.split(' ')[0] : id;
+      }
+      var contaInfo = isTransf
+        ? (m.contaOrigem && m.contaDest ? contaNome(m.contaOrigem)+' → '+contaNome(m.contaDest) : contaNome(m.conta))
+        : contaNome(m.conta);
+
+      var row = document.createElement('div');
+      row.className = 'ocm-row';
+      row.innerHTML =
+        '<div class="ocm-dot" style="background:'+dotColor+'"></div>'+
+        '<span class="ocm-badge '+badgeCls+'">'+tipoLabel+'</span>'+
+        '<div class="ocm-desc">'+esc(m.desc||'—')+(m.autoGerado?'<span style="font-size:9px;color:rgba(0,212,255,.2);margin-left:5px">auto</span>':'')+'</div>'+
+        '<span class="ocm-conta">'+contaInfo+'</span>'+
+        '<span class="ocm-date">'+esc(m.date||'')+'</span>'+
+        '<span class="ocm-val '+valClass+'">'+valSign+' '+fmt(m.val)+'</span>'+
+        (isAdmin()&&!m.autoGerado?'<button class="ocm-del" data-id="'+m.id+'" title="Excluir">🗑️</button>':'<span></span>');
+
+      if (isAdmin() && !m.autoGerado) {
+        row.querySelector('.ocm-del').addEventListener('click', function(){
+          if (!confirm('Excluir esta movimentação?')) return;
+          var movs2 = getCaixaObraMovs(bid).filter(function(x){ return x.id !== this.dataset.id; }, this);
+          saveCaixaObra(bid, movs2);
+          rebuild();
+          if (el('view-caixa')&&el('view-caixa').classList.contains('active')) renderCaixa();
+        });
+      }
+      list.appendChild(row);
+    });
+    panel.appendChild(list);
+  }
+
+  rebuild();
+}
+
+// ── Transfer modal between accounts within same obra ─────────────
+function openObraTransfModal(bid, cb) {
+  var d = getCaixaData();
+  var inner = el('ov-caixa-mov-inner'); if (!inner) return;
+  inner.innerHTML =
+    '<h2>⇄ Transferência entre Contas</h2>'+
+    '<div style="font-size:12px;color:rgba(0,212,255,.4);margin-bottom:16px">Dinheiro desta obra mudou de conta — ex: saiu do Nubank e virou espécie</div>'+
+    '<div style="display:flex;flex-direction:column;gap:13px">'+
+      '<div class="field"><label>De (conta origem)</label>'+
+        '<select class="fi" id="ot-origem">'+d.contas.map(function(c){return'<option value="'+c.id+'">'+c.icon+' '+c.nome+(c.banco?' — '+c.banco:'')+'</option>';}).join('')+'</select></div>'+
+      '<div class="field"><label>Para (conta destino)</label>'+
+        '<select class="fi" id="ot-dest">'+d.contas.map(function(c){return'<option value="'+c.id+'">'+c.icon+' '+c.nome+(c.banco?' — '+c.banco:'')+'</option>';}).join('')+'</select></div>'+
+      '<div class="field"><label>Descrição</label>'+
+        '<input class="fi" id="ot-desc" placeholder="Ex: Pix virou espécie, Saque para pagamento..."></div>'+
+      '<div class="fg fg2">'+
+        '<div class="field"><label>Valor (R$)</label><input class="fi" id="ot-val" type="number" min="0" step="any" placeholder="0,00"></div>'+
+        '<div class="field"><label>Data</label><input class="fi" id="ot-date" value="'+new Date().toLocaleDateString('pt-BR')+'"></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="mf">'+
+      '<button class="btn btn-p" id="ot-save">Registrar Transferência</button>'+
+      '<button class="btn btn-g" id="ot-cancel">Cancelar</button>'+
+    '</div>';
+  el('ov-caixa-mov').classList.add('open');
+  setTimeout(function(){
+    el('ot-save').addEventListener('click', function(){
+      var origem = el('ot-origem').value;
+      var dest   = el('ot-dest').value;
+      var desc   = el('ot-desc').value.trim();
+      var val    = parseFloat(el('ot-val').value);
+      var date   = el('ot-date').value;
+      if (origem===dest) { toast('Origem e destino devem ser diferentes','err'); return; }
+      if (!val||val<=0)  { toast('Digite um valor válido','err'); return; }
+      var movs2 = getCaixaObraMovs(bid);
+      var id = uid();
+      movs2.push({id:'out_'+id, tipo:'transferencia_out', conta:origem, contaOrigem:origem, contaDest:dest, desc:desc||'Transferência', val:val, date:date, createdAt:Date.now()});
+      movs2.push({id:'in_'+id,  tipo:'transferencia_in',  conta:dest,   contaOrigem:origem, contaDest:dest, desc:desc||'Transferência', val:val, date:date, createdAt:Date.now()});
+      saveCaixaObra(bid, movs2);
+      // Also register in global Caixa
+      var gd = getCaixaData();
+      var b = DB.load().find(function(x){return x.id===bid;});
+      gd.movimentacoes.push({id:'gout_'+id, tipo:'transferencia', contaOrigem:origem, contaDestino:dest, desc:(desc||'Transferência')+' — '+(b?b.client||b.num:''), val:val, date:date, budgetId:bid, createdAt:Date.now()});
+      CAIXA.save(gd);
+      closeOv('ov-caixa-mov');
+      toast('Transferência registrada! ⇄');
+      if (cb) cb();
+      if (el('view-caixa')&&el('view-caixa').classList.contains('active')) renderCaixa();
+    });
+    el('ot-cancel').addEventListener('click', function(){ closeOv('ov-caixa-mov'); });
+  },0);
+}
+
+// ── Hook: auto-add to obra caixa when recebimento/cost saved ─────
+var _origSaveRecebimento = saveRecebimento;
+saveRecebimento = function(bid, entry) {
+  _origSaveRecebimento(bid, entry);
+  // Also add to obra-level caixa
+  var movs = getCaixaObraMovs(bid);
+  var b = DB.load().find(function(x){return x.id===bid;});
+  movs.push({
+    id: 'rec_'+entry.id,
+    tipo: 'entrada',
+    conta: CONTA_PADRAO,
+    desc: entry.desc||'Recebimento',
+    val: parseFloat(entry.val||0),
+    date: entry.date||'',
+    createdAt: Date.now(),
+    autoGerado: true
+  });
+  saveCaixaObra(bid, movs);
+};
+
+var _origDeleteRecebimento = deleteRecebimento;
+deleteRecebimento = function(bid, entryId) {
+  _origDeleteRecebimento(bid, entryId);
+  var movs = getCaixaObraMovs(bid).filter(function(m){ return m.id !== 'rec_'+entryId; });
+  saveCaixaObra(bid, movs);
+};
+
+var _origSaveFinEntry = saveFinEntry;
+saveFinEntry = function(budgetId, entry) {
+  _origSaveFinEntry(budgetId, entry);
+  var movs = getCaixaObraMovs(budgetId);
+  var cat = CATS.find(function(c){return c.id===entry.cat;})||{icon:'💸',name:'Custo'};
+  movs.push({
+    id: 'fin_'+entry.id,
+    tipo: 'saida',
+    conta: CONTA_PADRAO,
+    desc: cat.icon+' '+cat.name+': '+(entry.desc||''),
+    val: parseFloat(entry.val||0),
+    date: entry.date||'',
+    createdAt: Date.now(),
+    autoGerado: true
+  });
+  saveCaixaObra(budgetId, movs);
+};
+
+var _origDeleteFinEntry = deleteFinEntry;
+deleteFinEntry = function(budgetId, entryId) {
+  _origDeleteFinEntry(budgetId, entryId);
+  var movs = getCaixaObraMovs(budgetId).filter(function(m){ return m.id !== 'fin_'+entryId; });
+  saveCaixaObra(budgetId, movs);
+};
+
+// ── Migration: populate obra-level caixa from existing entries ────
+function migrarCaixaObras() {
+  var budgets = DB.load().filter(function(b){ return b.status==='approved'; });
+  var odb = ODB.load();
+  var fin = FIN.load();
+  var countRec = 0, countCost = 0;
+
+  budgets.forEach(function(b) {
+    var existing = getCaixaObraMovs(b.id);
+    var existIds = {}; existing.forEach(function(m){ existIds[m.id]=true; });
+    var newMovs = existing.slice();
+
+    // Recebimentos
+    ((odb[b.id]&&odb[b.id].recebimentos)||[]).forEach(function(entry){
+      if (existIds['rec_'+entry.id]) return;
+      newMovs.push({id:'rec_'+entry.id, tipo:'entrada', conta:CONTA_PADRAO, desc:entry.desc||'Recebimento', val:parseFloat(entry.val||0), date:entry.date||'', createdAt:entry.createdAt||Date.now(), autoGerado:true});
+      countRec++;
+    });
+
+    // Custos
+    ((fin[b.id]&&fin[b.id].entries)||[]).forEach(function(entry){
+      if (existIds['fin_'+entry.id]) return;
+      var cat = CATS.find(function(c){return c.id===entry.cat;})||{icon:'💸',name:'Custo'};
+      newMovs.push({id:'fin_'+entry.id, tipo:'saida', conta:CONTA_PADRAO, desc:cat.icon+' '+cat.name+': '+(entry.desc||''), val:parseFloat(entry.val||0), date:entry.date||'', createdAt:entry.createdAt||Date.now(), autoGerado:true});
+      countCost++;
+    });
+
+    if (newMovs.length > existing.length) saveCaixaObra(b.id, newMovs);
+  });
+
+  toast('✅ Migrados: '+countRec+' recebimentos e '+countCost+' custos para o Caixa das obras!');
+  // Also run global migration
+  migrarLancamentosExistentes();
+}
+
 function migrarLancamentosExistentes() {
   var budgets = DB.load().filter(function(b){ return b.status==='approved'; });
   var odb = ODB.load();
@@ -5193,7 +5511,7 @@ function renderCaixa() {
       btnMig.innerHTML = '⚡ Importar lançamentos históricos';
       btnMig.addEventListener('click', function(){
         if (confirm('Isso vai importar todos os recebimentos e custos existentes para o Caixa (Nubank). Continuar?')) {
-          migrarLancamentosExistentes();
+          migrarCaixaObras();
         }
       });
       actionsDiv.appendChild(btnMig);
@@ -5231,23 +5549,39 @@ function renderCaixa() {
   });
   container.appendChild(grid);
 
-  // ── Saldo por obra ──
+  // ── Saldo por obra com breakdown por conta ──
   if (budgets.length) {
     var obraTitle = document.createElement('div');
     obraTitle.style.cssText = 'font-size:11px;color:rgba(0,212,255,.4);text-transform:uppercase;letter-spacing:.06em;font-weight:700;margin-bottom:12px;margin-top:4px';
-    obraTitle.textContent = 'Saldo em Caixa por Obra';
+    obraTitle.textContent = 'Saldo por Obra';
     container.appendChild(obraTitle);
 
     var obraGrid = document.createElement('div');
-    obraGrid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-bottom:24px';
+    obraGrid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:24px';
     budgets.forEach(function(b) {
-      var saldoObra = getSaldoObra(b.id);
       var card = document.createElement('div');
-      card.style.cssText = 'background:rgba(0,8,24,.45);border:1px solid rgba(0,212,255,.1);border-radius:10px;padding:12px 14px';
+      card.style.cssText = 'background:rgba(0,8,24,.45);border:1px solid rgba(0,212,255,.12);border-radius:12px;padding:14px 16px';
+
+      // Total
+      var total = d.contas.reduce(function(s,c){ return s+getSaldoContaObra(b.id,c.id); }, 0);
+      var contasHtml = d.contas.map(function(conta){
+        var saldo = getSaldoContaObra(b.id, conta.id);
+        if (Math.abs(saldo) < 0.01) return '';
+        return '<div class="caixa-obra-line">'+
+          '<span class="caixa-obra-line-name">'+conta.icon+' '+esc(conta.nome)+'</span>'+
+          '<span class="caixa-obra-line-val" style="color:'+(saldo>=0?'var(--gn)':'var(--rd)')+'">'+fmt(saldo)+'</span>'+
+        '</div>';
+      }).filter(Boolean).join('');
+
       card.innerHTML =
-        '<div style="font-size:11px;color:rgba(0,212,255,.4);margin-bottom:4px">'+esc(b.num||'—')+'</div>'+
-        '<div style="font-size:13px;font-weight:700;color:var(--wh);margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(b.client||'Sem nome')+'</div>'+
-        '<div style="font-size:18px;font-weight:800;color:'+(saldoObra>=0?'var(--gn)':'var(--rd)')+'">'+fmt(saldoObra)+'</div>';
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">'+
+          '<div>'+
+            '<div style="font-size:10px;color:rgba(0,212,255,.4);margin-bottom:3px">'+esc(b.num||'—')+'</div>'+
+            '<div style="font-size:13px;font-weight:700;color:var(--wh);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px">'+esc(b.client||'Sem nome')+'</div>'+
+          '</div>'+
+          '<div style="font-size:20px;font-weight:800;color:'+(total>=0?'var(--gn)':'var(--rd)')+'">'+fmt(total)+'</div>'+
+        '</div>'+
+        (contasHtml||'<div style="font-size:11px;color:rgba(180,220,255,.2);font-style:italic">Sem movimentações</div>');
       obraGrid.appendChild(card);
     });
     container.appendChild(obraGrid);
