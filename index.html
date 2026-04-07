@@ -10,6 +10,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 /* ── ROOT ─────────────────────────────────────────── */
@@ -4493,15 +4494,48 @@ function setAIMode(mode) {
       fi._wired = true;
       fi.onchange = function() {
         var file = fi.files[0]; if (!file) return;
-        var reader = new FileReader();
-        reader.onload = function(e) {
-          var b64 = e.target.result.split(',')[1];
-          _aiTrFileData = { type: file.type||'application/pdf', data: b64, name: file.name };
-          el('ai-tr-file-name').textContent = '✓ ' + file.name;
-          el('ai-tr-file-label').style.borderColor = 'rgba(0,255,136,.4)';
-          el('ai-tr-file-label').style.color = 'rgba(0,255,136,.7)';
-        };
-        reader.readAsDataURL(file);
+        var name = file.name.toLowerCase();
+        var isExcel = name.endsWith('.xlsx') || name.endsWith('.xls') || name.endsWith('.csv');
+
+        if (isExcel) {
+          // Parse Excel with SheetJS → convert to plain text for AI
+          var reader = new FileReader();
+          reader.onload = function(e) {
+            try {
+              var data = new Uint8Array(e.target.result);
+              var workbook = XLSX.read(data, {type:'array'});
+              var allText = [];
+              workbook.SheetNames.forEach(function(sheetName) {
+                var sheet = workbook.Sheets[sheetName];
+                var csv = XLSX.utils.sheet_to_csv(sheet, {blankrows:false});
+                if (csv.trim()) {
+                  allText.push('=== Planilha: ' + sheetName + ' ===');
+                  allText.push(csv);
+                }
+              });
+              var fullText = allText.join('\n');
+              // Store as text type for AI
+              _aiTrFileData = { type: 'text', text: fullText, name: file.name };
+              el('ai-tr-file-name').textContent = '✓ ' + file.name + ' (' + workbook.SheetNames.length + ' planilha' + (workbook.SheetNames.length > 1 ? 's' : '') + ')';
+              el('ai-tr-file-label').style.borderColor = 'rgba(0,255,136,.4)';
+              el('ai-tr-file-label').style.color = 'rgba(0,255,136,.7)';
+            } catch(err) {
+              showAIErr('Erro ao ler Excel: ' + err.message);
+            }
+          };
+          reader.readAsArrayBuffer(file);
+        } else {
+          // PDF or image — read as base64
+          var reader = new FileReader();
+          reader.onload = function(e) {
+            var b64 = e.target.result.split(',')[1];
+            _aiTrFileData = { type: file.type||'application/pdf', data: b64, name: file.name };
+            el('ai-tr-file-name').textContent = '✓ ' + file.name;
+            el('ai-tr-file-label').style.borderColor = 'rgba(0,255,136,.4)';
+            el('ai-tr-file-label').style.color = 'rgba(0,255,136,.7)';
+          };
+          reader.readAsDataURL(file);
+        }
       };
     }
   } else {
@@ -4561,29 +4595,35 @@ function runTRGenerate() {
     '{"fiel_tr":{"sections":[{"name":"Nome","items":[{"desc":"Desc","qty":10,"unit":"m2","price":95.00}]}]},"padrao_pulso":{"sections":[{"name":"Nome","items":[{"desc":"Desc","qty":10,"unit":"m2","price":95.00}]}]}}'
   ].filter(Boolean).join(' | ');
 
-  var isPDF = _aiTrFileData.type === 'application/pdf';
-  var fileBlock = isPDF
-    ? {type:'document', source:{type:'base64', media_type:'application/pdf', data:_aiTrFileData.data}}
-    : {type:'image',    source:{type:'base64', media_type:_aiTrFileData.type, data:_aiTrFileData.data}};
+  var userMsg;
+  if (_aiTrFileData.type === 'text') {
+    // Excel converted to text
+    var trText = 'Arquivo TR (Excel): ' + _aiTrFileData.name + '\n\n' + _aiTrFileData.text;
+    if (notes) trText += '\n\nObservações: ' + notes;
+    trText += '\n\nGere os dois modelos de orçamento baseados neste TR.';
+    userMsg = trText;
+  } else {
+    // PDF or image
+    var isPDF = _aiTrFileData.type === 'application/pdf';
+    var fileBlock = isPDF
+      ? {type:'document', source:{type:'base64', media_type:'application/pdf', data:_aiTrFileData.data}}
+      : {type:'image',    source:{type:'base64', media_type:_aiTrFileData.type, data:_aiTrFileData.data}};
+    var userMsg = [fileBlock, {type:'text', text:'Gere os dois modelos de orçamento baseados neste TR.' + (notes ? ' Observações: ' + notes : '')}];
+  }
 
-  var userMsg = [fileBlock, {type:'text', text:'Gere os dois modelos de orçamento baseados neste TR.' + (notes ? ' Observações: ' + notes : '')}];
-
-  fetch('https://api.anthropic.com/v1/messages', {
+  fetch('/api/ai', {
     method: 'POST',
     headers: {'Content-Type':'application/json'},
     body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 5000,
-      system: systemPrompt,
-      messages: [{role:'user', content: userMsg}]
-    })
+  prompt: userMsg
+})
   })
   .then(function(r){ return r.json(); })
   .then(function(data) {
     el('ai-loading').style.display = 'none';
     el('ai-generate-btn').disabled = false;
     if (data.error) { showAIErr('Erro API: ' + data.error.message); return; }
-    var text = (data.content||[]).map(function(c){return c.text||'';}).join('').replace(/```json|```/g,'').trim();
+    var text = (data.resposta || '').trim();
     var parsed;
     try { parsed = JSON.parse(text); } catch(e) { showAIErr('Não foi possível interpretar a resposta. Tente novamente.'); return; }
     if (!parsed.fiel_tr || !parsed.padrao_pulso) { showAIErr('Resposta incompleta. Tente novamente.'); return; }
@@ -4826,7 +4866,7 @@ function runAIGenerate(){
     var textBlock={type:'text',text:prompt||'Analise este projeto e gere o orçamento completo.'};
     msgContent=[contentBlock,textBlock];
   }else{msgContent=prompt;}
-  fetch('https://api.anthropic.com/v1/messages',{
+  fetch('/.netlify/functions/ai',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:3000,system:systemPrompt,messages:[{role:'user',content:msgContent}]})
@@ -4933,9 +4973,9 @@ setTimeout(function(){
           <span style="font-size:20px">📎</span>
           <div>
             <div style="font-weight:700" id="ai-tr-file-name">Selecionar arquivo do TR…</div>
-            <div style="font-size:11px;color:rgba(0,212,255,.35);margin-top:3px">PDF, JPG, PNG</div>
+            <div style="font-size:11px;color:rgba(0,212,255,.35);margin-top:3px">PDF, Excel (.xlsx/.xls), JPG, PNG</div>
           </div>
-          <input type="file" id="ai-tr-file-inp" accept=".pdf,.jpg,.jpeg,.png,.webp" style="display:none">
+          <input type="file" id="ai-tr-file-inp" accept=".pdf,.jpg,.jpeg,.png,.webp,.xlsx,.xls,.csv" style="display:none">
         </label>
       </div>
       <div style="margin-bottom:14px">
