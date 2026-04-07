@@ -4636,21 +4636,32 @@ function runTRGenerate() {
     var userMsg = [fileBlock, {type:'text', text:'Gere os dois modelos de orçamento baseados neste TR.' + (notes ? ' Observações: ' + notes : '')}];
   }
 
-  fetch('/api/ai', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({
-  prompt: userMsg
-})
-  })
-  .then(async function(r){
-  var textoBruto = await r.text();
+  el('ai-generate-btn').disabled = true;
+el('ai-loading').style.display = 'block';
+el('ai-err').style.display = 'none';
 
-  try {
-    return JSON.parse(textoBruto);
-  } catch (e) {
-    throw new Error('Resposta inválida da API: ' + textoBruto);
+try {
+  const respostaIA = await chamarIA(userMsg);
+
+  el('ai-loading').style.display = 'none';
+  el('ai-generate-btn').disabled = false;
+
+  if (!respostaIA) {
+    showAIErr('A IA não retornou conteúdo.');
+    return;
   }
+
+  console.log('RESPOSTA IA:', respostaIA);
+
+  // temporariamente só para validar na tela:
+  alert(respostaIA.substring(0, 500));
+
+  // depois você substitui isso pela lógica real de preencher o orçamento
+} catch (err) {
+  el('ai-loading').style.display = 'none';
+  el('ai-generate-btn').disabled = false;
+  showAIErr(err.message || 'Erro ao gerar orçamento com IA.');
+}
 })
   .then(function(data) {
     el('ai-loading').style.display = 'none';
@@ -4899,19 +4910,31 @@ function runAIGenerate(){
     var textBlock={type:'text',text:prompt||'Analise este projeto e gere o orçamento completo.'};
     msgContent=[contentBlock,textBlock];
   }else{msgContent=prompt;}
-  fetch('/api/ai',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:3000,system:systemPrompt,messages:[{role:'user',content:msgContent}]})
-  }).then(function(r){return r.json();}).then(function(data){
-    el('ai-loading').style.display='none';el('ai-generate-btn').disabled=false;
-    if(data.error){showAIErr('Erro API: '+data.error.message);return;}
-    var text=(data.content||[]).map(function(c){return c.text||'';}).join('').replace(/```json|```/g,'').trim();
-    var parsed;
-    try{parsed=JSON.parse(text);}catch(e){showAIErr('Não foi possível interpretar a resposta. Tente reformular.');return;}
-    if(!parsed.sections||!parsed.sections.length){showAIErr('Nenhuma seção gerada. Descreva com mais detalhes.');return;}
-    renderAIPreview(parsed.sections);
-  }).catch(function(e){el('ai-loading').style.display='none';el('ai-generate-btn').disabled=false;showAIErr('Erro de conexão: '+e.message);});
+  el('ai-generate-btn').disabled = true;
+el('ai-loading').style.display = 'block';
+el('ai-err').style.display = 'none';
+
+try {
+  const respostaIA = await chamarIA(userMsg);
+
+  el('ai-loading').style.display = 'none';
+  el('ai-generate-btn').disabled = false;
+
+  if (!respostaIA) {
+    showAIErr('A IA não retornou conteúdo.');
+    return;
+  }
+
+  console.log('RESPOSTA IA:', respostaIA);
+
+  // temporariamente só para validar na tela:
+  alert(respostaIA.substring(0, 500));
+
+  // depois você substitui isso pela lógica real de preencher o orçamento
+} catch (err) {
+  el('ai-loading').style.display = 'none';
+  el('ai-generate-btn').disabled = false;
+  showAIErr(err.message || 'Erro ao gerar orçamento com IA.');
 }
 function renderAIPreview(sections){
   _aiGeneratedSections=sections;
