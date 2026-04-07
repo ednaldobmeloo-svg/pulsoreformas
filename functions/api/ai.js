@@ -33,11 +33,27 @@ export async function onRequestPost(context) {
 
     const data = await response.json();
 
-    const resposta =
-      data?.choices?.[0]?.message?.content || "Sem resposta";
+    if (!response.ok) {
+      return new Response(
+        JSON.stringify({
+          error: "Erro da OpenAI",
+          status: response.status,
+          detalhes: data
+        }),
+        {
+          status: response.status,
+          headers: { "Content-Type": "application/json" }
+        }
+      );
+    }
+
+    const resposta = data?.choices?.[0]?.message?.content;
 
     return new Response(
-      JSON.stringify({ resposta }),
+      JSON.stringify({
+        resposta: resposta || "Sem resposta",
+        debug: data
+      }),
       {
         status: 200,
         headers: { "Content-Type": "application/json" }
