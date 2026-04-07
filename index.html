@@ -4666,7 +4666,7 @@ try {
   .then(function(data) {
     el('ai-loading').style.display = 'none';
     el('ai-generate-btn').disabled = false;
-    if (data.error) { showAIErr('Erro API: ' + data.error.message); return; }
+    if (data.error) { showAIErr('Erro API: ' + (data.error?.message || data.error || 'erro desconhecido')); return; }
     var text = (data.resposta || '').trim();
     var parsed;
     try { parsed = JSON.parse(text); } catch(e) { showAIErr('Não foi possível interpretar a resposta. Tente novamente.'); return; }
