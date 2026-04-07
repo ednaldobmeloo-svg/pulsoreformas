@@ -4618,7 +4618,15 @@ function runTRGenerate() {
   prompt: userMsg
 })
   })
-  .then(function(r){ return r.json(); })
+  .then(async function(r){
+  var textoBruto = await r.text();
+
+  try {
+    return JSON.parse(textoBruto);
+  } catch (e) {
+    throw new Error('Resposta inválida da API: ' + textoBruto);
+  }
+})
   .then(function(data) {
     el('ai-loading').style.display = 'none';
     el('ai-generate-btn').disabled = false;
