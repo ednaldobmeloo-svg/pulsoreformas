@@ -4566,7 +4566,10 @@ openAIModal = function(budgetId) {
 
 // ── TR GENERATION ────────────────────────────────────────────────
 function runTRGenerate() {
-  if (!_aiTrFileData) { showAIErr('Selecione o arquivo do TR primeiro.'); return; }
+  if (!_aiTrFileData) {
+    showAIErr('Selecione o arquivo do TR primeiro.');
+    return;
+  }
 
   el('ai-generate-btn').disabled = true;
   el('ai-loading').style.display = 'block';
@@ -4577,66 +4580,93 @@ function runTRGenerate() {
 
   var notes = (el('ai-tr-notes') && el('ai-tr-notes').value) || '';
   var priceRef = buildPriceReference();
+  var userMsg;
 
   var systemPrompt = [
-    'Voce e um especialista em orcamentos de obras para a Pulso Reformas em Recife/PE.',
-    'O usuario enviou um Termo de Referencia (TR) de condominio. Gere DOIS modelos de orcamento.',
-    'MODELO 1 - fiel_tr: Extraia TODOS os itens do TR exatamente como estao: mesma descricao, mesma unidade, mesma quantidade. Aplique apenas os precos da Pulso Reformas.',
-    'MODELO 2 - padrao_pulso: Reorganize nas secoes padrao (Demolicao, Piso e Revestimento, Pintura, Eletrica, Hidraulica, Gessaria, Acabamentos). Adapte descricoes ao padrao da empresa.',
-    'PRECOS RECIFE/PE 2025 (valor final ao cliente):',
-    'Demolicao:R$45-70/m2 | Contrapiso:R$55-80/m2 | Reboco:R$60-85/m2',
-    'Piso ceramico:R$95-130/m2 | Porcelanato 60x60:R$130-180/m2 | Porcelanato retificado:R$160-220/m2',
-    'Revestimento parede:R$110-160/m2 | Pintura latex:R$22-32/m2 | Pintura acrilica:R$30-45/m2',
-    'Forro gesso:R$80-110/m2 | Forro PVC:R$70-95/m2 | Ponto eletrico:R$220-320/pto',
-    'Ponto hidraulico:R$300-500/pto | Porta madeira:R$600-1200/un | Box vidro:R$800-1500/m2',
-    priceRef,
-    notes ? ('OBSERVACOES: ' + notes) : '',
-    'RESPONDA APENAS JSON valido sem markdown:',
-    '{"fiel_tr":{"sections":[{"name":"Nome","items":[{"desc":"Desc","qty":10,"unit":"m2","price":95.00}]}]},"padrao_pulso":{"sections":[{"name":"Nome","items":[{"desc":"Desc","qty":10,"unit":"m2","price":95.00}]}]}}'
-  ].filter(Boolean).join(' | ');
+    'Você é um especialista em orçamentos de obras para a Pulso Reformas em Recife/PE.',
+    'O usuário enviou um Termo de Referência (TR). Gere DOIS modelos de orçamento em JSON válido.',
+    'Responda SOMENTE com JSON puro, sem markdown, sem explicações e sem texto antes ou depois.',
+    'Formato esperado:',
+    '{',
+    '  "fiel_tr": { "sections": [ { "name": "...", "items": [ { "desc": "...", "qty": 1, "unit": "un", "price": 0 } ] } ] },',
+    '  "padrao_pulso": { "sections": [ { "name": "...", "items": [ { "desc": "...", "qty": 1, "unit": "un", "price": 0 } ] } ] }',
+    '}',
+    'MODELO 1 - fiel_tr: extraia TODOS os itens do TR exatamente como estão, mantendo descrição, unidade e quantidade.',
+    'MODELO 2 - padrao_pulso: reorganize nas seções padrão da Pulso Reformas.',
+    'Use os preços de referência abaixo quando aplicável.',
+    priceRef
+  ].join('\n\n');
 
-  var userMsg;
   if (_aiTrFileData.type === 'text') {
-    // Excel converted to text
     var trText = 'Arquivo TR (Excel): ' + _aiTrFileData.name + '\n\n' + _aiTrFileData.text;
     if (notes) trText += '\n\nObservações: ' + notes;
     trText += '\n\nGere os dois modelos de orçamento baseados neste TR.';
     userMsg = trText;
   } else {
-    // PDF or image
     var isPDF = _aiTrFileData.type === 'application/pdf';
     var fileBlock = isPDF
-      ? {type:'document', source:{type:'base64', media_type:'application/pdf', data:_aiTrFileData.data}}
-      : {type:'image',    source:{type:'base64', media_type:_aiTrFileData.type, data:_aiTrFileData.data}};
-    var userMsg = [fileBlock, {type:'text', text:'Gere os dois modelos de orçamento baseados neste TR.' + (notes ? ' Observações: ' + notes : '')}];
+      ? { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: _aiTrFileData.data } }
+      : { type: 'image', source: { type: 'base64', media_type: _aiTrFileData.type, data: _aiTrFileData.data } };
+
+    userMsg = JSON.stringify({
+      systemPrompt: systemPrompt,
+      arquivo: fileBlock,
+      instrucao: 'Gere os dois modelos de orçamento baseados neste TR.' + (notes ? ' Observações: ' + notes : '')
+    });
   }
 
   fetch('/api/ai', {
     method: 'POST',
-    headers: {'Content-Type':'application/json'},
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-  prompt: userMsg
-})
+      prompt: systemPrompt + '\n\n' + (typeof userMsg === 'string' ? userMsg : JSON.stringify(userMsg))
+    })
   })
-  .then(async function(r){
-  var textoBruto = await r.text();
+  .then(async function(r) {
+    var textoBruto = await r.text();
 
-  try {
-    return JSON.parse(textoBruto);
-  } catch (e) {
-    throw new Error('Resposta inválida da API: ' + textoBruto);
-  }
-})
+    if (!textoBruto) {
+      throw new Error('API retornou resposta vazia');
+    }
+
+    try {
+      return JSON.parse(textoBruto);
+    } catch (e) {
+      throw new Error('Resposta inválida da API: ' + textoBruto);
+    }
+  })
   .then(function(data) {
     el('ai-loading').style.display = 'none';
     el('ai-generate-btn').disabled = false;
-    if (data.error) { showAIErr('Erro API: ' + data.error.message); return; }
+
+    if (data.error) {
+      showAIErr('Erro API: ' + (data.error.message || data.error));
+      return;
+    }
+
     var text = (data.resposta || '').trim();
+
+    if (!text) {
+      showAIErr('A IA não retornou conteúdo.');
+      return;
+    }
+
     var parsed;
-    try { parsed = JSON.parse(text); } catch(e) { showAIErr('Não foi possível interpretar a resposta. Tente novamente.'); return; }
-    if (!parsed.fiel_tr || !parsed.padrao_pulso) { showAIErr('Resposta incompleta. Tente novamente.'); return; }
-    _aiTrSections1 = parsed.fiel_tr.sections;
-    _aiTrSections2 = parsed.padrao_pulso.sections;
+    try {
+      parsed = JSON.parse(text);
+    } catch (e) {
+      showAIErr('Não foi possível interpretar a resposta da IA. Tente novamente.');
+      return;
+    }
+
+    if (!parsed.fiel_tr || !parsed.padrao_pulso) {
+      showAIErr('Resposta incompleta. Tente novamente.');
+      return;
+    }
+
+    _aiTrSections1 = parsed.fiel_tr.sections || [];
+    _aiTrSections2 = parsed.padrao_pulso.sections || [];
+
     renderTRPreview();
   })
   .catch(function(e) {
@@ -4645,30 +4675,6 @@ function runTRGenerate() {
     showAIErr('Erro de conexão: ' + e.message);
   });
 }
-
-function renderTRPreview() {
-  function renderModel(sections, containerId, totalId) {
-    var wrap = el(containerId); wrap.innerHTML = '';
-    var grand = 0;
-    sections.forEach(function(sec) {
-      var secTotal = (sec.items||[]).reduce(function(s,it){return s+(parseFloat(it.qty)||0)*(parseFloat(it.price)||0);},0);
-      grand += secTotal;
-      var secEl = document.createElement('div');
-      secEl.style.cssText = 'margin-bottom:10px';
-      secEl.innerHTML =
-        '<div style="font-size:11px;font-weight:700;color:rgba(0,212,255,.6);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;padding-bottom:4px;border-bottom:1px solid rgba(0,212,255,.08)">'+esc(sec.name)+'</div>' +
-        (sec.items||[]).map(function(it){
-          var tot = (parseFloat(it.qty)||0)*(parseFloat(it.price)||0);
-          return '<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0;color:rgba(180,220,255,.6)">' +
-            '<span style="flex:1;margin-right:6px">'+esc(it.desc)+'</span>' +
-            '<span style="color:rgba(0,212,255,.35);white-space:nowrap">'+it.qty+' '+it.unit+'</span>' +
-            '<span class="bk-stat-val" style="font-size:12px;font-weight:700;color:var(--gd);margin-left:8px;white-space:nowrap">'+fmt(tot)+'</span>' +
-          '</div>';
-        }).join('');
-      wrap.appendChild(secEl);
-    });
-    el(totalId).textContent = fmt(grand);
-    return grand;
   }
   renderModel(_aiTrSections1, 'ai-tr-preview-1', 'ai-tr-total-1');
   renderModel(_aiTrSections2, 'ai-tr-preview-2', 'ai-tr-total-2');
@@ -4874,20 +4880,51 @@ function runAIGenerate(){
     var textBlock={type:'text',text:prompt||'Analise este projeto e gere o orçamento completo.'};
     msgContent=[contentBlock,textBlock];
   }else{msgContent=prompt;}
-  fetch('/.netlify/functions/ai',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:3000,system:systemPrompt,messages:[{role:'user',content:msgContent}]})
-  }).then(function(r){return r.json();}).then(function(data){
-    el('ai-loading').style.display='none';el('ai-generate-btn').disabled=false;
-    if(data.error){showAIErr('Erro API: '+data.error.message);return;}
-    var text=(data.content||[]).map(function(c){return c.text||'';}).join('').replace(/```json|```/g,'').trim();
-    var parsed;
-    try{parsed=JSON.parse(text);}catch(e){showAIErr('Não foi possível interpretar a resposta. Tente reformular.');return;}
-    if(!parsed.sections||!parsed.sections.length){showAIErr('Nenhuma seção gerada. Descreva com mais detalhes.');return;}
-    renderAIPreview(parsed.sections);
-  }).catch(function(e){el('ai-loading').style.display='none';el('ai-generate-btn').disabled=false;showAIErr('Erro de conexão: '+e.message);});
-}
+  fetch('/api/ai', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    prompt: userMsg
+  })
+})
+.then(async function(r) {
+  var textoBruto = await r.text();
+
+  if (!textoBruto) {
+    throw new Error('API retornou resposta vazia');
+  }
+
+  try {
+    return JSON.parse(textoBruto);
+  } catch (e) {
+    throw new Error('Resposta inválida da API: ' + textoBruto);
+  }
+})
+.then(function(data) {
+  el('ai-loading').style.display = 'none';
+  el('ai-generate-btn').disabled = false;
+
+  if (data.error) {
+    showAIErr('Erro API: ' + (data.error.message || data.error));
+    return;
+  }
+
+  var text = (data.resposta || '').trim();
+
+  if (!text) {
+    showAIErr('A IA não retornou conteúdo.');
+    return;
+  }
+
+  console.log(text);
+
+  // aqui entra a sua lógica atual de aplicar o orçamento
+})
+.catch(function(err) {
+  el('ai-loading').style.display = 'none';
+  el('ai-generate-btn').disabled = false;
+  showAIErr('Erro de conexão: ' + err.message);
+});
 function renderAIPreview(sections){
   _aiGeneratedSections=sections;
   var preview=el('ai-sections-preview');preview.innerHTML='';
@@ -4913,7 +4950,13 @@ function applyAISections(){
   toast('✅ '+newSections.length+' seções adicionadas!');
   renderForm(b);
 }
-function showAIErr(msg){el('ai-loading').style.display='none';el('ai-generate-btn').disabled=false;var e=el('ai-err');e.textContent=msg;e.style.display='block';}
+function showAIErr(msg) {
+  el('ai-loading').style.display = 'none';
+  el('ai-generate-btn').disabled = false;
+  var e = el('ai-err');
+  e.textContent = msg;
+  e.style.display = 'block';
+}
 
 // Wire floating backup
 setTimeout(function(){
