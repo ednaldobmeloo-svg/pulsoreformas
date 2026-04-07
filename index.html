@@ -847,6 +847,46 @@ select.fi option{background:#06121e}
 .pdc-paid-lbl{font-size:10px;color:rgba(0,212,255,.4);text-transform:uppercase;letter-spacing:.05em;margin-top:8px}
 .pdc-pending{font-size:12px;color:var(--yw);margin-top:2px}
 
+
+/* ── CAIXA & CONTAS ────────────────────────────────── */
+.caixa-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:24px}
+.caixa-conta-card{background:var(--glass);border:1px solid var(--bd);border-radius:14px;padding:18px 20px;backdrop-filter:blur(14px);transition:border-color .15s}
+.caixa-conta-card:hover{border-color:var(--bd2)}
+.ccc-icon{font-size:24px;margin-bottom:10px}
+.ccc-name{font-size:12px;font-weight:700;color:rgba(180,220,255,.6);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.ccc-saldo{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;line-height:1}
+.ccc-saldo.pos{color:var(--gn);text-shadow:0 0 12px rgba(0,255,136,.25)}
+.ccc-saldo.neg{color:var(--rd);text-shadow:0 0 12px rgba(255,68,102,.25)}
+.ccc-saldo.zero{color:rgba(180,220,255,.3)}
+.ccc-tipo{font-size:10px;color:rgba(0,212,255,.35);margin-top:5px}
+.caixa-total-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:rgba(0,8,24,.5);border:1px solid rgba(0,212,255,.12);border-radius:12px;margin-bottom:20px}
+.caixa-total-lbl{font-size:12px;color:rgba(0,212,255,.5);text-transform:uppercase;letter-spacing:.06em}
+.caixa-total-val{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800}
+.caixa-mov-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.caixa-mov-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--wh)}
+.caixa-filtros{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.caixa-filtro{padding:5px 12px;border-radius:20px;border:1px solid var(--bd);background:transparent;color:rgba(180,220,255,.4);font-size:11px;font-weight:700;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .15s}
+.caixa-filtro.active{background:var(--gdm);color:var(--gd);border-color:var(--gd)}
+.caixa-mov-list{display:flex;flex-direction:column;gap:0}
+.caixa-mov-row{display:grid;grid-template-columns:auto auto 1fr auto auto auto;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid rgba(0,212,255,.05);font-size:13px}
+.caixa-mov-row:last-child{border:none}
+.cmr-tipo-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.cmr-tipo-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap}
+.cmr-tipo-entrada{background:rgba(0,255,136,.1);color:var(--gn)}
+.cmr-tipo-saida{background:rgba(255,68,102,.1);color:var(--rd)}
+.cmr-tipo-transf{background:rgba(255,209,102,.1);color:var(--yw)}
+.cmr-tipo-dist{background:rgba(200,100,255,.1);color:rgba(200,100,255,.9)}
+.cmr-desc{color:var(--cr);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cmr-conta{font-size:11px;color:rgba(0,212,255,.35);white-space:nowrap}
+.cmr-date{font-size:11px;color:rgba(0,212,255,.3);white-space:nowrap}
+.cmr-val{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;white-space:nowrap}
+.cmr-val.pos{color:var(--gn)}
+.cmr-val.neg{color:var(--rd)}
+.cmr-val.neu{color:var(--yw)}
+.cmr-del{padding:3px 6px;background:transparent;border:none;color:rgba(255,68,102,.4);cursor:pointer;font-size:12px;transition:color .15s;flex-shrink:0}
+.cmr-del:hover{color:var(--rd)}
+.caixa-empty{text-align:center;padding:40px 20px;color:rgba(180,220,255,.25);font-size:13px}
+
 </style>
 </head>
 <body>
@@ -884,6 +924,7 @@ select.fi option{background:#06121e}
     <button class="nb" id="nb-list" onclick="goTo('list')"><span class="ni">📋</span> Orçamentos<span class="bc" id="badge">0</span></button>
     <button class="nb" id="nb-obras" onclick="goTo('obras')"><span class="ni">🏗️</span> Obras em Andamento<span class="bc" id="badge-obras">0</span></button>
     <button class="nb" id="nb-aditivos" onclick="goTo('aditivos')"><span class="ni">📝</span> Aditivos<span class="bc" id="badge-aditivos">0</span></button>
+    <button class="nb" id="nb-caixa" onclick="goTo('caixa')"><span class="ni">🏦</span> Caixa & Contas</button>
     <button class="nb" id="nb-finance" onclick="goTo('finance')"><span class="ni">💰</span> Controle Financeiro</button>
     <div class="nav-lbl">Ações</div>
     <button class="nb" onclick="newBudget()"><span class="ni">➕</span> Novo Orçamento</button>
@@ -975,6 +1016,7 @@ select.fi option{background:#06121e}
     <div class="view" id="view-aditivos">
       <div id="aditivos-content"></div>
     </div>
+    <div class="view" id="view-caixa"><div id="caixa-content"></div></div>
     <div class="view" id="view-finance">
       <!-- Finance header row -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
@@ -1135,7 +1177,7 @@ var ADMIN_EMAILS = ['pulsoreformas@gmail.com', 'ednaldobmeloo@gmail.com'];
 var _fbApp = null, _fbAuth = null, _fbDb = null, _fbUser = null;
 var _isAdmin = false;
 var _saveDebounce = {};
-var _mem = { budgets:[], obras:{}, finance:{}, aditivos:[] };
+var _mem = { budgets:[], obras:{}, finance:{}, aditivos:[], caixa:{contas:[], movimentacoes:[]} };
 
 function fbConfigured(){ return FIREBASE_CONFIG.apiKey !== 'YOUR_API_KEY'; }
 function isAdmin(){ return _isAdmin; }
@@ -1180,7 +1222,7 @@ function showSaveIndicator(msg, isErr) {
 function fbSave(key, data) {
   if (!_fbDb || !_fbUser) return;
   // Admins: full access. Sócios: can edit budgets + obras status, but NOT finance/aditivos
-  var restricted = ['finance','aditivos'];
+  var restricted = ['finance','aditivos','caixa'];
   if (restricted.indexOf(key) >= 0 && !isAdmin()) {
     console.warn('Acesso negado: apenas admin pode salvar', key);
     return;
@@ -1208,6 +1250,7 @@ function fbLoadAll(callback) {
           if (doc.id==='obras')    _mem.obras    = val;
           if (doc.id==='finance')  _mem.finance  = val;
           if (doc.id==='aditivos') _mem.aditivos = val;
+          if (doc.id==='caixa')    _mem.caixa    = val;
         } catch(e){}
       });
       callback();
@@ -1292,7 +1335,7 @@ function goTo(view) {
   document.querySelectorAll('.nb').forEach(function(b){ b.classList.remove('active'); });
   var nb = el('nb-' + view);
   if (nb) nb.classList.add('active');
-  var titles = {dash:'Dashboard', list:'Todos os Orçamentos', form:'Orçamento', obras:'Obras em Andamento', aditivos:'Aditivos', finance:'Controle Financeiro'};
+  var titles = {dash:'Dashboard', list:'Todos os Orçamentos', form:'Orçamento', obras:'Obras em Andamento', aditivos:'Aditivos', caixa:'Caixa & Contas', finance:'Controle Financeiro'};
   el('ttitle').textContent = titles[view] || 'Orçamento';
   var tr = el('tb-r');
   if (view === 'list') {
@@ -1312,6 +1355,7 @@ function goTo(view) {
   if (view === 'obras') renderObras();
   if (view === 'aditivos') renderAditivos();
   if (view === 'finance') renderFinance();
+  if (view === 'caixa') renderCaixa();
 }
 
 // ═══════════════════════════════════════
@@ -3109,6 +3153,7 @@ function saveAditivo() {
 // FINANCE DB
 // ═══════════════════════════════════════
 var FIN = { load(){ return _mem.finance; }, save(d){ _mem.finance=d; fbSave('finance',d); } };
+var CAIXA = { load(){ return _mem.caixa; }, save(d){ _mem.caixa=d; fbSave('caixa',d); } };
 // finance data structure: { [budgetId]: { entries: [{id,cat,desc,val,date}] } }
 
 var CATS = [
@@ -3133,12 +3178,32 @@ function saveFinEntry(budgetId, entry) {
   if (!fin[budgetId]) fin[budgetId] = {entries:[]};
   fin[budgetId].entries.push(entry);
   FIN.save(fin);
+  // Auto-register cost in Caixa (Nubank)
+  var b = DB.load().find(function(x){return x.id===budgetId;});
+  var cat = CATS.find(function(c){return c.id===entry.cat;}) || {name:'Custo'};
+  var d2 = getCaixaData();
+  d2.movimentacoes.push({
+    id: 'fin_'+entry.id,
+    tipo: 'saida_custo',
+    conta: CONTA_PADRAO,
+    desc: cat.icon+' '+cat.name+': '+(entry.desc||'') + (b?' — '+(b.client||b.num||''):''),
+    val: parseFloat(entry.val||0),
+    date: entry.date||'',
+    budgetId: budgetId,
+    createdAt: Date.now(),
+    autoGerado: true
+  });
+  CAIXA.save(d2);
 }
 function deleteFinEntry(budgetId, entryId) {
   var fin = FIN.load();
   if (!fin[budgetId]) return;
-  fin[budgetId].entries = fin[budgetId].entries.filter(function(e){ return e.id!==entryId; });
+  fin[budgetId].entries = fin[budgetId].entries.filter(function(e){ return e.id !== entryId; });
   FIN.save(fin);
+  // Remove auto-generated caixa entry
+  var d2 = getCaixaData();
+  d2.movimentacoes = d2.movimentacoes.filter(function(m){ return m.id !== 'fin_'+entryId; });
+  CAIXA.save(d2);
 }
 
 // ═══════════════════════════════════════
@@ -4967,6 +5032,500 @@ function buildDistPagamentosSection(bid, resultado, wrapper) {
   wrapper.appendChild(section);
 }
 
+
+// ═══════════════════════════════════════
+// CAIXA & CONTAS
+// ═══════════════════════════════════════
+// Default accounts
+var DEFAULT_CONTAS = [
+  {id:'nubank',   nome:'Nubank',               icon:'💜', tipo:'digital',  banco:'Nubank', padrao:true},
+  {id:'especie',  nome:'Dinheiro em Espécie',  icon:'💵', tipo:'especie',  banco:''},
+  {id:'bradesco', nome:'Conta Corrente',        icon:'🏦', tipo:'corrente', banco:'Bradesco'}
+];
+
+var CONTA_PADRAO = 'nubank'; // conta onde entram recebimentos e saem custos automaticamente
+
+
+function migrarLancamentosExistentes() {
+  var budgets = DB.load().filter(function(b){ return b.status==='approved'; });
+  var odb = ODB.load();
+  var fin = FIN.load();
+  var d2 = getCaixaData();
+
+  // Get IDs already in Caixa (auto-generated) to avoid duplicates
+  var existingIds = {};
+  d2.movimentacoes.forEach(function(m){ existingIds[m.id] = true; });
+
+  var countRec = 0, countCost = 0;
+
+  budgets.forEach(function(b) {
+    // Migrate recebimentos
+    var recs = (odb[b.id] && odb[b.id].recebimentos) ? odb[b.id].recebimentos : [];
+    recs.forEach(function(entry) {
+      var autoId = 'rec_'+entry.id;
+      if (existingIds[autoId]) return; // already migrated
+      d2.movimentacoes.push({
+        id: autoId,
+        tipo: 'entrada_rec',
+        conta: CONTA_PADRAO,
+        desc: (entry.desc||'Recebimento') + ' — ' + (b.client||b.num||''),
+        val: parseFloat(entry.val||0),
+        date: entry.date||'',
+        budgetId: b.id,
+        createdAt: entry.createdAt || Date.now(),
+        autoGerado: true
+      });
+      countRec++;
+    });
+
+    // Migrate custos
+    var entries = (fin[b.id] && fin[b.id].entries) ? fin[b.id].entries : [];
+    entries.forEach(function(entry) {
+      var autoId = 'fin_'+entry.id;
+      if (existingIds[autoId]) return; // already migrated
+      var cat = CATS.find(function(c){return c.id===entry.cat;}) || {icon:'💸', name:'Custo'};
+      d2.movimentacoes.push({
+        id: autoId,
+        tipo: 'saida_custo',
+        conta: CONTA_PADRAO,
+        desc: cat.icon+' '+cat.name+': '+(entry.desc||'') + ' — ' + (b.client||b.num||''),
+        val: parseFloat(entry.val||0),
+        date: entry.date||'',
+        budgetId: b.id,
+        createdAt: entry.createdAt || Date.now(),
+        autoGerado: true
+      });
+      countCost++;
+    });
+  });
+
+  CAIXA.save(d2);
+  toast('✅ Migrados: '+countRec+' recebimentos e '+countCost+' custos para o Caixa!');
+  renderCaixa();
+}
+
+function getCaixaData() {
+  var d = CAIXA.load();
+  if (!d || typeof d !== 'object') d = {contas:[], movimentacoes:[]};
+  if (!d.contas) d.contas = [];
+  if (!d.movimentacoes) d.movimentacoes = [];
+  // Seed default accounts if empty
+  if (!d.contas.length) {
+    d.contas = DEFAULT_CONTAS.map(function(c){ return Object.assign({}, c); });
+  }
+  return d;
+}
+
+function getSaldoConta(contaId) {
+  var d = getCaixaData();
+  return d.movimentacoes.reduce(function(s, m) {
+    if (m.tipo === 'transferencia') {
+      if (m.contaDestino === contaId) return s + parseFloat(m.val||0);
+      if (m.contaOrigem  === contaId) return s - parseFloat(m.val||0);
+      return s;
+    }
+    if (m.conta !== contaId) return s;
+    if (m.tipo === 'entrada' || m.tipo === 'entrada_rec') return s + parseFloat(m.val||0);
+    if (m.tipo === 'saida'   || m.tipo === 'saida_custo' || m.tipo === 'distribuicao') return s - parseFloat(m.val||0);
+    return s;
+  }, 0);
+}
+
+function getSaldoObra(budgetId) {
+  var d = getCaixaData();
+  return d.movimentacoes
+    .filter(function(m){ return m.budgetId === budgetId && m.tipo !== 'transferencia'; })
+    .reduce(function(s, m) {
+      if (m.tipo === 'entrada' || m.tipo === 'entrada_rec') return s + parseFloat(m.val||0);
+      return s - parseFloat(m.val||0);
+    }, 0);
+}
+
+var _caixaFiltro = 'todas';
+
+function renderCaixa() {
+  var container = el('caixa-content');
+  if (!container) return;
+  var d = getCaixaData();
+  var budgets = DB.load().filter(function(b){ return b.status==='approved'; });
+  container.innerHTML = '';
+
+  // ── Header ──
+  var hdr = document.createElement('div');
+  hdr.style.cssText = 'display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px';
+  hdr.innerHTML = '<div><div class="dash-recent-title">Caixa & Contas</div>' +
+    '<div style="font-size:12px;color:rgba(0,212,255,.4);margin-top:3px">Controle de onde está o dinheiro da empresa</div></div>';
+
+  if (isAdmin()) {
+    var actionsDiv = document.createElement('div');
+    actionsDiv.style.cssText = 'display:flex;gap:8px';
+
+    var btnMov = document.createElement('button');
+    btnMov.className = 'btn btn-p btn-sm';
+    btnMov.innerHTML = '＋ Nova Movimentação';
+    btnMov.addEventListener('click', function(){ openCaixaMovModal(); });
+
+    var btnTransf = document.createElement('button');
+    btnTransf.className = 'btn btn-g btn-sm';
+    btnTransf.innerHTML = '⇄ Transferência';
+    btnTransf.addEventListener('click', function(){ openCaixaTransfModal(); });
+
+    var btnConta = document.createElement('button');
+    btnConta.className = 'btn btn-g btn-sm';
+    btnConta.innerHTML = '＋ Nova Conta';
+    btnConta.addEventListener('click', function(){ openCaixaContaModal(); });
+
+    // Check if there are unmigrated entries
+    var odb2 = ODB.load(); var fin2 = FIN.load();
+    var d3 = getCaixaData();
+    var existingIds2 = {}; d3.movimentacoes.forEach(function(m){ existingIds2[m.id]=true; });
+    var hasUnmigrated = DB.load().filter(function(b){return b.status==='approved';}).some(function(b){
+      var recs = (odb2[b.id]&&odb2[b.id].recebimentos)||[];
+      var fins = (fin2[b.id]&&fin2[b.id].entries)||[];
+      return recs.some(function(e){return !existingIds2['rec_'+e.id];}) ||
+             fins.some(function(e){return !existingIds2['fin_'+e.id];});
+    });
+
+    if (hasUnmigrated) {
+      var btnMig = document.createElement('button');
+      btnMig.className = 'btn btn-sm';
+      btnMig.style.cssText = 'background:rgba(255,209,102,.15);border:1px solid rgba(255,209,102,.4);color:var(--yw);';
+      btnMig.innerHTML = '⚡ Importar lançamentos históricos';
+      btnMig.addEventListener('click', function(){
+        if (confirm('Isso vai importar todos os recebimentos e custos existentes para o Caixa (Nubank). Continuar?')) {
+          migrarLancamentosExistentes();
+        }
+      });
+      actionsDiv.appendChild(btnMig);
+    }
+
+    actionsDiv.appendChild(btnMov);
+    actionsDiv.appendChild(btnTransf);
+    actionsDiv.appendChild(btnConta);
+    hdr.appendChild(actionsDiv);
+  }
+  container.appendChild(hdr);
+
+  // ── Saldo total ──
+  var totalGeral = d.contas.reduce(function(s, c){ return s + getSaldoConta(c.id); }, 0);
+  var totalBar = document.createElement('div');
+  totalBar.className = 'caixa-total-bar';
+  totalBar.innerHTML =
+    '<span class="caixa-total-lbl">💰 Saldo Total da Empresa</span>' +
+    '<span class="caixa-total-val" style="color:'+(totalGeral>=0?'var(--gn)':'var(--rd)')+'">'+fmt(totalGeral)+'</span>';
+  container.appendChild(totalBar);
+
+  // ── Cards por conta ──
+  var grid = document.createElement('div');
+  grid.className = 'caixa-grid';
+  d.contas.forEach(function(conta) {
+    var saldo = getSaldoConta(conta.id);
+    var card = document.createElement('div');
+    card.className = 'caixa-conta-card';
+    card.innerHTML =
+      '<div class="ccc-icon">'+conta.icon+'</div>'+
+      '<div class="ccc-name">'+esc(conta.nome)+'</div>'+
+      '<div class="ccc-saldo '+(saldo>0?'pos':saldo<0?'neg':'zero')+'">'+fmt(saldo)+'</div>'+
+      (conta.banco ? '<div class="ccc-tipo">'+esc(conta.banco)+(conta.padrao?' · conta padrão':'')+'</div>' : '');
+    grid.appendChild(card);
+  });
+  container.appendChild(grid);
+
+  // ── Saldo por obra ──
+  if (budgets.length) {
+    var obraTitle = document.createElement('div');
+    obraTitle.style.cssText = 'font-size:11px;color:rgba(0,212,255,.4);text-transform:uppercase;letter-spacing:.06em;font-weight:700;margin-bottom:12px;margin-top:4px';
+    obraTitle.textContent = 'Saldo em Caixa por Obra';
+    container.appendChild(obraTitle);
+
+    var obraGrid = document.createElement('div');
+    obraGrid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-bottom:24px';
+    budgets.forEach(function(b) {
+      var saldoObra = getSaldoObra(b.id);
+      var card = document.createElement('div');
+      card.style.cssText = 'background:rgba(0,8,24,.45);border:1px solid rgba(0,212,255,.1);border-radius:10px;padding:12px 14px';
+      card.innerHTML =
+        '<div style="font-size:11px;color:rgba(0,212,255,.4);margin-bottom:4px">'+esc(b.num||'—')+'</div>'+
+        '<div style="font-size:13px;font-weight:700;color:var(--wh);margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(b.client||'Sem nome')+'</div>'+
+        '<div style="font-size:18px;font-weight:800;color:'+(saldoObra>=0?'var(--gn)':'var(--rd)')+'">'+fmt(saldoObra)+'</div>';
+      obraGrid.appendChild(card);
+    });
+    container.appendChild(obraGrid);
+  }
+
+  // ── Extrato / movimentações ──
+  var movHdr = document.createElement('div');
+  movHdr.className = 'caixa-mov-header';
+  movHdr.innerHTML = '<div class="caixa-mov-title">Extrato de Movimentações</div>';
+  container.appendChild(movHdr);
+
+  // Filtros
+  var filtros = document.createElement('div');
+  filtros.className = 'caixa-filtros';
+  var filtroOpts = [
+    {id:'todas', label:'Todas'},
+    {id:'entrada', label:'✅ Entradas'},
+    {id:'saida', label:'🔴 Saídas'},
+    {id:'transferencia', label:'⇄ Transferências'},
+    {id:'distribuicao', label:'💵 Distribuições'}
+  ];
+  filtroOpts.forEach(function(f) {
+    var btn = document.createElement('button');
+    btn.className = 'caixa-filtro' + (_caixaFiltro===f.id?' active':'');
+    btn.textContent = f.label;
+    btn.addEventListener('click', function(){
+      _caixaFiltro = f.id;
+      renderCaixa();
+    });
+    filtros.appendChild(btn);
+  });
+  // Account filter
+  d.contas.forEach(function(c) {
+    var btn = document.createElement('button');
+    btn.className = 'caixa-filtro' + (_caixaFiltro===c.id?' active':'');
+    btn.textContent = c.icon+' '+c.nome.split(' ')[0];
+    btn.addEventListener('click', function(){
+      _caixaFiltro = c.id;
+      renderCaixa();
+    });
+    filtros.appendChild(btn);
+  });
+  container.appendChild(filtros);
+
+  // Movimentações list
+  var movs = d.movimentacoes.slice().sort(function(a,b){
+    return (b.date||'').localeCompare(a.date||'') || (b.createdAt||0)-(a.createdAt||0);
+  });
+
+  // Apply filter
+  var filtered = movs.filter(function(m) {
+    if (_caixaFiltro === 'todas') return true;
+    if (_caixaFiltro === 'entrada') return m.tipo==='entrada'||m.tipo==='entrada_rec';
+    if (_caixaFiltro === 'saida') return m.tipo==='saida'||m.tipo==='saida_custo';
+    if (_caixaFiltro === 'transferencia') return m.tipo==='transferencia';
+    if (_caixaFiltro === 'distribuicao') return m.tipo==='distribuicao';
+    // account filter
+    return m.conta===_caixaFiltro || m.contaOrigem===_caixaFiltro || m.contaDestino===_caixaFiltro;
+  });
+
+  var listEl = document.createElement('div');
+  listEl.className = 'caixa-mov-list';
+
+  if (!filtered.length) {
+    listEl.innerHTML = '<div class="caixa-empty">Nenhuma movimentação encontrada.</div>';
+  } else {
+    filtered.forEach(function(m) {
+      var isEntrada = m.tipo==='entrada'||m.tipo==='entrada_rec';
+      var isSaida   = m.tipo==='saida'||m.tipo==='saida_custo'||m.tipo==='distribuicao';
+      var isTransf  = m.tipo==='transferencia';
+      var isDist    = m.tipo==='distribuicao';
+
+      var tipoBadgeClass = isEntrada?'cmr-tipo-entrada':isSaida&&!isDist?'cmr-tipo-saida':isDist?'cmr-tipo-dist':'cmr-tipo-transf';
+      var tipoLabel = {
+        entrada:'Entrada', entrada_rec:'Recebimento', saida:'Saída',
+        saida_custo:'Custo', transferencia:'Transf.', distribuicao:'Distribuição'
+      }[m.tipo]||m.tipo;
+
+      var dotColor = isEntrada?'var(--gn)':isSaida?'var(--rd)':'var(--yw)';
+      var valClass = isEntrada?'pos':isSaida?'neg':'neu';
+      var valSign  = isEntrada?'+':isSaida?'−':'⇄';
+
+      // Get conta name
+      function contaNome(id) {
+        var c = d.contas.find(function(x){ return x.id===id; });
+        return c ? c.icon+' '+c.nome.split(' ')[0] : id||'—';
+      }
+      var contaInfo = isTransf
+        ? contaNome(m.contaOrigem)+' → '+contaNome(m.contaDestino)
+        : contaNome(m.conta);
+
+      // Obra ref
+      var obraRef = '';
+      if (m.budgetId) {
+        var bRef = DB.load().find(function(x){ return x.id===m.budgetId; });
+        if (bRef) obraRef = ' · '+(bRef.num||'');
+      }
+
+      var row = document.createElement('div');
+      row.className = 'caixa-mov-row';
+      row.innerHTML =
+        '<div class="cmr-tipo-dot" style="background:'+dotColor+'"></div>'+
+        '<span class="cmr-tipo-badge '+tipoBadgeClass+'">'+tipoLabel+'</span>'+
+        '<div class="cmr-desc" title="'+esc(m.desc||'')+'">'+esc(m.desc||'—')+(obraRef?'<span style="color:rgba(0,212,255,.3);font-size:11px"> '+obraRef+'</span>':'')+'</div>'+
+        '<span class="cmr-conta">'+contaInfo+'</span>'+
+        '<span class="cmr-date">'+esc(m.date||'')+'</span>'+
+        '<span class="cmr-val '+valClass+'">'+valSign+' '+fmt(m.val)+'</span>'+
+        (isAdmin()?'<button class="cmr-del" data-id="'+m.id+'" title="Excluir">🗑️</button>':'<span></span>');
+
+      if (isAdmin()) {
+        row.querySelector('.cmr-del').addEventListener('click', function(){
+          if (!confirm('Excluir esta movimentação?')) return;
+          var d2 = getCaixaData();
+          d2.movimentacoes = d2.movimentacoes.filter(function(x){ return x.id!==this.dataset.id; }, this);
+          CAIXA.save(d2);
+          renderCaixa();
+        });
+      }
+      listEl.appendChild(row);
+    });
+  }
+  container.appendChild(listEl);
+}
+
+// ── MODALS ──────────────────────────────────────────────────────────
+var _caixaMovCb = null;
+
+function openCaixaMovModal(prefill) {
+  var d = getCaixaData();
+  var budgets = DB.load().filter(function(b){ return b.status==='approved'; });
+  var inner = el('ov-caixa-mov-inner'); if (!inner) return;
+  inner.innerHTML =
+    '<h2>＋ Nova Movimentação</h2>'+
+    '<div style="display:flex;flex-direction:column;gap:13px">'+
+      '<div class="field"><label>Tipo</label>'+
+        '<select class="fi" id="cm-tipo">'+
+          '<option value="entrada">✅ Entrada (recebimento de cliente)</option>'+
+          '<option value="saida">🔴 Saída (pagamento de custo)</option>'+
+          '<option value="distribuicao">💵 Distribuição paga a sócio</option>'+
+        '</select></div>'+
+      '<div class="field"><label>Conta</label>'+
+        '<select class="fi" id="cm-conta">'+
+          d.contas.map(function(c){ return '<option value="'+c.id+'">'+c.icon+' '+c.nome+(c.banco?' — '+c.banco:'')+'</option>'; }).join('')+
+        '</select></div>'+
+      '<div class="field"><label>Descrição</label>'+
+        '<input class="fi" id="cm-desc" placeholder="Ex: Recebimento parcela 1, Pagamento pedreiro..."></div>'+
+      '<div class="fg fg2">'+
+        '<div class="field"><label>Valor (R$)</label>'+
+          '<input class="fi" id="cm-val" type="number" min="0" step="any" placeholder="0,00"></div>'+
+        '<div class="field"><label>Data</label>'+
+          '<input class="fi" id="cm-date" placeholder="DD/MM/AAAA" value="'+new Date().toLocaleDateString('pt-BR')+'"></div>'+
+      '</div>'+
+      '<div class="field"><label>Obra vinculada (opcional)</label>'+
+        '<select class="fi" id="cm-obra">'+
+          '<option value="">— Sem obra específica —</option>'+
+          budgets.map(function(b){ return '<option value="'+b.id+'">'+(b.num||'—')+' — '+esc(b.client||'')+'</option>'; }).join('')+
+        '</select></div>'+
+    '</div>'+
+    '<div class="mf">'+
+      '<button class="btn btn-p" id="cm-save">Registrar</button>'+
+      '<button class="btn btn-g" id="cm-cancel">Cancelar</button>'+
+    '</div>';
+  el('ov-caixa-mov').classList.add('open');
+  setTimeout(function(){
+    el('cm-save').addEventListener('click', function(){
+      var tipo = el('cm-tipo').value;
+      var conta = el('cm-conta').value;
+      var desc = el('cm-desc').value.trim();
+      var val = parseFloat(el('cm-val').value);
+      var date = el('cm-date').value;
+      var budgetId = el('cm-obra').value;
+      if (!val||val<=0) { toast('Digite um valor válido','err'); return; }
+      var d2 = getCaixaData();
+      d2.movimentacoes.push({id:uid(),tipo:tipo,conta:conta,desc:desc||tipoLabel(tipo),val:val,date:date,budgetId:budgetId,createdAt:Date.now()});
+      CAIXA.save(d2);
+      closeOv('ov-caixa-mov');
+      toast('Movimentação registrada! ✅');
+      renderCaixa();
+    });
+    el('cm-cancel').addEventListener('click', function(){ closeOv('ov-caixa-mov'); });
+    el('cm-desc').focus();
+  },0);
+}
+
+function tipoLabel(t){ return {entrada:'Entrada',saida:'Saída',distribuicao:'Distribuição',transferencia:'Transferência'}[t]||t; }
+
+function openCaixaTransfModal() {
+  var d = getCaixaData();
+  var inner = el('ov-caixa-mov-inner'); if (!inner) return;
+  inner.innerHTML =
+    '<h2>⇄ Transferência entre Contas</h2>'+
+    '<div style="display:flex;flex-direction:column;gap:13px">'+
+      '<div class="field"><label>Conta de Origem</label>'+
+        '<select class="fi" id="ct-origem">'+
+          d.contas.map(function(c){ return '<option value="'+c.id+'">'+c.icon+' '+c.nome+(c.banco?' — '+c.banco:'')+'</option>'; }).join('')+
+        '</select></div>'+
+      '<div class="field"><label>Conta de Destino</label>'+
+        '<select class="fi" id="ct-destino">'+
+          d.contas.map(function(c){ return '<option value="'+c.id+'">'+c.icon+' '+c.nome+(c.banco?' — '+c.banco:'')+'</option>'; }).join('')+
+        '</select></div>'+
+      '<div class="field"><label>Descrição</label>'+
+        '<input class="fi" id="ct-desc" placeholder="Ex: Pix para espécie, Transferência para corrente..."></div>'+
+      '<div class="fg fg2">'+
+        '<div class="field"><label>Valor (R$)</label>'+
+          '<input class="fi" id="ct-val" type="number" min="0" step="any" placeholder="0,00"></div>'+
+        '<div class="field"><label>Data</label>'+
+          '<input class="fi" id="ct-date" value="'+new Date().toLocaleDateString('pt-BR')+'"></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="mf">'+
+      '<button class="btn btn-p" id="ct-save">Registrar Transferência</button>'+
+      '<button class="btn btn-g" id="ct-cancel">Cancelar</button>'+
+    '</div>';
+  el('ov-caixa-mov').classList.add('open');
+  setTimeout(function(){
+    el('ct-save').addEventListener('click', function(){
+      var origem  = el('ct-origem').value;
+      var destino = el('ct-destino').value;
+      var desc    = el('ct-desc').value.trim();
+      var val     = parseFloat(el('ct-val').value);
+      var date    = el('ct-date').value;
+      if (origem===destino) { toast('Origem e destino devem ser diferentes','err'); return; }
+      if (!val||val<=0)     { toast('Digite um valor válido','err'); return; }
+      var d2 = getCaixaData();
+      d2.movimentacoes.push({id:uid(),tipo:'transferencia',contaOrigem:origem,contaDestino:destino,desc:desc||'Transferência',val:val,date:date,createdAt:Date.now()});
+      CAIXA.save(d2);
+      closeOv('ov-caixa-mov');
+      toast('Transferência registrada! ⇄');
+      renderCaixa();
+    });
+    el('ct-cancel').addEventListener('click', function(){ closeOv('ov-caixa-mov'); });
+  },0);
+}
+
+function openCaixaContaModal() {
+  var inner = el('ov-caixa-mov-inner'); if (!inner) return;
+  inner.innerHTML =
+    '<h2>＋ Nova Conta</h2>'+
+    '<div style="display:flex;flex-direction:column;gap:13px">'+
+      '<div class="field"><label>Nome da conta</label>'+
+        '<input class="fi" id="cc-nome" placeholder="Ex: Conta Corrente Itaú, Dinheiro Obra..."></div>'+
+      '<div class="fg fg2">'+
+        '<div class="field"><label>Ícone</label>'+
+          '<select class="fi" id="cc-icon">'+
+            '<option value="💵">💵 Espécie</option>'+
+            '<option value="🏦">🏦 Banco</option>'+
+            '<option value="📱">📱 Digital/Pix</option>'+
+            '<option value="💳">💳 Cartão</option>'+
+            '<option value="🏢">🏢 Empresa</option>'+
+          '</select></div>'+
+        '<div class="field"><label>Banco / Instituição</label>'+
+          '<input class="fi" id="cc-banco" placeholder="Ex: Bradesco, Nubank, Inter..."></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="mf">'+
+      '<button class="btn btn-p" id="cc-save">Criar Conta</button>'+
+      '<button class="btn btn-g" id="cc-cancel">Cancelar</button>'+
+    '</div>';
+  el('ov-caixa-mov').classList.add('open');
+  setTimeout(function(){
+    el('cc-save').addEventListener('click', function(){
+      var nome  = el('cc-nome').value.trim();
+      var icon  = el('cc-icon').value;
+      var banco = el('cc-banco').value.trim();
+      if (!nome) { toast('Digite o nome da conta','err'); return; }
+      var d2 = getCaixaData();
+      var newId = 'conta_'+Date.now();
+      d2.contas.push({id:newId, nome:nome, icon:icon, banco:banco, tipo:'custom'});
+      CAIXA.save(d2);
+      closeOv('ov-caixa-mov');
+      toast('Conta criada! 🏦');
+      renderCaixa();
+    });
+    el('cc-cancel').addEventListener('click', function(){ closeOv('ov-caixa-mov'); });
+    el('cc-nome').focus();
+  },0);
+}
+
 // ── BACKUP / RESTORE ────────────────────────────────────────────
 function exportAllData(){
   var data={exportedAt:new Date().toISOString(),pulso_v3:JSON.stringify(_mem.budgets),pulso_obras:JSON.stringify(_mem.obras),pulso_finance:JSON.stringify(_mem.finance),pulso_aditivos:JSON.stringify(_mem.aditivos)};
@@ -5028,8 +5587,38 @@ function bkStat(lbl,val){return '<div style="background:rgba(0,8,24,.5);border:1
 
 // ── RECEBIMENTOS ────────────────────────────────────────────────
 function getRecebimentos(bid){var db=ODB.load();return(db[bid]&&db[bid].recebimentos)?db[bid].recebimentos:[];}
-function saveRecebimento(bid,entry){var db=ODB.load();if(!db[bid])db[bid]={};if(!db[bid].recebimentos)db[bid].recebimentos=[];db[bid].recebimentos.push(entry);ODB.save(db);}
-function deleteRecebimento(bid,entryId){var db=ODB.load();if(!db[bid]||!db[bid].recebimentos)return;db[bid].recebimentos=db[bid].recebimentos.filter(function(e){return e.id!==entryId;});ODB.save(db);}
+function saveRecebimento(bid,entry){
+  var db=ODB.load();
+  if(!db[bid])db[bid]={};
+  if(!db[bid].recebimentos)db[bid].recebimentos=[];
+  db[bid].recebimentos.push(entry);
+  ODB.save(db);
+  // Auto-register in Caixa (Nubank)
+  var b = DB.load().find(function(x){return x.id===bid;});
+  var d2 = getCaixaData();
+  d2.movimentacoes.push({
+    id: 'rec_'+entry.id,
+    tipo: 'entrada_rec',
+    conta: CONTA_PADRAO,
+    desc: (entry.desc||'Recebimento') + (b?' — '+(b.client||b.num||''):''),
+    val: parseFloat(entry.val||0),
+    date: entry.date||'',
+    budgetId: bid,
+    createdAt: Date.now(),
+    autoGerado: true
+  });
+  CAIXA.save(d2);
+}
+function deleteRecebimento(bid,entryId){
+  var db=ODB.load();
+  if(!db[bid]||!db[bid].recebimentos)return;
+  db[bid].recebimentos=db[bid].recebimentos.filter(function(e){return e.id!==entryId;});
+  ODB.save(db);
+  // Remove auto-generated caixa entry
+  var d2=getCaixaData();
+  d2.movimentacoes=d2.movimentacoes.filter(function(m){return m.id!=='rec_'+entryId;});
+  CAIXA.save(d2);
+}
 function buildRecebimentosPanel(panel,bid,receita,custo){
   var recs=getRecebimentos(bid);
   var totalRec=recs.reduce(function(s,r){return s+parseFloat(r.val||0);},0);
@@ -5315,6 +5904,8 @@ setTimeout(function(){
     </div>
   </div>
 </div>
+
+<div class="ov" id="ov-caixa-mov" onclick="if(event.target===this)closeOv('ov-caixa-mov')"><div class="modal sm" id="ov-caixa-mov-inner"></div></div>
 
 <div class="ov" id="ov-dist-pag"><div class="modal sm" id="ov-dist-pag-inner"></div></div>
 
