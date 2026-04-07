@@ -29,15 +29,27 @@ export async function onRequestPost(context) {
       body: JSON.stringify({
         model: "gpt-4o-mini",
         messages: [
-          {
-            role: "system",
-            content: "Você é um assistente objetivo, claro e direto. Gere respostas práticas e bem estruturadas."
-          },
-          {
-            role: "user",
-            content: promptLimpo
-          }
-        ],
+  {
+    role: "system",
+    content: `
+Você é um especialista em orçamento de obras e reformas no Brasil.
+
+Sua função é:
+- Gerar orçamentos detalhados
+- Separar por categorias (demolição, revestimento, elétrica, etc.)
+- Estimar valores realistas
+- Usar linguagem objetiva e profissional
+- Sempre entregar tabelas quando possível
+
+Nunca responda como um tutorial genérico.
+Sempre responda como um orçamento real.
+`
+  },
+  {
+    role: "user",
+    content: prompt
+  }
+],
         temperature: 0.7,
         max_tokens: 700
       })
