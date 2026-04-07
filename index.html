@@ -1109,7 +1109,32 @@ var _mem = { budgets:[], obras:{}, finance:{}, aditivos:[] };
 
 function fbConfigured(){ return FIREBASE_CONFIG.apiKey !== 'YOUR_API_KEY'; }
 function isAdmin(){ return _isAdmin; }
+async function chamarIA(prompt) {
+  const resposta = await fetch('/api/ai', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt: String(prompt || '').trim() })
+  });
 
+  const textoBruto = await resposta.text();
+
+  if (!textoBruto) {
+    throw new Error('API retornou resposta vazia');
+  }
+
+  let data;
+  try {
+    data = JSON.parse(textoBruto);
+  } catch (e) {
+    throw new Error('Resposta inválida da API: ' + textoBruto);
+  }
+
+  if (data.error) {
+    throw new Error(data.error.message || data.error);
+  }
+
+  return (data.resposta || '').trim();
+}
 // Check role: first from Firestore (persistent), then fallback to ADMIN_EMAILS list
 function checkRole(user, callback) {
   // Immediate fallback check so UI isn't blocked
