@@ -817,6 +817,36 @@ select.fi option{background:#06121e}
 #save-cloud-indicator.err{color:var(--rd);border-color:rgba(255,68,102,.3);}
 @keyframes fadeInUp{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 
+
+/* ── DISTRIBUIÇÃO PAGAMENTOS ──────────────────────────── */
+.dist-pag-section{margin-top:22px;padding-top:18px;border-top:1px solid rgba(0,212,255,.1)}
+.dist-pag-title{font-size:11px;color:rgba(0,212,255,.4);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:14px}
+.dist-pag-partner{margin-bottom:18px}
+.dist-pag-partner-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding:10px 14px;background:rgba(0,8,24,.5);border-radius:10px;border:1px solid rgba(0,212,255,.08)}
+.dist-pag-partner-info{display:flex;align-items:center;gap:10px}
+.dist-pag-partner-icon{font-size:18px}
+.dist-pag-partner-name{font-size:13px;font-weight:700;color:var(--wh)}
+.dist-pag-partner-role{font-size:11px;color:rgba(0,212,255,.4)}
+.dist-pag-amounts{text-align:right}
+.dist-pag-devido{font-size:11px;color:rgba(0,212,255,.4);margin-bottom:2px}
+.dist-pag-pago{font-size:16px;font-weight:800;color:var(--gn)}
+.dist-pag-pendente{font-size:11px;color:var(--yw);margin-top:1px}
+.dist-pag-entry{display:grid;grid-template-columns:auto 1fr auto auto;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid rgba(0,212,255,.05);font-size:12px}
+.dist-pag-entry:last-child{border:none}
+.dist-pag-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.dist-pag-desc{color:rgba(180,220,255,.65)}
+.dist-pag-date{color:rgba(0,212,255,.3);font-size:11px;white-space:nowrap}
+.dist-pag-val{font-weight:700;color:var(--gn);white-space:nowrap}
+.dist-pag-del{padding:2px 5px;background:transparent;border:none;color:rgba(255,68,102,.5);cursor:pointer;font-size:12px;transition:color .15s}
+.dist-pag-del:hover{color:var(--rd)}
+.dist-pag-empty{font-size:12px;color:rgba(180,220,255,.2);font-style:italic;padding:6px 0}
+.add-dist-pag-btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:7px 14px;background:rgba(0,212,255,.04);border:1px dashed rgba(0,212,255,.2);color:rgba(0,212,255,.5);border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .15s;width:100%;margin-top:6px}
+.add-dist-pag-btn:hover{border-color:var(--gd);color:var(--gd);background:rgba(0,212,255,.08)}
+/* Dashboard partner card extra info */
+.pdc-paid{font-size:12px;font-weight:700;margin-top:6px}
+.pdc-paid-lbl{font-size:10px;color:rgba(0,212,255,.4);text-transform:uppercase;letter-spacing:.05em;margin-top:8px}
+.pdc-pending{font-size:12px;color:var(--yw);margin-top:2px}
+
 </style>
 </head>
 <body>
@@ -1668,7 +1698,7 @@ function renderDashProfit(approvedBudgets) {
     });
   });
 
-  // ── Partner cards ──
+  // ── Partner cards — with real payment tracking ──
   var cardsWrap = el('dash-profit-cards');
   if (cardsWrap) {
     cardsWrap.innerHTML = '';
@@ -1677,17 +1707,33 @@ function renderDashProfit(approvedBudgets) {
       var valCls = partnerTotal > 0 ? 'pos' : partnerTotal < 0 ? 'neg' : 'neutral';
       var barW   = totalResultado !== 0 ? Math.min(100, Math.abs(partnerTotal/totalResultado*100)).toFixed(0) : 0;
 
+      // Sum real payments made to this partner across all obras
+      var totalPago = p.role !== 'Empresa' ? getTotalDistPagoParceiro(p.id) : 0;
+      var totalPendente = partnerTotal - totalPago;
+
       var card = document.createElement('div');
       card.className = 'profit-dist-card';
       card.style.setProperty('--accent-color', p.color);
+
+      var payInfo = p.role !== 'Empresa' && partnerTotal > 0 ?
+        '<div class="pdc-paid-lbl">Pagamentos registrados</div>'+
+        '<div class="pdc-paid" style="color:var(--gn)">'+fmt(totalPago)+'</div>'+
+        (totalPendente > 0.01 ?
+          '<div class="pdc-pending">Pendente: '+fmt(totalPendente)+'</div>' :
+          totalPendente < -0.01 ?
+          '<div style="font-size:11px;color:var(--rd)">Excedeu: '+fmt(Math.abs(totalPendente))+'</div>' :
+          '<div style="font-size:11px;color:var(--gn)">✓ Totalmente quitado</div>'
+        ) : '';
+
       card.innerHTML =
         '<div class="pdc-icon">'+p.icon+'</div>'+
         '<div class="pdc-name">'+p.name+'</div>'+
         '<div class="pdc-role">'+p.role+' · '+p.pct+'% do resultado</div>'+
         '<div class="pdc-pct">'+periodLabel+'</div>'+
         '<div class="pdc-val '+valCls+'">'+fmt(partnerTotal)+'</div>'+
-        '<div class="pdc-sub">de '+fmt(totalResultado)+' resultado total</div>'+
-        '<div class="pdc-bar"><div class="pdc-bar-fill" style="width:'+barW+'%;background:'+p.color+';box-shadow:0 0 8px '+p.color+'"></div></div>';
+        '<div class="pdc-sub">a distribuir no período</div>'+
+        payInfo+
+        '<div class="pdc-bar" style="margin-top:10px"><div class="pdc-bar-fill" style="width:'+barW+'%;background:'+p.color+';box-shadow:0 0 8px '+p.color+'"></div></div>';
       cardsWrap.appendChild(card);
     });
   }
@@ -1698,24 +1744,30 @@ function renderDashProfit(approvedBudgets) {
     if (!obraData.length) {
       tableWrap.innerHTML = '<div class="no-costs" style="padding:20px 0;text-align:center">Nenhuma obra aprovada com dados no período selecionado.</div>';
     } else {
+      // Dynamic columns per DIST_PARTNERS (excludes Caixa Empresa from per-partner view)
+      var partnerCols = DIST_PARTNERS.filter(function(p){ return p.role !== 'Empresa'; });
+      var colCount = 4 + partnerCols.length;
       var header =
-        '<div class="pbo-row header">' +
+        '<div class="pbo-row header" style="grid-template-columns:2fr repeat('+(colCount-1)+',1fr)">' +
           '<span>Obra</span>' +
           '<span style="text-align:right">Receita</span>' +
           '<span style="text-align:right">Custo</span>' +
           '<span style="text-align:right">Resultado</span>' +
-          '<span style="text-align:right">Ednaldo (25%)</span>' +
-          '<span style="text-align:right">Paulo (25%)</span>' +
+          partnerCols.map(function(p){
+            return '<span style="text-align:right;color:'+p.color.replace('1)','0.8)')+'">'+p.name.split(' ')[0]+'</span>';
+          }).join('') +
         '</div>';
       var rows = obraData.map(function(o){
         var rc = o.result>=0?'pos':'neg';
-        return '<div class="pbo-row">' +
+        return '<div class="pbo-row" style="grid-template-columns:2fr repeat('+(colCount-1)+',1fr)">' +
           '<span class="pbo-obra" title="'+esc(o.b.client||'—')+'">'+esc(o.b.client||'—')+' <span style="color:rgba(0,212,255,.3);font-size:11px">'+esc(o.b.num||'')+'</span></span>'+
           '<span class="pbo-val neu">'+fmt(o.receita)+'</span>'+
           '<span class="pbo-val" style="color:var(--rd)">'+fmt(o.custo)+'</span>'+
           '<span class="pbo-val '+rc+'">'+fmt(o.result)+'</span>'+
-          '<span class="pbo-val '+rc+'">'+fmt(o.result*(o.distCfg.find(function(c){return c.id==='ednaldo';})||{pct:25}).pct/100)+'</span>'+
-          '<span class="pbo-val '+rc+'">'+fmt(o.result*(o.distCfg.find(function(c){return c.id==='paulo';})||{pct:25}).pct/100)+'</span>'+
+          partnerCols.map(function(p){
+            var pct = (o.distCfg.find(function(c){return c.id===p.id;})||{pct:p.pct}).pct;
+            return '<span class="pbo-val '+rc+'">'+fmt(o.result*pct/100)+'</span>';
+          }).join('') +
         '</div>';
       }).join('');
       // Totals row
@@ -2582,6 +2634,11 @@ function buildDistribuicaoPanel(bid, receita, custo) {
   var wrapper = document.createElement('div');
 
   // Resultado summary row
+  // Add recebimentos info
+  var recs = getRecebimentos(bid);
+  var totalRec = recs.reduce(function(s,r){ return s+parseFloat(r.val||0); }, 0);
+  var pendente = receita - totalRec;
+
   var resBox = document.createElement('div');
   resBox.className = 'profit-resultado';
   resBox.innerHTML =
@@ -2591,6 +2648,24 @@ function buildDistribuicaoPanel(bid, receita, custo) {
     '</div>'+
     '<div class="pr-val" style="color:'+(hasProfit?'var(--gn)':'var(--rd)')+'">'+fmt(resultado)+'</div>';
   wrapper.appendChild(resBox);
+
+  // Recebimentos summary
+  if (totalRec > 0 || pendente > 0) {
+    var recBox = document.createElement('div');
+    recBox.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px';
+    recBox.innerHTML =
+      '<div style="background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.15);border-radius:9px;padding:12px 14px">'+
+        '<div style="font-size:10px;color:rgba(0,212,255,.4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Recebido</div>'+
+        '<div style="font-size:18px;font-weight:800;color:var(--gn)">'+fmt(totalRec)+'</div>'+
+        '<div style="font-size:10px;color:rgba(0,212,255,.3);margin-top:3px">'+Math.min(100,(receita>0?totalRec/receita*100:0)).toFixed(0)+'% da receita</div>'+
+      '</div>'+
+      '<div style="background:rgba(255,209,102,.05);border:1px solid rgba(255,209,102,.15);border-radius:9px;padding:12px 14px">'+
+        '<div style="font-size:10px;color:rgba(0,212,255,.4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">A Receber</div>'+
+        '<div style="font-size:18px;font-weight:800;color:var(--yw)">'+fmt(Math.max(0,pendente))+'</div>'+
+        '<div style="font-size:10px;color:rgba(0,212,255,.3);margin-top:3px">saldo pendente</div>'+
+      '</div>';
+    wrapper.appendChild(recBox);
+  }
 
   // Section title
   var secTitle = document.createElement('div');
@@ -2707,6 +2782,9 @@ function buildDistribuicaoPanel(bid, receita, custo) {
       ? 'Obra <span style="color:var(--gn);font-weight:700">lucrativa</span> — distribuição positiva.'
       : '<span style="color:var(--rd);font-weight:700">Atenção:</span> resultado negativo.');
   wrapper.appendChild(note);
+
+  // Payment history section
+  buildDistPagamentosSection(bid, resultado, wrapper);
 
   return wrapper;
 }
@@ -4693,6 +4771,202 @@ function applyTRSections(sections) {
   renderForm(b);
 }
 
+
+// ═══════════════════════════════════════
+// DISTRIBUIÇÃO DE PAGAMENTOS
+// Stored in ODB: obras[bid].distPagamentos = [{id,partnerId,desc,val,date}]
+// ═══════════════════════════════════════
+function getDistPagamentos(bid) {
+  var db = ODB.load();
+  return (db[bid] && db[bid].distPagamentos) ? db[bid].distPagamentos : [];
+}
+
+function saveDistPagamento(bid, entry) {
+  var db = ODB.load();
+  if (!db[bid]) db[bid] = {};
+  if (!db[bid].distPagamentos) db[bid].distPagamentos = [];
+  db[bid].distPagamentos.push(entry);
+  ODB.save(db);
+}
+
+function deleteDistPagamento(bid, entryId) {
+  var db = ODB.load();
+  if (!db[bid] || !db[bid].distPagamentos) return;
+  db[bid].distPagamentos = db[bid].distPagamentos.filter(function(e){ return e.id !== entryId; });
+  ODB.save(db);
+}
+
+// Total paid to a specific partner in an obra
+function getDistPago(bid, partnerId) {
+  return getDistPagamentos(bid)
+    .filter(function(e){ return e.partnerId === partnerId; })
+    .reduce(function(s,e){ return s + parseFloat(e.val||0); }, 0);
+}
+
+// Total paid across all obras for a partner
+function getTotalDistPagoParceiro(partnerId) {
+  var budgets = DB.load().filter(function(b){ return b.status === 'approved'; });
+  return budgets.reduce(function(s, b) {
+    return s + getDistPago(b.id, partnerId);
+  }, 0);
+}
+
+// Modal state
+var _distPagBid = null, _distPagPartnerId = null, _distPagCb = null;
+
+function openDistPagModal(bid, partnerId, cb) {
+  _distPagBid = bid;
+  _distPagPartnerId = partnerId;
+  _distPagCb = cb;
+  var partner = DIST_PARTNERS.find(function(p){ return p.id === partnerId; });
+  var inner = el('ov-dist-pag-inner');
+  if (!inner) return;
+  inner.innerHTML =
+    '<h2>💵 Registrar Pagamento</h2>'+
+    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;padding:10px 14px;background:rgba(0,8,24,.5);border-radius:9px;border:1px solid rgba(0,212,255,.1)">'+
+      '<span style="font-size:20px">'+(partner?partner.icon:'👤')+'</span>'+
+      '<div><div style="font-size:13px;font-weight:700;color:var(--wh)">'+(partner?partner.name:'Sócio')+'</div>'+
+      '<div style="font-size:11px;color:rgba(0,212,255,.4)">'+(partner?partner.role:'')+'</div></div>'+
+    '</div>'+
+    '<div style="display:flex;flex-direction:column;gap:13px">'+
+      '<div class="field"><label>Descrição</label>'+
+        '<input class="fi" id="dp-desc" placeholder="Ex: Distribuição março, Adiantamento..."></div>'+
+      '<div class="fg fg2">'+
+        '<div class="field"><label>Valor pago (R$)</label>'+
+          '<input class="fi" id="dp-val" type="number" min="0" step="any" placeholder="0,00"></div>'+
+        '<div class="field"><label>Data do pagamento</label>'+
+          '<input class="fi" id="dp-date" placeholder="DD/MM/AAAA" value="'+new Date().toLocaleDateString('pt-BR')+'"></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="mf">'+
+      '<button class="btn btn-p" id="dp-save-btn">💵 Registrar Pagamento</button>'+
+      '<button class="btn btn-g" id="dp-cancel-btn">Cancelar</button>'+
+    '</div>';
+  el('ov-dist-pag').classList.add('open');
+  setTimeout(function(){
+    var saveBtn = el('dp-save-btn');
+    var cancelBtn = el('dp-cancel-btn');
+    if (saveBtn) saveBtn.addEventListener('click', confirmDistPag);
+    if (cancelBtn) cancelBtn.addEventListener('click', function(){ closeOv('ov-dist-pag'); });
+    var valInp = el('dp-val');
+    if (valInp) { valInp.focus(); valInp.addEventListener('keydown', function(e){ if(e.key==='Enter') confirmDistPag(); }); }
+  }, 0);
+}
+
+function confirmDistPag() {
+  var desc = (el('dp-desc').value || '').trim() || 'Distribuição';
+  var val  = parseFloat(el('dp-val').value);
+  var date = (el('dp-date').value || '').trim();
+  if (!val || val <= 0) { toast('Digite um valor válido', 'err'); return; }
+  saveDistPagamento(_distPagBid, {
+    id: uid(), partnerId: _distPagPartnerId,
+    desc: desc, val: val, date: date
+  });
+  closeOv('ov-dist-pag');
+  toast('Pagamento registrado! 💵');
+  if (_distPagCb) _distPagCb();
+  if (el('view-dash') && el('view-dash').classList.contains('active')) renderDash();
+}
+
+// ── BUILD DISTRIBUIÇÃO PANEL (enhanced with payment history) ──────
+function buildDistPagamentosSection(bid, resultado, wrapper) {
+  var distCfg = getDistConfig(bid);
+  var pagamentos = getDistPagamentos(bid);
+
+  var section = document.createElement('div');
+  section.className = 'dist-pag-section';
+
+  var title = document.createElement('div');
+  title.className = 'dist-pag-title';
+  title.textContent = '💵 Histórico de Pagamentos de Distribuição';
+  section.appendChild(title);
+
+  function rebuildSection() {
+    // Clear and rebuild from title onwards
+    while (section.children.length > 1) section.removeChild(section.lastChild);
+    var pags = getDistPagamentos(bid);
+
+    DIST_PARTNERS.forEach(function(partner) {
+      if (partner.role === 'Empresa') return; // skip Caixa for payment history
+
+      var cfg = distCfg.find(function(c){ return c.id === partner.id; }) || {pct: partner.pct};
+      var devido = resultado * (parseFloat(cfg.pct)||0) / 100;
+      var pago   = pags.filter(function(e){ return e.partnerId === partner.id; })
+                       .reduce(function(s,e){ return s + parseFloat(e.val||0); }, 0);
+      var pendente = devido - pago;
+
+      var partnerWrap = document.createElement('div');
+      partnerWrap.className = 'dist-pag-partner';
+
+      // Partner header
+      var hd = document.createElement('div');
+      hd.className = 'dist-pag-partner-hd';
+      hd.innerHTML =
+        '<div class="dist-pag-partner-info">'+
+          '<span class="dist-pag-partner-icon">'+partner.icon+'</span>'+
+          '<div><div class="dist-pag-partner-name">'+partner.name+'</div>'+
+          '<div class="dist-pag-partner-role">'+partner.role+' · '+cfg.pct+'% do resultado</div></div>'+
+        '</div>'+
+        '<div class="dist-pag-amounts">'+
+          '<div class="dist-pag-devido">A distribuir: '+fmt(devido)+'</div>'+
+          '<div class="dist-pag-pago">Pago: '+fmt(pago)+'</div>'+
+          (pendente > 0.01 ? '<div class="dist-pag-pendente">Pendente: '+fmt(pendente)+'</div>' :
+           pendente < -0.01 ? '<div style="font-size:11px;color:var(--rd)">Excedeu: '+fmt(Math.abs(pendente))+'</div>' :
+           '<div style="font-size:11px;color:var(--gn)">✓ Quitado</div>')+
+        '</div>';
+      partnerWrap.appendChild(hd);
+
+      // Entries
+      var entries = pags.filter(function(e){ return e.partnerId === partner.id; })
+                        .sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+
+      if (entries.length) {
+        var list = document.createElement('div');
+        list.style.cssText = 'padding:0 4px';
+        entries.forEach(function(e) {
+          var row = document.createElement('div');
+          row.className = 'dist-pag-entry';
+          row.innerHTML =
+            '<div class="dist-pag-dot" style="background:'+partner.color+';box-shadow:0 0 5px '+partner.color+'"></div>'+
+            '<div class="dist-pag-desc">'+esc(e.desc||'Distribuição')+'</div>'+
+            '<div class="dist-pag-date">'+esc(e.date||'')+'</div>'+
+            '<div class="dist-pag-val">'+fmt(e.val)+'</div>'+
+            '<button class="dist-pag-del" data-id="'+e.id+'" title="Excluir">🗑️</button>';
+          row.querySelector('.dist-pag-del').addEventListener('click', function(){
+            if (!confirm('Excluir este pagamento?')) return;
+            deleteDistPagamento(bid, this.dataset.id);
+            rebuildSection();
+            if (el('view-dash') && el('view-dash').classList.contains('active')) renderDash();
+          });
+          list.appendChild(row);
+        });
+        partnerWrap.appendChild(list);
+      } else {
+        var empty = document.createElement('div');
+        empty.className = 'dist-pag-empty';
+        empty.textContent = 'Nenhum pagamento registrado ainda.';
+        partnerWrap.appendChild(empty);
+      }
+
+      // Add payment button (admin only)
+      if (isAdmin()) {
+        var addBtn = document.createElement('button');
+        addBtn.className = 'add-dist-pag-btn';
+        addBtn.innerHTML = '＋ Registrar pagamento para '+partner.name.split(' ')[0];
+        addBtn.addEventListener('click', function(){
+          openDistPagModal(bid, partner.id, rebuildSection);
+        });
+        partnerWrap.appendChild(addBtn);
+      }
+
+      section.appendChild(partnerWrap);
+    });
+  }
+
+  rebuildSection();
+  wrapper.appendChild(section);
+}
+
 // ── BACKUP / RESTORE ────────────────────────────────────────────
 function exportAllData(){
   var data={exportedAt:new Date().toISOString(),pulso_v3:JSON.stringify(_mem.budgets),pulso_obras:JSON.stringify(_mem.obras),pulso_finance:JSON.stringify(_mem.finance),pulso_aditivos:JSON.stringify(_mem.aditivos)};
@@ -5041,6 +5315,8 @@ setTimeout(function(){
     </div>
   </div>
 </div>
+
+<div class="ov" id="ov-dist-pag"><div class="modal sm" id="ov-dist-pag-inner"></div></div>
 
 <div class="ov" id="ov-rec"><div class="modal sm" id="ov-rec-inner"></div></div>
 
