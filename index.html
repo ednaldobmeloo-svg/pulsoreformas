@@ -1697,8 +1697,9 @@ function renderDash() {
   // ── KPI Cards ──
   // Financial data for approved budgets
   var finAll = FIN.load();
-  var totalCusto = appr.reduce(function(s,b){ return s + finTotalCost((finAll[b.id]||{}).entries||[]); }, 0);
-  var resultado  = aVal - totalCusto;
+  var totalCusto = appr.reduce(function(s,b){ return s + getCustoTotal(b.id); }, 0);
+  var aditRecTotal = appr.reduce(function(s,b){ return s + getAditReceitaAprovada(b.id); }, 0);
+  var resultado  = (aVal + aditRecTotal) - totalCusto;
   var margem     = aVal > 0 ? (resultado/aVal*100).toFixed(1) : '—';
   var margemNum  = aVal > 0 ? resultado/aVal*100 : 0;
 
@@ -1707,7 +1708,7 @@ function renderDash() {
       '<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:100%;background:var(--gd)"></div></div></div>' +
     '<div class="stat"><div class="lbl">Receita Aprovada</div><div class="val gd" style="font-size:18px;margin-top:4px">' + fmt(aVal) + '</div>' +
       '<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:' + taxa + '%;background:var(--gd)"></div></div></div>' +
-    '<div class="stat"><div class="lbl">Custo Total (obras)</div><div class="val ' + (totalCusto>aVal?'neg':'warn') + '" style="font-size:18px;margin-top:4px">' + fmt(totalCusto) + '</div>' +
+    '<div class="stat"><div class="lbl">Custo Total (obras)</div><div class="val ' + (totalCusto>(aVal+aditRecTotal)?'neg':'warn') + '" style="font-size:18px;margin-top:4px">' + fmt(totalCusto) + '</div>' +
       '<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:' + (aVal>0?Math.min(100,totalCusto/aVal*100).toFixed(0):0) + '%;background:var(--rd)"></div></div></div>' +
     '<div class="stat"><div class="lbl">Resultado Líquido</div><div class="val ' + (resultado>=0?'pos':'neg') + '" style="font-size:18px;margin-top:4px">' + fmt(resultado) + '</div>' +
       '<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:' + Math.min(100,Math.abs(margemNum)).toFixed(0) + '%;background:' + (resultado>=0?'var(--gn)':'var(--rd)') + '"></div></div></div>' +
@@ -1827,9 +1828,9 @@ function renderDashProfit(approvedBudgets) {
 
   // ── Build per-obra data with period filter ──
   var obraData = approved.map(function(b){
-    var receita   = calcTotal(b);
+    var receita   = getReceitaTotal(b);            // contrato + aditivos aprovados
     var entries   = getFilteredEntries(b.id);
-    var custo     = finTotalCost(entries);
+    var custo     = finTotalCost(entries) + getAditCustoTotal(b.id); // obra + aditivos
     var result    = receita - custo;
     var distCfg   = getDistConfig(b.id);
     return { b:b, receita:receita, custo:custo, result:result, distCfg:distCfg };
@@ -2127,9 +2128,9 @@ function setObraFilter(f) {
 }
 
 function buildObraCard(b, obra) {
-  var receita   = calcTotal(b);
+  var receita   = getReceitaTotal(b);
   var entries   = getFinEntries(b.id);
-  var custo     = finTotalCost(entries);
+  var custo     = getCustoTotal(b.id);
   var resultado = receita - custo;
   var margem    = receita > 0 ? (resultado/receita*100) : 0;
   var custoPerc = receita > 0 ? Math.min(100, custo/receita*100) : 0;
@@ -2211,7 +2212,8 @@ function buildObraCard(b, obra) {
   // Minimized summary row (inline KPIs shown when collapsed)
   var minSummary = document.createElement('div');
   minSummary.className = 'obra-minimized-summary';
-  var recRec = getRecebimentos(b.id).reduce(function(s,r){return s+parseFloat(r.val||0);},0);
+  var recRec = getRecebimentos(b.id).reduce(function(s,r){return s+parseFloat(r.val||0);},0)
+              + getAditRecTotal(b.id);
   var lucroReal2 = recRec - custo;
   var mPct = receita > 0 ? (resultado/receita*100) : 0;
   var mColor = mPct>=20?'var(--gn)':mPct>=0?'var(--yw)':'var(--rd)';
@@ -2526,14 +2528,9 @@ function renderObraCharts(bid, b, entries, insts, instStatus, receita, custo) {
   Chart.defaults.color = 'rgba(180,220,255,0.45)';
   Chart.defaults.font.family = 'Barlow, sans-serif';
 
-  // Include approved aditivos in receita total
-  var aditivos = ADIT.load().filter(function(a){ return a.budgetId===bid && a.status==='approved'; });
-  var receitaAditivos = aditivos.reduce(function(s,a){ return s+parseFloat(a.total||0); }, 0);
-  var custosAditivos  = getAditCustos(bid).reduce(function(s,e){ return s+parseFloat(e.val||0); }, 0);
-  var receitaTotal    = receita + receitaAditivos;
-  var custoTotal      = custo + custosAditivos;
-  var margem   = receitaTotal > 0 ? ((receitaTotal-custoTotal)/receitaTotal*100) : 0;
-  var custoPerc = receitaTotal > 0 ? Math.min(100, custoTotal/receitaTotal*100) : 0;
+  // receita and custo already include aditivos (via getReceitaTotal/getCustoTotal in buildObraCard)
+  var margem   = receita > 0 ? ((receita-custo)/receita*100) : 0;
+  var custoPerc = receita > 0 ? Math.min(100, custo/receita*100) : 0;
   var doneCount = insts.filter(function(i){ return (instStatus[i.id]||'wait')==='done'; }).length;
   var progPct   = insts.length ? (doneCount/insts.length*100) : 0;
   var resultado = receita - custo;
@@ -2543,9 +2540,9 @@ function renderObraCharts(bid, b, entries, insts, instStatus, receita, custo) {
   if (ckpi) {
     var mc = margem>=20?'pos':margem>=0?'warn':'neg';
     ckpi.innerHTML =
-      kpiBox('Receita Total',   fmt(receitaTotal),            'neu') +
-      kpiBox('Custo Acumulado', fmt(custoTotal),               custoPerc>90?'neg':custoPerc>70?'warn':'gn') +
-      kpiBox('Resultado',       fmt(receitaTotal-custoTotal),  (receitaTotal-custoTotal)>=0?'pos':'neg') +
+      kpiBox('Receita Total',   fmt(receita),        'neu') +
+      kpiBox('Custo Acumulado', fmt(custo),          custoPerc>90?'neg':custoPerc>70?'warn':'gn') +
+      kpiBox('Resultado',       fmt(receita-custo),  (receita-custo)>=0?'pos':'neg') +
       kpiBox('Margem',          margem.toFixed(1)+'%', mc) +
       kpiBox('Progresso',       progPct.toFixed(0)+'%', progPct>=100?'pos':'neu') +
       kpiBox('Consumo Orçam.',  custoPerc.toFixed(1)+'%', custoPerc>90?'neg':custoPerc>70?'warn':'pos');
@@ -2814,13 +2811,7 @@ function renderObraCharts(bid, b, entries, insts, instStatus, receita, custo) {
   destroyChart('oc-profit-'+bid);
   var ctxP = el('oc-profit-'+bid);
 
-  // Include aditivos in receita for profit chart
-  var aditivos = ADIT.load().filter(function(a){ return a.budgetId===bid && a.status==='approved'; });
-  var receitaAditivos = aditivos.reduce(function(s,a){ return s+parseFloat(a.total||0); }, 0);
-  var custosAditivos  = getAditCustos(bid).reduce(function(s,e){ return s+parseFloat(e.val||0); }, 0);
-  receita = receita + receitaAditivos; // expand receita to include aditivos
-  custo   = custo   + custosAditivos;
-
+  // receita and custo already include aditivos (via getReceitaTotal/getCustoTotal)
   // Build recebimentos timeline
   var recs = getRecebimentos(bid).filter(function(r){ return r.date && r.val; })
     .sort(function(a,b){ return parseDateBR(a.date)-parseDateBR(b.date); });
@@ -3527,8 +3518,8 @@ function renderFinance(filterBudgetId) {
   var workList = filterVal ? approved.filter(function(b){ return b.id===filterVal; }) : approved;
 
   // ── KPI Cards ──
-  var totalOrcado = workList.reduce(function(s,b){ return s+calcTotal(b); }, 0);
-  var totalCusto  = workList.reduce(function(s,b){ return s+finTotalCost(getFinEntries(b.id)); }, 0);
+  var totalOrcado = workList.reduce(function(s,b){ return s+getReceitaTotal(b); }, 0);
+  var totalCusto  = workList.reduce(function(s,b){ return s+getCustoTotal(b.id); }, 0);
   var resultado   = totalOrcado - totalCusto;
   var margem      = totalOrcado > 0 ? (resultado/totalOrcado*100) : 0;
   var totalObras  = workList.length;
@@ -3555,8 +3546,8 @@ function renderFinance(filterBudgetId) {
     var ctxO = el('fin-chart-obras');
     if (ctxO && workList.length) {
       var labels = workList.map(function(b){ return b.client||b.num||'—'; });
-      var dataOrc = workList.map(function(b){ return calcTotal(b); });
-      var dataCst = workList.map(function(b){ return finTotalCost(getFinEntries(b.id)); });
+      var dataOrc = workList.map(function(b){ return getReceitaTotal(b); });
+      var dataCst = workList.map(function(b){ return getCustoTotal(b.id); });
       _charts['fin-obras'] = new Chart(ctxO, {
         type:'bar',
         data:{ labels:labels, datasets:[
@@ -3613,8 +3604,8 @@ function renderFinance(filterBudgetId) {
 
   workList.forEach(function(b) {
     var entries = getFinEntries(b.id);
-    var receita = calcTotal(b);
-    var custo   = finTotalCost(entries);
+    var receita = getReceitaTotal(b);
+    var custo   = getCustoTotal(b.id);
     var result  = receita - custo;
     var margem  = receita > 0 ? (result/receita*100) : 0;
     var margemCls = margem >= 20 ? 'pos' : margem >= 0 ? 'warn' : 'neg';
@@ -5239,7 +5230,9 @@ function migrarCaixaObras() {
     if(newMovs.length>existing.length) setObraMovs(b.id,newMovs);
     if(newGMovs.length>gd.movs.length){gd.movs=newGMovs;CAIXA.save(gd);}
   });
-  toast('✅ '+totalRec+' recebimentos e '+totalCost+' custos importados!');
+  // Also migrate aditivo recebimentos
+  var aditRecMig = migrarAditRecebimentos();
+  toast('✅ '+totalRec+' recebimentos, '+totalCost+' custos e '+aditRecMig+' recebimentos de aditivos importados!');
   renderCaixa();
 }
 
@@ -6090,6 +6083,72 @@ function openAditRecModal(bid, aditId, cb) {
   },0);
 }
 
+
+// ═══════════════════════════════════════
+// ADITIVOS — HELPERS FINANCEIROS GLOBAIS
+// Adicionam receita/custo/recebimentos dos aditivos ao resultado da obra
+// ═══════════════════════════════════════
+
+// Receita aprovada dos aditivos de uma obra
+function getAditReceitaAprovada(bid) {
+  return ADIT.load()
+    .filter(function(a){ return a.budgetId===bid && a.status==='approved'; })
+    .reduce(function(s,a){ return s + parseFloat(a.total||0); }, 0);
+}
+
+// Total de custos lançados nos aditivos de uma obra
+function getAditCustoTotal(bid) {
+  return getAditCustos(bid).reduce(function(s,e){ return s + parseFloat(e.val||0); }, 0);
+}
+
+// Total recebido nos aditivos de uma obra
+function getAditRecTotal(bid) {
+  return getAditRecebimentos(bid).reduce(function(s,r){ return s + parseFloat(r.val||0); }, 0);
+}
+
+// Receita total da obra (contrato + aditivos aprovados)
+function getReceitaTotal(b) {
+  return calcTotal(b) + getAditReceitaAprovada(b.id);
+}
+
+// Custo total da obra (lançamentos + custos de aditivos)
+function getCustoTotal(bid) {
+  var entries = getFinEntries(bid);
+  return finTotalCost(entries) + getAditCustoTotal(bid);
+}
+
+// Migração: adicionar aditivos recebimentos ao caixa
+function migrarAditRecebimentos() {
+  var budgets = DB.load().filter(function(b){ return b.status==='approved'; });
+  var total = 0;
+  budgets.forEach(function(b){
+    var recs = getAditRecebimentos(b.id);
+    var gd = getCaixaData();
+    var gids = {}; gd.movs.forEach(function(m){ gids[m.id]=true; });
+    var newGMovs = gd.movs.slice();
+    var obraMovs = getObraMovs(b.id);
+    var oIds = {}; obraMovs.forEach(function(m){ oIds[m.id]=true; });
+    var newObraMovs = obraMovs.slice();
+    recs.forEach(function(r){
+      var oid='aditrec_'+r.id, gid='gaditrec_'+r.id;
+      if(!oIds[oid]){
+        newObraMovs.push({id:oid,tipo:'entrada',conta:r.conta||CONTA_PADRAO,
+          desc:'[Aditivo] '+(r.desc||'Recebimento'),val:parseFloat(r.val||0),
+          date:r.date||'',createdAt:Date.now(),autoGerado:true});
+        total++;
+      }
+      if(!gids[gid]){
+        newGMovs.push({id:gid,tipo:'entrada',conta:r.conta||CONTA_PADRAO,
+          desc:'[Aditivo] '+(r.desc||'Recebimento')+' — '+(b.client||b.num||''),
+          val:parseFloat(r.val||0),date:r.date||'',budgetId:b.id,createdAt:Date.now(),autoGerado:true});
+      }
+    });
+    if(newObraMovs.length>obraMovs.length) setObraMovs(b.id,newObraMovs);
+    if(newGMovs.length>gd.movs.length){gd.movs=newGMovs;CAIXA.save(gd);}
+  });
+  return total;
+}
+
 // ── BACKUP / RESTORE ────────────────────────────────────────────
 function exportAllData(){
   var data={exportedAt:new Date().toISOString(),pulso_v3:JSON.stringify(_mem.budgets),pulso_obras:JSON.stringify(_mem.obras),pulso_finance:JSON.stringify(_mem.finance),pulso_aditivos:JSON.stringify(_mem.aditivos)};
@@ -6266,7 +6325,7 @@ function buildPriceReference(){
   if(!budgets.length)return'';
   var refs=[];
   budgets.slice(0,6).forEach(function(b){
-    var total=calcTotal(b);if(total<100)return;
+    var total=getReceitaTotal(b);if(total<100)return;
     var secs=(b.sections||[]).map(function(s){var sub=calcSub(s);return sub>1?s.name+': R$'+sub.toFixed(0):null;}).filter(Boolean);
     if(secs.length)refs.push((b.obra||b.client||'Obra')+' — '+secs.join(', ')+' (total: R$'+total.toFixed(0)+')');
   });
