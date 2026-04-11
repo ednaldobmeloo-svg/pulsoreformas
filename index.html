@@ -1155,7 +1155,12 @@ select.fi option{background:#06121e}
       </div>
       <div class="field">
         <label>Conta de pagamento</label>
-        <select class="fi" id="addcost-conta"></select>
+        <select class="fi" id="addcost-conta">
+          <option value="nubank">💜 Nubank (padrão)</option>
+          <option value="inter">🏦 Banco Inter PF</option>
+          <option value="especie">💵 Dinheiro em Espécie</option>
+          <option value="bradesco">🏛️ Conta Corrente — Bradesco</option>
+        </select>
       </div>
       <div class="fg fg2">
         <div class="field">
@@ -4923,6 +4928,16 @@ function migrarCaixaObras() {
       if(!ids[oid]){newMovs.push({id:oid,tipo:'saida',conta:CONTA_PADRAO,desc:desc,val:parseFloat(e.val||0),date:e.date||'',createdAt:e.createdAt||Date.now(),autoGerado:true});totalCost++;}
       if(!gids[gid]){newGMovs.push({id:gid,tipo:'saida',conta:CONTA_PADRAO,desc:desc+' — '+(b.client||b.num||''),val:parseFloat(e.val||0),date:e.date||'',budgetId:b.id,createdAt:e.createdAt||Date.now(),autoGerado:true});}
     });
+    // Dist pagamentos
+    ((db2[b.id]&&db2[b.id].distPagamentos)||[]).forEach(function(e){
+      var oid='dist_'+e.id, gid='gdist_'+e.id;
+      var partner2=DIST_PARTNERS.find(function(p){return p.id===e.partnerId;})||{name:'Sócio',icon:'👤'};
+      var contaD=e.conta||CONTA_PADRAO;
+      var descD='Distribuição '+partner2.name.split(' ')[0]+': '+(e.desc||'');
+      if(!ids[oid]){newMovs.push({id:oid,tipo:'saida',conta:contaD,desc:descD,val:parseFloat(e.val||0),date:e.date||'',createdAt:e.createdAt||Date.now(),autoGerado:true});}
+      if(!gids[gid]){newGMovs.push({id:gid,tipo:'saida',conta:contaD,desc:descD+' — '+(b.client||b.num||''),val:parseFloat(e.val||0),date:e.date||'',budgetId:b.id,createdAt:e.createdAt||Date.now(),autoGerado:true});}
+    });
+
     if(newMovs.length>existing.length) setObraMovs(b.id,newMovs);
     if(newGMovs.length>gd.movs.length){gd.movs=newGMovs;CAIXA.save(gd);}
   });
@@ -5280,6 +5295,9 @@ function deleteDistPagamento(bid, entryId) {
   if (!db[bid] || !db[bid].distPagamentos) return;
   db[bid].distPagamentos = db[bid].distPagamentos.filter(function(e){ return e.id !== entryId; });
   ODB.save(db);
+  // Remove from caixa
+  removeMovObraCaixa(bid, 'dist_'+entryId);
+  removeMovGlobalCaixa('gdist_'+entryId);
 }
 function getDistPago(bid, partnerId) {
   return getDistPagamentos(bid)
@@ -5306,6 +5324,7 @@ function openDistPagModal(bid, partnerId, cb) {
     '</div>'+
     '<div style="display:flex;flex-direction:column;gap:13px">'+
       '<div class="field"><label>Descrição</label><input class="fi" id="dp-desc" placeholder="Ex: Distribuição março, Adiantamento..."></div>'+
+      '<div class="field"><label>Conta de pagamento</label><select class="fi" id="dp-conta">'+(function(){var cD=getCaixaData();var cs=(cD.contas&&cD.contas.length)?cD.contas:DEFAULT_CONTAS;return cs.map(function(c){return'<option value="'+c.id+'">'+c.icon+' '+c.nome+(c.banco?' — '+c.banco:'')+(c.padrao?' (padrão)':'')+'</option>';}).join('');})()+'</select></div>'+
       '<div class="fg fg2">'+
         '<div class="field"><label>Valor (R$)</label><input class="fi" id="dp-val" type="number" min="0" step="any" placeholder="0,00"></div>'+
         '<div class="field"><label>Data</label><input class="fi" id="dp-date" value="'+new Date().toLocaleDateString('pt-BR')+'"></div>'+
@@ -5317,21 +5336,41 @@ function openDistPagModal(bid, partnerId, cb) {
     '</div>';
   el('ov-dist-pag').classList.add('open');
   setTimeout(function(){
+    if (el('dp-conta')) el('dp-conta').value = CONTA_PADRAO;
     el('dp-save').addEventListener('click', confirmDistPag);
     el('dp-cancel').addEventListener('click', function(){ closeOv('ov-dist-pag'); });
     el('dp-val').focus();
   }, 0);
 }
 function confirmDistPag() {
-  var desc = (el('dp-desc').value||'').trim()||'Distribuição';
-  var val  = parseFloat(el('dp-val').value);
-  var date = el('dp-date').value||'';
+  var desc    = (el('dp-desc').value||'').trim()||'Distribuição';
+  var val     = parseFloat(el('dp-val').value);
+  var date    = el('dp-date').value||'';
+  var conta   = (el('dp-conta')&&el('dp-conta').value) ? el('dp-conta').value : CONTA_PADRAO;
   if (!val||val<=0) { toast('Digite um valor válido','err'); return; }
-  saveDistPagamento(_distPagBid, {id:uid(),partnerId:_distPagPartnerId,desc:desc,val:val,date:date});
+
+  var entryId = uid();
+  saveDistPagamento(_distPagBid, {id:entryId, partnerId:_distPagPartnerId, desc:desc, val:val, date:date, conta:conta});
+
+  // Sync to obra caixa (saída da conta escolhida)
+  var partner = DIST_PARTNERS.find(function(p){ return p.id===_distPagPartnerId; });
+  var movDesc = 'Distribuição ' + (partner?partner.name.split(' ')[0]:'Sócio') + ': ' + desc;
+  var mov = {id:'dist_'+entryId, tipo:'saida', conta:conta, desc:movDesc, val:val, date:date, createdAt:Date.now(), autoGerado:true};
+  addMovObraCaixa(_distPagBid, mov);
+
+  // Sync to global caixa
+  var b = DB.load().find(function(x){return x.id===_distPagBid;});
+  addMovGlobalCaixa(Object.assign({}, mov, {
+    id: 'gdist_'+entryId,
+    budgetId: _distPagBid,
+    desc: movDesc + (b?' — '+(b.client||b.num||''):'')
+  }));
+
   closeOv('ov-dist-pag');
   toast('Pagamento registrado! 💵');
   if (_distPagCb) _distPagCb();
   if (el('view-dash')&&el('view-dash').classList.contains('active')) renderDash();
+  if (el('view-caixa')&&el('view-caixa').classList.contains('active')) renderCaixa();
 }
 
 function buildDistPagamentosSection(bid, resultado, wrapper) {
@@ -5378,9 +5417,16 @@ function buildDistPagamentosSection(bid, resultado, wrapper) {
         var list = document.createElement('div'); list.style.cssText='padding:0 4px';
         entries.forEach(function(e) {
           var row = document.createElement('div'); row.className='dist-pag-entry';
+          // Get conta name for display
+          var entryContaNome = (function(){
+            var caixaD2 = getCaixaData();
+            var c = caixaD2.contas.find(function(x){ return x.id===(e.conta||CONTA_PADRAO); });
+            return c ? c.icon+' '+c.nome.split(' ')[0] : '';
+          })();
           row.innerHTML =
             '<div class="dist-pag-dot" style="background:'+partner.color+'"></div>'+
             '<div class="dist-pag-desc">'+esc(e.desc||'Distribuição')+'</div>'+
+            '<div class="dist-pag-date" style="color:rgba(0,212,255,.3);font-size:11px">'+entryContaNome+'</div>'+
             '<div class="dist-pag-date">'+esc(e.date||'')+'</div>'+
             '<div class="dist-pag-val">'+fmt(e.val)+'</div>'+
             '<button class="dist-pag-del" data-id="'+e.id+'">🗑️</button>';
