@@ -914,6 +914,63 @@ select.fi option{background:#06121e}
 .pdc-paid{font-size:12px;font-weight:700;color:var(--gn);margin-top:2px}
 .pdc-pending{font-size:11px;color:var(--yw);margin-top:2px}
 
+
+/* ── OBRA MINIMIZE ──────────────────────────────────── */
+.obra-big-card.minimized .obc-body,
+.obra-big-card.minimized .obc-progress-section { display:none }
+.obra-big-card.minimized { margin-bottom:8px }
+.obc-minimize-btn {
+  width:28px;height:28px;border-radius:7px;border:1px solid var(--bd);
+  background:transparent;color:rgba(180,220,255,.4);cursor:pointer;
+  font-size:14px;display:flex;align-items:center;justify-content:center;
+  transition:all .15s;flex-shrink:0;font-family:'Barlow',sans-serif;
+}
+.obc-minimize-btn:hover{border-color:var(--gd);color:var(--gd);background:rgba(0,212,255,.06)}
+.obras-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.obras-minimize-all-btn{padding:6px 14px;border-radius:8px;border:1px solid var(--bd);
+  background:transparent;color:rgba(180,220,255,.5);font-size:12px;font-weight:700;
+  cursor:pointer;font-family:'Barlow',sans-serif;transition:all .15s}
+.obras-minimize-all-btn:hover{border-color:var(--gd);color:var(--gd)}
+.obra-minimized-summary{display:none;align-items:center;gap:14px;padding:0 4px}
+.obra-big-card.minimized .obra-minimized-summary{display:flex}
+.oms-kpi{text-align:center}
+.oms-kpi-lbl{font-size:9px;color:rgba(0,212,255,.35);text-transform:uppercase;letter-spacing:.05em}
+.oms-kpi-val{font-size:13px;font-weight:800}
+.oms-divider{width:1px;height:28px;background:rgba(0,212,255,.1);flex-shrink:0}
+
+
+/* ── ADITIVOS FINANCEIRO ────────────────────────────── */
+.adit-fin-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.adit-fin-card{background:rgba(0,8,24,.55);border:1px solid rgba(0,212,255,.1);border-radius:10px;padding:12px 14px}
+.adit-fin-lbl{font-size:10px;color:rgba(0,212,255,.4);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.adit-fin-val{font-size:18px;font-weight:800}
+.adit-item{background:rgba(0,8,24,.45);border:1px solid rgba(0,212,255,.08);border-radius:10px;margin-bottom:10px;overflow:hidden}
+.adit-item-hd{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:rgba(0,212,255,.03);border-bottom:1px solid rgba(0,212,255,.07)}
+.adit-item-num{font-size:10px;color:rgba(0,212,255,.4);font-weight:700;margin-bottom:2px}
+.adit-item-title{font-size:13px;font-weight:700;color:var(--wh)}
+.adit-item-status{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+.adit-item-status.approved{background:rgba(0,255,136,.1);color:var(--gn)}
+.adit-item-status.pending{background:rgba(255,209,102,.1);color:var(--yw)}
+.adit-item-status.rejected{background:rgba(255,68,102,.1);color:var(--rd)}
+.adit-item-right{text-align:right}
+.adit-item-orcado{font-size:16px;font-weight:800;color:var(--gd)}
+.adit-item-sub{font-size:10px;color:rgba(0,212,255,.3);margin-top:2px}
+.adit-item-body{padding:12px 14px}
+.adit-item-progress{margin-bottom:10px}
+.adit-item-progress-row{display:flex;justify-content:space-between;font-size:11px;color:rgba(0,212,255,.4);margin-bottom:4px}
+.adit-cost-list{display:flex;flex-direction:column;gap:0}
+.adit-cost-row{display:grid;grid-template-columns:auto 1fr auto auto auto;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid rgba(0,212,255,.05);font-size:12px}
+.adit-cost-row:last-child{border:none}
+.adit-cost-cat{font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px;background:rgba(0,212,255,.08);color:rgba(0,212,255,.6);white-space:nowrap}
+.adit-cost-desc{color:var(--cr);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.adit-cost-date{font-size:10px;color:rgba(0,212,255,.3);white-space:nowrap}
+.adit-cost-val{font-weight:700;color:var(--rd);white-space:nowrap}
+.adit-cost-del{padding:2px 5px;background:transparent;border:none;color:rgba(255,68,102,.4);cursor:pointer;font-size:11px;transition:color .15s}
+.adit-cost-del:hover{color:var(--rd)}
+.add-adit-cost-btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:7px 12px;background:rgba(255,68,102,.05);border:1px dashed rgba(255,68,102,.2);color:rgba(255,68,102,.6);border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .15s;width:100%;margin-top:8px}
+.add-adit-cost-btn:hover{border-color:var(--rd);color:var(--rd);background:rgba(255,68,102,.08)}
+.adit-no-items{font-size:12px;color:rgba(180,220,255,.2);font-style:italic;text-align:center;padding:12px 0}
+
 </style>
 </head>
 <body>
@@ -1959,7 +2016,8 @@ function updBadgeObras() {
 }
 
 var _obraFilter = 'all';
-var _activeObraTab = {}; // budgetId → tab name
+var _activeObraTab = {};
+var _minimizedObras = {}; // bid -> true if minimized // budgetId → tab name
 
 function renderObras() {
   var all    = DB.load();
@@ -2017,6 +2075,25 @@ function renderObras() {
 
   container.innerHTML = html + '<div id="obras-list-wrap"></div>';
 
+  // Toolbar
+  var toolbar = document.createElement('div');
+  toolbar.className = 'obras-toolbar';
+
+  var allMin = DB.load().filter(function(b){return b.status==='approved';})
+    .every(function(b){return _minimizedObras[b.id];});
+
+  var minAllBtn = document.createElement('button');
+  minAllBtn.className = 'obras-minimize-all-btn';
+  minAllBtn.innerHTML = allMin ? '▼ Expandir todas' : '▲ Minimizar todas';
+  minAllBtn.addEventListener('click', function(){
+    var appr = DB.load().filter(function(b){return b.status==='approved';});
+    var shouldMin = !allMin;
+    appr.forEach(function(b){ _minimizedObras[b.id] = shouldMin; });
+    renderObras();
+  });
+  toolbar.appendChild(minAllBtn);
+  container.appendChild(toolbar);
+
   var wrap = el('obras-list-wrap');
   filtered.forEach(function(b){
     wrap.appendChild(buildObraCard(b, odbFresh[b.id]||{}));
@@ -2058,7 +2135,7 @@ function buildObraCard(b, obra) {
   var activeTab  = _activeObraTab[b.id] || 'graficos';
 
   var card = document.createElement('div');
-  card.className = 'obra-big-card';
+  card.className = 'obra-big-card' + (_minimizedObras[b.id] ? ' minimized' : '');
   card.id = 'obc-'+b.id;
 
   // ── HEADER — built with createElement so select event fires reliably ──
@@ -2104,9 +2181,43 @@ function buildObraCard(b, obra) {
     renderObras();
   });
 
+  // Minimize button
+  var minBtn = document.createElement('button');
+  minBtn.className = 'obc-minimize-btn';
+  minBtn.title = _minimizedObras[b.id] ? 'Expandir' : 'Minimizar';
+  minBtn.innerHTML = _minimizedObras[b.id] ? '▼' : '▲';
+  minBtn.addEventListener('click', function(e){
+    e.stopPropagation();
+    _minimizedObras[b.id] = !_minimizedObras[b.id];
+    card.classList.toggle('minimized', !!_minimizedObras[b.id]);
+    minBtn.innerHTML = _minimizedObras[b.id] ? '▼' : '▲';
+    minBtn.title = _minimizedObras[b.id] ? 'Expandir' : 'Minimizar';
+  });
+
+  // Minimized summary row (inline KPIs shown when collapsed)
+  var minSummary = document.createElement('div');
+  minSummary.className = 'obra-minimized-summary';
+  var recRec = getRecebimentos(b.id).reduce(function(s,r){return s+parseFloat(r.val||0);},0);
+  var lucroReal2 = recRec - custo;
+  var mPct = receita > 0 ? (resultado/receita*100) : 0;
+  var mColor = mPct>=20?'var(--gn)':mPct>=0?'var(--yw)':'var(--rd)';
+  minSummary.innerHTML =
+    '<div class="oms-divider"></div>'+
+    '<div class="oms-kpi"><div class="oms-kpi-lbl">Receita</div><div class="oms-kpi-val" style="color:var(--gd)">'+fmt(receita)+'</div></div>'+
+    '<div class="oms-divider"></div>'+
+    '<div class="oms-kpi"><div class="oms-kpi-lbl">Recebido</div><div class="oms-kpi-val" style="color:var(--gn)">'+fmt(recRec)+'</div></div>'+
+    '<div class="oms-divider"></div>'+
+    '<div class="oms-kpi"><div class="oms-kpi-lbl">Custo</div><div class="oms-kpi-val" style="color:var(--rd)">'+fmt(custo)+'</div></div>'+
+    '<div class="oms-divider"></div>'+
+    '<div class="oms-kpi"><div class="oms-kpi-lbl">Resultado</div><div class="oms-kpi-val" style="color:'+(resultado>=0?'var(--gn)':'var(--rd)')+'">'+fmt(resultado)+'</div></div>'+
+    '<div class="oms-divider"></div>'+
+    '<div class="oms-kpi"><div class="oms-kpi-lbl">Margem</div><div class="oms-kpi-val" style="color:'+mColor+'">'+mPct.toFixed(1)+'%</div></div>';
+
   metaRight.appendChild(receitaDiv);
   metaRight.appendChild(statusSelect);
+  metaRight.appendChild(minBtn);
   hdr.appendChild(titleGroup);
+  hdr.appendChild(minSummary);
   hdr.appendChild(metaRight);
 
 
@@ -2115,9 +2226,8 @@ function buildObraCard(b, obra) {
   prog.className = 'obc-progress-section';
   prog.innerHTML =
     '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">' +
-      kpiMini('Custo Acumulado', fmt(custo), 'warn') +
-      kpiMini('Resultado', fmt(resultado), margemCls) +
-      kpiMini('Margem', margem.toFixed(1)+'%', margemCls) +
+      kpiMini('Custo Acumulado', fmt(custo + (getAditCustos(b.id).reduce(function(s,e){return s+parseFloat(e.val||0);},0))), 'warn') +
+      (function(){var rA=ADIT.load().filter(function(a){return a.budgetId===b.id&&a.status==='approved';}).reduce(function(s,a){return s+parseFloat(a.total||0);},0);var cA=getAditCustos(b.id).reduce(function(s,e){return s+parseFloat(e.val||0);},0);var rT=receita+rA;var res=rT-(custo+cA);var mg=rT>0?(res/rT*100):0;var mc2=mg>=20?'pos':mg>=0?'warn':'neg';return kpiMini('Resultado', fmt(res), mc2)+kpiMini('Margem', mg.toFixed(1)+'%', mc2);})() +
     '</div>' +
     '<div style="margin-top:14px">' +
       '<div class="obc-prog-row"><span class="obc-prog-lbl">Progresso das Etapas</span><span class="obc-prog-val" style="color:var(--gd)">'+doneCount+'/'+insts.length+' concluídas</span></div>' +
@@ -2138,6 +2248,7 @@ function buildObraCard(b, obra) {
     {id:'sections', label:'📦 Seções do Orçamento'},
     {id:'recebimentos', label:'💰 Recebimentos'},
     {id:'caixa-obra',   label:'🏦 Caixa'},
+    {id:'aditivos-obra',label:'📝 Aditivos'},
     {id:'distribuicao', label:'💵 Distribuição'},
     {id:'info',         label:'ℹ️ Informações'}
   ];
@@ -2302,6 +2413,13 @@ function buildObraCard(b, obra) {
   body.appendChild(panelRec);
 
   // Panel: Distribuição de Lucros
+  // Panel: Aditivos da Obra
+  var panelAditivosObra = document.createElement('div');
+  panelAditivosObra.className = 'obc-panel' + (activeTab==='aditivos-obra'?' active':'');
+  panelAditivosObra.id = 'obc-panel-'+b.id+'-aditivos-obra';
+  buildAditivosObraPanel(panelAditivosObra, b.id, b);
+  body.appendChild(panelAditivosObra);
+
   // Panel: Caixa da Obra
   var panelCaixaObra = document.createElement('div');
   panelCaixaObra.className = 'obc-panel' + (activeTab==='caixa-obra'?' active':'');
@@ -2394,8 +2512,14 @@ function renderObraCharts(bid, b, entries, insts, instStatus, receita, custo) {
   Chart.defaults.color = 'rgba(180,220,255,0.45)';
   Chart.defaults.font.family = 'Barlow, sans-serif';
 
-  var margem   = receita > 0 ? ((receita-custo)/receita*100) : 0;
-  var custoPerc = receita > 0 ? Math.min(100, custo/receita*100) : 0;
+  // Include approved aditivos in receita total
+  var aditivos = ADIT.load().filter(function(a){ return a.budgetId===bid && a.status==='approved'; });
+  var receitaAditivos = aditivos.reduce(function(s,a){ return s+parseFloat(a.total||0); }, 0);
+  var custosAditivos  = getAditCustos(bid).reduce(function(s,e){ return s+parseFloat(e.val||0); }, 0);
+  var receitaTotal    = receita + receitaAditivos;
+  var custoTotal      = custo + custosAditivos;
+  var margem   = receitaTotal > 0 ? ((receitaTotal-custoTotal)/receitaTotal*100) : 0;
+  var custoPerc = receitaTotal > 0 ? Math.min(100, custoTotal/receitaTotal*100) : 0;
   var doneCount = insts.filter(function(i){ return (instStatus[i.id]||'wait')==='done'; }).length;
   var progPct   = insts.length ? (doneCount/insts.length*100) : 0;
   var resultado = receita - custo;
@@ -2405,9 +2529,9 @@ function renderObraCharts(bid, b, entries, insts, instStatus, receita, custo) {
   if (ckpi) {
     var mc = margem>=20?'pos':margem>=0?'warn':'neg';
     ckpi.innerHTML =
-      kpiBox('Receita Total',   fmt(receita),  'neu') +
-      kpiBox('Custo Acumulado', fmt(custo),    custoPerc>90?'neg':custoPerc>70?'warn':'gn') +
-      kpiBox('Resultado',       fmt(resultado), resultado>=0?'pos':'neg') +
+      kpiBox('Receita Total',   fmt(receitaTotal),            'neu') +
+      kpiBox('Custo Acumulado', fmt(custoTotal),               custoPerc>90?'neg':custoPerc>70?'warn':'gn') +
+      kpiBox('Resultado',       fmt(receitaTotal-custoTotal),  (receitaTotal-custoTotal)>=0?'pos':'neg') +
       kpiBox('Margem',          margem.toFixed(1)+'%', mc) +
       kpiBox('Progresso',       progPct.toFixed(0)+'%', progPct>=100?'pos':'neu') +
       kpiBox('Consumo Orçam.',  custoPerc.toFixed(1)+'%', custoPerc>90?'neg':custoPerc>70?'warn':'pos');
@@ -2675,6 +2799,13 @@ function renderObraCharts(bid, b, entries, insts, instStatus, receita, custo) {
   // ── CHART 5: Lucro em Tempo Real ──────────────────────────────
   destroyChart('oc-profit-'+bid);
   var ctxP = el('oc-profit-'+bid);
+
+  // Include aditivos in receita for profit chart
+  var aditivos = ADIT.load().filter(function(a){ return a.budgetId===bid && a.status==='approved'; });
+  var receitaAditivos = aditivos.reduce(function(s,a){ return s+parseFloat(a.total||0); }, 0);
+  var custosAditivos  = getAditCustos(bid).reduce(function(s,e){ return s+parseFloat(e.val||0); }, 0);
+  receita = receita + receitaAditivos; // expand receita to include aditivos
+  custo   = custo   + custosAditivos;
 
   // Build recebimentos timeline
   var recs = getRecebimentos(bid).filter(function(r){ return r.date && r.val; })
@@ -5611,6 +5742,205 @@ function buildDistPagamentosSection(bid, resultado, wrapper) {
   wrapper.appendChild(section);
 }
 
+
+// ═══════════════════════════════════════
+// ADITIVOS — CUSTOS FINANCEIROS
+// Stored in ODB: obras[bid].aditCustos = [{id,aditId,cat,desc,val,date,conta}]
+// ═══════════════════════════════════════
+function getAditCustos(bid) {
+  var db = ODB.load();
+  return (db[bid] && db[bid].aditCustos) ? db[bid].aditCustos : [];
+}
+function saveAditCusto(bid, entry) {
+  var db = ODB.load();
+  if (!db[bid]) db[bid] = {};
+  if (!db[bid].aditCustos) db[bid].aditCustos = [];
+  db[bid].aditCustos.push(entry);
+  ODB.save(db);
+  // Sync to obra caixa
+  var cat = CATS.find(function(c){return c.id===entry.cat;})||{icon:'💸',name:'Custo'};
+  var mov = {id:'aditfin_'+entry.id, tipo:'saida', conta:entry.conta||CONTA_PADRAO,
+    desc:'[Aditivo] '+cat.icon+' '+cat.name+': '+(entry.desc||''),
+    val:parseFloat(entry.val||0), date:entry.date||'', createdAt:Date.now(), autoGerado:true};
+  addMovObraCaixa(bid, mov);
+  var b = DB.load().find(function(x){return x.id===bid;});
+  addMovGlobalCaixa(Object.assign({},mov,{id:'gaditfin_'+entry.id,budgetId:bid,
+    desc:mov.desc+' — '+(b?b.client||b.num||'':'')}));
+}
+function deleteAditCusto(bid, entryId) {
+  var db = ODB.load();
+  if (!db[bid]||!db[bid].aditCustos) return;
+  db[bid].aditCustos = db[bid].aditCustos.filter(function(e){return e.id!==entryId;});
+  ODB.save(db);
+  removeMovObraCaixa(bid,'aditfin_'+entryId);
+  removeMovGlobalCaixa('gaditfin_'+entryId);
+}
+
+// Modal for aditivo cost launch
+var _aditCostBid=null, _aditCostAditId=null, _aditCostCb=null;
+function openAditCostModal(bid, aditId, cb) {
+  _aditCostBid=bid; _aditCostAditId=aditId; _aditCostCb=cb;
+  var inner=el('ov-adit-cost-inner'); if(!inner) return;
+  var caixaD=getCaixaData();
+  var contas=(caixaD.contas&&caixaD.contas.length)?caixaD.contas:DEFAULT_CONTAS;
+  inner.innerHTML=
+    '<h2>💸 Lançar Custo do Aditivo</h2>'+
+    '<div style="display:flex;flex-direction:column;gap:12px">'+
+      '<div class="field"><label>Categoria</label>'+
+        '<select class="fi" id="ac-cat">'+
+          CATS.map(function(c){return'<option value="'+c.id+'">'+c.icon+' '+c.name+'</option>';}).join('')+
+        '</select></div>'+
+      '<div class="field"><label>Descrição</label>'+
+        '<input class="fi" id="ac-desc" placeholder="Ex: Pedreiro diária, Material extra..."></div>'+
+      '<div class="field"><label>Conta de pagamento</label>'+
+        '<select class="fi" id="ac-conta">'+
+          contas.map(function(c){return'<option value="'+c.id+'"'+(c.padrao?' selected':'')+'>'+c.icon+' '+c.nome+(c.banco?' — '+c.banco:'')+'</option>';}).join('')+
+        '</select></div>'+
+      '<div class="fg fg2">'+
+        '<div class="field"><label>Valor (R$)</label><input class="fi" id="ac-val" type="number" min="0" step="any" placeholder="0,00"></div>'+
+        '<div class="field"><label>Data</label><input class="fi" id="ac-date" value="'+new Date().toLocaleDateString('pt-BR')+'"></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="mf"><button class="btn btn-p" id="ac-save">💾 Lançar</button><button class="btn btn-g" id="ac-cancel">Cancelar</button></div>';
+  el('ov-adit-cost').classList.add('open');
+  setTimeout(function(){
+    el('ac-save').addEventListener('click', function(){
+      var cat=el('ac-cat').value, desc=el('ac-desc').value.trim();
+      var val=parseFloat(el('ac-val').value), date=el('ac-date').value;
+      var conta=el('ac-conta').value||CONTA_PADRAO;
+      if(!val||val<=0){toast('Valor inválido','err');return;}
+      saveAditCusto(_aditCostBid,{id:uid(),aditId:_aditCostAditId,cat:cat,desc:desc,val:val,date:date,conta:conta});
+      closeOv('ov-adit-cost');
+      toast('Custo lançado! 💸');
+      if(_aditCostCb)_aditCostCb();
+      if(el('view-dash')&&el('view-dash').classList.contains('active'))renderDash();
+    });
+    el('ac-cancel').addEventListener('click',function(){closeOv('ov-adit-cost');});
+    el('ac-val').focus();
+  },0);
+}
+
+// ── Panel builder ─────────────────────────────────────────────
+function buildAditivosObraPanel(panel, bid, b) {
+  var aditivos = ADIT.load().filter(function(a){ return a.budgetId===bid; });
+  var allCustos = getAditCustos(bid);
+
+  function rebuild() {
+    panel.innerHTML='';
+    var aditivos2 = ADIT.load().filter(function(a){ return a.budgetId===bid; });
+    var allCustos2 = getAditCustos(bid);
+
+    if (!aditivos2.length) {
+      var empty=document.createElement('div'); empty.className='adit-no-items';
+      empty.innerHTML='Nenhum aditivo vinculado a esta obra.<br><span style="font-size:11px;color:rgba(0,212,255,.25)">Crie aditivos na aba 📝 Aditivos do menu.</span>';
+      panel.appendChild(empty);
+      return;
+    }
+
+    // Global KPIs
+    var recAprov  = aditivos2.filter(function(a){return a.status==='approved';}).reduce(function(s,a){return s+parseFloat(a.total||0);},0);
+    var recPend   = aditivos2.filter(function(a){return a.status==='pending';}).reduce(function(s,a){return s+parseFloat(a.total||0);},0);
+    var custoAdit = allCustos2.reduce(function(s,e){return s+parseFloat(e.val||0);},0);
+    var lucroAdit = recAprov - custoAdit;
+    var margemAdit= recAprov>0?(lucroAdit/recAprov*100):0;
+    var mColor    = margemAdit>=20?'var(--gn)':margemAdit>=0?'var(--yw)':'var(--rd)';
+
+    var kpisDiv=document.createElement('div'); kpisDiv.className='adit-fin-kpis';
+    [
+      {l:'Receita Aprovada',    v:fmt(recAprov),               c:'var(--gd)'},
+      {l:'Pendente Aprovação',  v:fmt(recPend),                c:'var(--yw)'},
+      {l:'Custos Lançados',     v:fmt(custoAdit),              c:'var(--rd)'},
+      {l:'Lucro Aditivos',      v:fmt(lucroAdit)+' ('+margemAdit.toFixed(1)+'%)', c:mColor},
+    ].forEach(function(k){
+      kpisDiv.innerHTML+='<div class="adit-fin-card">'+
+        '<div class="adit-fin-lbl">'+k.l+'</div>'+
+        '<div class="adit-fin-val" style="color:'+k.c+'">'+k.v+'</div>'+
+      '</div>';
+    });
+    panel.appendChild(kpisDiv);
+
+    // Per-aditivo cards
+    aditivos2.sort(function(a,b){return(b.createdAt||0)-(a.createdAt||0);}).forEach(function(adit){
+      var stInfo={approved:{cls:'approved',icon:'✅',label:'Aprovado'},pending:{cls:'pending',icon:'⏳',label:'Pendente'},rejected:{cls:'rejected',icon:'❌',label:'Recusado'}}[adit.status||'pending'];
+      var orcado=parseFloat(adit.total||0);
+      var custos=allCustos2.filter(function(e){return e.aditId===adit.id;});
+      var custoAd=custos.reduce(function(s,e){return s+parseFloat(e.val||0);},0);
+      var lucroAd=orcado-custoAd;
+      var pct=orcado>0?Math.min(100,custoAd/orcado*100):0;
+      var pColor=pct>90?'var(--rd)':pct>70?'var(--yw)':'var(--gn)';
+
+      var item=document.createElement('div'); item.className='adit-item';
+
+      // Header
+      var hd=document.createElement('div'); hd.className='adit-item-hd';
+      hd.innerHTML=
+        '<div>'+
+          '<div class="adit-item-num">ADT-'+String(adit.num||'?').padStart(4,'0')+'</div>'+
+          '<div class="adit-item-title">'+esc(adit.title||'Sem título')+'</div>'+
+          '<span class="adit-item-status '+stInfo.cls+'">'+stInfo.icon+' '+stInfo.label+'</span>'+
+        '</div>'+
+        '<div class="adit-item-right">'+
+          '<div class="adit-item-orcado">'+fmt(orcado)+'</div>'+
+          '<div class="adit-item-sub">orçado no aditivo</div>'+
+        '</div>';
+      item.appendChild(hd);
+
+      // Body
+      var bd=document.createElement('div'); bd.className='adit-item-body';
+
+      // Progress bar: custo vs orçado
+      var prog=document.createElement('div'); prog.className='adit-item-progress';
+      prog.innerHTML=
+        '<div class="adit-item-progress-row">'+
+          '<span>Custo: '+fmt(custoAd)+' · Lucro: <span style="color:'+(lucroAd>=0?'var(--gn)':'var(--rd)')+'">'+fmt(lucroAd)+'</span></span>'+
+          '<span style="color:'+pColor+'">'+pct.toFixed(1)+'% consumido</span>'+
+        '</div>'+
+        '<div class="obc-bar"><div class="obc-bar-fill" style="width:'+pct.toFixed(1)+'%;background:'+pColor+'"></div></div>';
+      bd.appendChild(prog);
+
+      // Cost list
+      if(custos.length){
+        var costList=document.createElement('div'); costList.className='adit-cost-list';
+        custos.slice().sort(function(a,b){return(b.date||'').localeCompare(a.date||'');}).forEach(function(e){
+          var cat=CATS.find(function(c){return c.id===e.cat;})||{icon:'💸',name:'Custo'};
+          var row=document.createElement('div'); row.className='adit-cost-row';
+          row.innerHTML=
+            '<span class="adit-cost-cat">'+cat.icon+' '+cat.name+'</span>'+
+            '<span class="adit-cost-desc">'+esc(e.desc||'—')+'</span>'+
+            '<span class="adit-cost-date">'+esc(e.date||'')+'</span>'+
+            '<span class="adit-cost-val">−'+fmt(e.val)+'</span>'+
+            (isAdmin()?'<button class="adit-cost-del" data-id="'+e.id+'">🗑️</button>':'<span></span>');
+          if(isAdmin()){
+            row.querySelector('.adit-cost-del').addEventListener('click',function(){
+              if(!confirm('Excluir este custo?'))return;
+              deleteAditCusto(bid,this.dataset.id);
+              rebuild();
+            });
+          }
+          costList.appendChild(row);
+        });
+        bd.appendChild(costList);
+      } else {
+        var noC=document.createElement('div'); noC.className='adit-no-items';
+        noC.textContent='Nenhum custo lançado neste aditivo.';
+        bd.appendChild(noC);
+      }
+
+      // Add cost button (admin only)
+      if(isAdmin()&&adit.status!=='rejected'){
+        var addBtn=document.createElement('button'); addBtn.className='add-adit-cost-btn';
+        addBtn.innerHTML='＋ Lançar custo neste aditivo';
+        addBtn.addEventListener('click',function(){openAditCostModal(bid,adit.id,rebuild);});
+        bd.appendChild(addBtn);
+      }
+
+      item.appendChild(bd);
+      panel.appendChild(item);
+    });
+  }
+  rebuild();
+}
+
 // ── BACKUP / RESTORE ────────────────────────────────────────────
 function exportAllData(){
   var data={exportedAt:new Date().toISOString(),pulso_v3:JSON.stringify(_mem.budgets),pulso_obras:JSON.stringify(_mem.obras),pulso_finance:JSON.stringify(_mem.finance),pulso_aditivos:JSON.stringify(_mem.aditivos)};
@@ -5983,6 +6313,8 @@ setTimeout(function(){
     </div>
   </div>
 </div>
+
+<div class="ov" id="ov-adit-cost" onclick="if(event.target===this)closeOv('ov-adit-cost')"><div class="modal sm" id="ov-adit-cost-inner"></div></div>
 
 <div class="ov" id="ov-dist-pag"><div class="modal sm" id="ov-dist-pag-inner"></div></div>
 
