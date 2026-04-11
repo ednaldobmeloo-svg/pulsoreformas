@@ -971,6 +971,20 @@ select.fi option{background:#06121e}
 .add-adit-cost-btn:hover{border-color:var(--rd);color:var(--rd);background:rgba(255,68,102,.08)}
 .adit-no-items{font-size:12px;color:rgba(180,220,255,.2);font-style:italic;text-align:center;padding:12px 0}
 
+
+/* ── ADITIVO RECEBIMENTOS ───────────────────────────── */
+.adit-rec-row{display:grid;grid-template-columns:auto 1fr auto auto auto;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid rgba(0,212,255,.05);font-size:12px}
+.adit-rec-row:last-child{border:none}
+.adit-rec-dot{width:7px;height:7px;border-radius:50%;background:var(--gn);flex-shrink:0}
+.adit-rec-desc{color:var(--cr);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.adit-rec-date{font-size:10px;color:rgba(0,212,255,.3);white-space:nowrap}
+.adit-rec-val{font-weight:700;color:var(--gn);white-space:nowrap}
+.adit-rec-del{padding:2px 5px;background:transparent;border:none;color:rgba(255,68,102,.4);cursor:pointer;font-size:11px;transition:color .15s}
+.adit-rec-del:hover{color:var(--rd)}
+.add-adit-rec-btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:7px 12px;background:rgba(0,255,136,.05);border:1px dashed rgba(0,255,136,.2);color:rgba(0,255,136,.6);border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .15s;width:100%;margin-top:6px}
+.add-adit-rec-btn:hover{border-color:var(--gn);color:var(--gn);background:rgba(0,255,136,.08)}
+.adit-section-divider{font-size:10px;font-weight:700;color:rgba(0,212,255,.4);text-transform:uppercase;letter-spacing:.06em;margin:10px 0 6px;padding-top:10px;border-top:1px solid rgba(0,212,255,.06)}
+
 </style>
 </head>
 <body>
@@ -5838,19 +5852,24 @@ function buildAditivosObraPanel(panel, bid, b) {
     }
 
     // Global KPIs
-    var recAprov  = aditivos2.filter(function(a){return a.status==='approved';}).reduce(function(s,a){return s+parseFloat(a.total||0);},0);
-    var recPend   = aditivos2.filter(function(a){return a.status==='pending';}).reduce(function(s,a){return s+parseFloat(a.total||0);},0);
-    var custoAdit = allCustos2.reduce(function(s,e){return s+parseFloat(e.val||0);},0);
-    var lucroAdit = recAprov - custoAdit;
-    var margemAdit= recAprov>0?(lucroAdit/recAprov*100):0;
-    var mColor    = margemAdit>=20?'var(--gn)':margemAdit>=0?'var(--yw)':'var(--rd)';
+    var recAprov    = aditivos2.filter(function(a){return a.status==='approved';}).reduce(function(s,a){return s+parseFloat(a.total||0);},0);
+    var recPend     = aditivos2.filter(function(a){return a.status==='pending';}).reduce(function(s,a){return s+parseFloat(a.total||0);},0);
+    var custoAdit   = allCustos2.reduce(function(s,e){return s+parseFloat(e.val||0);},0);
+    var totalRecAditGlobal = getAditRecebimentos(bid).reduce(function(s,r){return s+parseFloat(r.val||0);},0);
+    var lucroAdit   = totalRecAditGlobal - custoAdit;
+    var margemAdit  = recAprov>0?(lucroAdit/recAprov*100):0;
+    var mColor      = margemAdit>=20?'var(--gn)':margemAdit>=0?'var(--yw)':'var(--rd)';
+    var pendenteAdit= recAprov - totalRecAditGlobal;
 
-    var kpisDiv=document.createElement('div'); kpisDiv.className='adit-fin-kpis';
+    var kpisDiv=document.createElement('div');
+    kpisDiv.className='adit-fin-kpis';
+    kpisDiv.style.gridTemplateColumns='repeat(5,1fr)';
     [
-      {l:'Receita Aprovada',    v:fmt(recAprov),               c:'var(--gd)'},
-      {l:'Pendente Aprovação',  v:fmt(recPend),                c:'var(--yw)'},
-      {l:'Custos Lançados',     v:fmt(custoAdit),              c:'var(--rd)'},
-      {l:'Lucro Aditivos',      v:fmt(lucroAdit)+' ('+margemAdit.toFixed(1)+'%)', c:mColor},
+      {l:'Receita Aprovada',  v:fmt(recAprov),              c:'var(--gd)'},
+      {l:'Total Recebido',    v:fmt(totalRecAditGlobal),    c:'var(--gn)'},
+      {l:'A Receber',         v:fmt(Math.max(0,pendenteAdit)), c:'var(--yw)'},
+      {l:'Custos Lançados',   v:fmt(custoAdit),             c:'var(--rd)'},
+      {l:'Lucro Aditivos',    v:fmt(lucroAdit)+' ('+margemAdit.toFixed(1)+'%)', c:mColor},
     ].forEach(function(k){
       kpisDiv.innerHTML+='<div class="adit-fin-card">'+
         '<div class="adit-fin-lbl">'+k.l+'</div>'+
@@ -5926,6 +5945,57 @@ function buildAditivosObraPanel(panel, bid, b) {
         bd.appendChild(noC);
       }
 
+      // Recebimentos section
+      var recAdit = allCustos2.length >= 0 ? getAditRecebimentos(bid).filter(function(r){return r.aditId===adit.id;}) : [];
+      var recAditList = getAditRecebimentos(bid).filter(function(r){return r.aditId===adit.id;});
+      var totalRecAdit = recAditList.reduce(function(s,r){return s+parseFloat(r.val||0);},0);
+      var saldoAdit = totalRecAdit - custoAd;
+
+      var recDiv=document.createElement('div'); recDiv.className='adit-section-divider';
+      recDiv.innerHTML='💰 Recebimentos &nbsp;·&nbsp; <span style="color:var(--gn)">'+fmt(totalRecAdit)+'</span>'+
+        (orcado>0?' &nbsp;·&nbsp; <span style="color:'+(saldoAdit>=0?'var(--gn)':'var(--rd)')+'">Saldo: '+fmt(saldoAdit)+'</span>':'');
+      bd.appendChild(recDiv);
+
+      if(recAditList.length){
+        var recList=document.createElement('div');
+        recAditList.slice().sort(function(a,b){return(b.date||'').localeCompare(a.date||'');}).forEach(function(r){
+          var row=document.createElement('div'); row.className='adit-rec-row';
+          row.innerHTML=
+            '<div class="adit-rec-dot"></div>'+
+            '<span class="adit-rec-desc">'+esc(r.desc||'Recebimento')+'</span>'+
+            '<span class="adit-rec-date">'+esc(r.date||'')+'</span>'+
+            '<span class="adit-rec-val">+'+fmt(r.val)+'</span>'+
+            (isAdmin()?'<button class="adit-rec-del" data-id="'+r.id+'">🗑️</button>':'<span></span>');
+          if(isAdmin()){
+            row.querySelector('.adit-rec-del').addEventListener('click',function(){
+              if(!confirm('Excluir este recebimento?'))return;
+              deleteAditRecebimento(bid,this.dataset.id);
+              rebuild();
+            });
+          }
+          recList.appendChild(row);
+        });
+        bd.appendChild(recList);
+      } else {
+        var noR=document.createElement('div');
+        noR.style.cssText='font-size:11px;color:rgba(180,220,255,.2);font-style:italic;padding:4px 0';
+        noR.textContent='Nenhum recebimento registrado.';
+        bd.appendChild(noR);
+      }
+
+      if(isAdmin()&&adit.status!=='rejected'){
+        var addRecBtn=document.createElement('button'); addRecBtn.className='add-adit-rec-btn';
+        addRecBtn.innerHTML='＋ Registrar recebimento deste aditivo';
+        addRecBtn.addEventListener('click',function(){openAditRecModal(bid,adit.id,rebuild);});
+        bd.appendChild(addRecBtn);
+      }
+
+      // Costs section divider
+      var costDiv=document.createElement('div'); costDiv.className='adit-section-divider';
+      costDiv.innerHTML='💸 Custos &nbsp;·&nbsp; <span style="color:var(--rd)">'+fmt(custoAd)+'</span>'+
+        (orcado>0?' &nbsp;·&nbsp; <span style="color:'+(pct>90?'var(--rd)':pct>70?'var(--yw)':'var(--gd)')+'">'+pct.toFixed(1)+'% do orçado</span>':'');
+      bd.appendChild(costDiv);
+
       // Add cost button (admin only)
       if(isAdmin()&&adit.status!=='rejected'){
         var addBtn=document.createElement('button'); addBtn.className='add-adit-cost-btn';
@@ -5939,6 +6009,85 @@ function buildAditivosObraPanel(panel, bid, b) {
     });
   }
   rebuild();
+}
+
+
+// ═══════════════════════════════════════
+// ADITIVOS — RECEBIMENTOS
+// Stored in ODB: obras[bid].aditRecebimentos = [{id,aditId,desc,val,date,conta}]
+// ═══════════════════════════════════════
+function getAditRecebimentos(bid) {
+  var db = ODB.load();
+  return (db[bid] && db[bid].aditRecebimentos) ? db[bid].aditRecebimentos : [];
+}
+function saveAditRecebimento(bid, entry) {
+  var db = ODB.load();
+  if (!db[bid]) db[bid] = {};
+  if (!db[bid].aditRecebimentos) db[bid].aditRecebimentos = [];
+  db[bid].aditRecebimentos.push(entry);
+  ODB.save(db);
+  // Sync to obra caixa (entrada)
+  var b = DB.load().find(function(x){return x.id===bid;});
+  var mov = {
+    id: 'aditrec_'+entry.id, tipo: 'entrada', conta: entry.conta||CONTA_PADRAO,
+    desc: '[Aditivo] '+(entry.desc||'Recebimento'),
+    val: parseFloat(entry.val||0), date: entry.date||'',
+    createdAt: Date.now(), autoGerado: true
+  };
+  addMovObraCaixa(bid, mov);
+  addMovGlobalCaixa(Object.assign({}, mov, {
+    id: 'gaditrec_'+entry.id, budgetId: bid,
+    desc: mov.desc+' — '+(b?b.client||b.num||'':'')
+  }));
+}
+function deleteAditRecebimento(bid, entryId) {
+  var db = ODB.load();
+  if (!db[bid]||!db[bid].aditRecebimentos) return;
+  db[bid].aditRecebimentos = db[bid].aditRecebimentos.filter(function(e){return e.id!==entryId;});
+  ODB.save(db);
+  removeMovObraCaixa(bid, 'aditrec_'+entryId);
+  removeMovGlobalCaixa('gaditrec_'+entryId);
+}
+
+// Modal
+var _aditRecBid=null, _aditRecAditId=null, _aditRecCb=null;
+function openAditRecModal(bid, aditId, cb) {
+  _aditRecBid=bid; _aditRecAditId=aditId; _aditRecCb=cb;
+  var inner=el('ov-adit-rec-inner'); if(!inner) return;
+  var caixaD=getCaixaData();
+  var contas=(caixaD.contas&&caixaD.contas.length)?caixaD.contas:DEFAULT_CONTAS;
+  inner.innerHTML=
+    '<h2>💰 Registrar Recebimento do Aditivo</h2>'+
+    '<div style="display:flex;flex-direction:column;gap:12px">'+
+      '<div class="field"><label>Descrição</label>'+
+        '<input class="fi" id="ar-desc" placeholder="Ex: Pagamento parcela 1, Entrada aditivo..."></div>'+
+      '<div class="field"><label>Conta de entrada</label>'+
+        '<select class="fi" id="ar-conta">'+
+          contas.map(function(c){return'<option value="'+c.id+'"'+(c.padrao?' selected':'')+'>'+c.icon+' '+c.nome+(c.banco?' — '+c.banco:'')+'</option>';}).join('')+
+        '</select></div>'+
+      '<div class="fg fg2">'+
+        '<div class="field"><label>Valor (R$)</label><input class="fi" id="ar-val" type="number" min="0" step="any" placeholder="0,00"></div>'+
+        '<div class="field"><label>Data</label><input class="fi" id="ar-date" value="'+new Date().toLocaleDateString('pt-BR')+'"></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="mf"><button class="btn btn-gn" id="ar-save">💰 Registrar</button><button class="btn btn-g" id="ar-cancel">Cancelar</button></div>';
+  el('ov-adit-rec').classList.add('open');
+  setTimeout(function(){
+    el('ar-save').addEventListener('click', function(){
+      var desc=el('ar-desc').value.trim();
+      var val=parseFloat(el('ar-val').value);
+      var date=el('ar-date').value;
+      var conta=el('ar-conta').value||CONTA_PADRAO;
+      if(!val||val<=0){toast('Valor inválido','err');return;}
+      saveAditRecebimento(_aditRecBid,{id:uid(),aditId:_aditRecAditId,desc:desc||'Recebimento aditivo',val:val,date:date,conta:conta});
+      closeOv('ov-adit-rec');
+      toast('Recebimento registrado! 💰');
+      if(_aditRecCb)_aditRecCb();
+      if(el('view-dash')&&el('view-dash').classList.contains('active'))renderDash();
+    });
+    el('ar-cancel').addEventListener('click',function(){closeOv('ov-adit-rec');});
+    el('ar-val').focus();
+  },0);
 }
 
 // ── BACKUP / RESTORE ────────────────────────────────────────────
@@ -6313,6 +6462,8 @@ setTimeout(function(){
     </div>
   </div>
 </div>
+
+<div class="ov" id="ov-adit-rec" onclick="if(event.target===this)closeOv('ov-adit-rec')"><div class="modal sm" id="ov-adit-rec-inner"></div></div>
 
 <div class="ov" id="ov-adit-cost" onclick="if(event.target===this)closeOv('ov-adit-cost')"><div class="modal sm" id="ov-adit-cost-inner"></div></div>
 
