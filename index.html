@@ -2376,6 +2376,15 @@ function buildGraficosHTML(bid) {
         '<div class="occ-sub">Velocidade de consumo financeiro</div>' +
         '<div class="occ-wrap" style="height:200px"><canvas id="oc-weekly-'+bid+'"></canvas></div>' +
       '</div>' +
+    '</div>' +
+    '<div class="obra-chart-card" style="margin-top:16px">' +
+      '<div class="occ-title">📈 Lucro em Tempo Real</div>' +
+      '<div class="occ-sub">Receita recebida, custos acumulados e lucro líquido ao longo da obra</div>' +
+      '<div style="display:grid;grid-template-columns:auto 1fr;gap:16px;margin-bottom:16px;align-items:center">'+
+        '<div id="oc-profit-bigpct-'+bid+'" style="background:rgba(0,8,24,.6);border:1px solid rgba(0,212,255,.12);border-radius:12px;padding:16px 24px;text-align:center;min-width:160px"></div>'+
+        '<div id="oc-profit-kpis-'+bid+'" style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px"></div>'+
+      '</div>' +
+      '<div class="occ-wrap" style="height:220px"><canvas id="oc-profit-'+bid+'"></canvas></div>' +
     '</div>'
   );
 }
@@ -2661,6 +2670,150 @@ function renderObraCharts(bid, b, entries, insts, instStatus, receita, custo) {
     } else {
       ctxW.parentElement.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:200px;color:rgba(0,212,255,.25);font-size:13px">Nenhum custo com data registrada</div>';
     }
+  }
+
+  // ── CHART 5: Lucro em Tempo Real ──────────────────────────────
+  destroyChart('oc-profit-'+bid);
+  var ctxP = el('oc-profit-'+bid);
+
+  // Build recebimentos timeline
+  var recs = getRecebimentos(bid).filter(function(r){ return r.date && r.val; })
+    .sort(function(a,b){ return parseDateBR(a.date)-parseDateBR(b.date); });
+
+  // Build costs timeline
+  var costsTimeline = entries.slice().filter(function(e){ return e.date; })
+    .sort(function(a,b){ return parseDateBR(a.date)-parseDateBR(b.date); });
+
+  // KPIs
+  var totalRec  = recs.reduce(function(s,r){ return s+parseFloat(r.val||0); }, 0);
+  var lucroReal = totalRec - custo;
+  var margem2   = totalRec > 0 ? (lucroReal/totalRec*100) : 0;
+  var pendente  = receita - totalRec;
+
+  var kpisEl = el('oc-profit-kpis-'+bid);
+  if (kpisEl) {
+    var margemPct  = receita > 0 ? (lucroReal / receita * 100) : 0;
+    var margemRec  = totalRec > 0 ? (lucroReal / totalRec * 100) : 0;
+    var margemColor = margemPct >= 20 ? 'var(--gn)' : margemPct >= 10 ? 'var(--yw)' : 'var(--rd)';
+    var kpis = [
+      {lbl:'Receita Contratada', val:fmt(receita),   color:'var(--gd)'},
+      {lbl:'Recebido',           val:fmt(totalRec),  color:'var(--gn)'},
+      {lbl:'Custos Totais',      val:fmt(custo),     color:'var(--rd)'},
+      {lbl:'Lucro Real',         val:fmt(lucroReal), color:lucroReal>=0?'var(--gn)':'var(--rd)'},
+      {lbl:'A Receber',          val:fmt(pendente),  color:'var(--yw)'},
+      {lbl:'Custo / Receita',    val:receita>0?(custo/receita*100).toFixed(1)+'%':'—', color:custo/receita>0.9?'var(--rd)':custo/receita>0.7?'var(--yw)':'var(--gd)'},
+    ];
+    kpisEl.style.gridTemplateColumns = 'repeat(6,1fr)';
+
+    // Big % margin highlight
+    var bigPct = document.getElementById('oc-profit-bigpct-'+bid);
+    if (bigPct) {
+      bigPct.innerHTML =
+        '<div style="font-size:11px;color:rgba(0,212,255,.4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Margem de Lucro</div>'+
+        '<div style="font-size:52px;font-weight:800;line-height:1;color:'+margemColor+';text-shadow:0 0 24px '+margemColor.replace('var(--','rgba(').replace(')','')+', .3)">'+margemPct.toFixed(1)+'<span style="font-size:28px">%</span></div>'+
+        '<div style="font-size:11px;color:rgba(0,212,255,.3);margin-top:6px">sobre receita contratada</div>'+
+        '<div style="font-size:13px;font-weight:700;color:'+margemColor+';margin-top:4px">'+margemRec.toFixed(1)+'% sobre recebido</div>';
+    }
+
+    kpisEl.innerHTML = kpis.map(function(k){
+      return '<div style="background:rgba(0,8,24,.55);border:1px solid rgba(0,212,255,.1);border-radius:9px;padding:10px 12px">'+
+        '<div style="font-size:10px;color:rgba(0,212,255,.4);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">'+k.lbl+'</div>'+
+        '<div style="font-size:16px;font-weight:800;color:'+k.color+'">'+k.val+'</div>'+
+        (k.sub?'<div style="font-size:9px;color:rgba(0,212,255,.3);margin-top:2px">'+k.sub+'</div>':'')+
+      '</div>';
+    }).join('');
+  }
+
+  if (ctxP && (recs.length || costsTimeline.length)) {
+    // Merge all dates
+    var allDates = {};
+    recs.forEach(function(r){ allDates[r.date] = true; });
+    costsTimeline.forEach(function(e){ allDates[e.date] = true; });
+    var sortedDates = Object.keys(allDates).sort(function(a,b){ return parseDateBR(a)-parseDateBR(b); });
+
+    // Accumulate per date
+    var accRec=0, accCost=0;
+    var dataRec=[], dataCost=[], dataLucro=[], dataMeta=[], dataMargem=[];
+    sortedDates.forEach(function(date){
+      recs.filter(function(r){return r.date===date;}).forEach(function(r){ accRec+=parseFloat(r.val||0); });
+      costsTimeline.filter(function(e){return e.date===date;}).forEach(function(e){ accCost+=parseFloat(e.val||0); });
+      var lucroAcc = accRec - accCost;
+      dataRec.push(accRec);
+      dataCost.push(accCost);
+      dataLucro.push(lucroAcc);
+      dataMeta.push(receita);
+      // Margem % sobre receita contratada
+      dataMargem.push(receita > 0 ? parseFloat((lucroAcc / receita * 100).toFixed(1)) : 0);
+    });
+
+    _charts['oc-profit-'+bid] = new Chart(ctxP, {
+      type: 'line',
+      data: {
+        labels: sortedDates,
+        datasets: [
+          {
+            label: 'Recebido',
+            data: dataRec,
+            borderColor: 'rgba(0,255,136,.8)',
+            backgroundColor: 'rgba(0,255,136,.08)',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 3,
+            borderWidth: 2
+          },
+          {
+            label: 'Custo Acumulado',
+            data: dataCost,
+            borderColor: 'rgba(255,68,102,.8)',
+            backgroundColor: 'rgba(255,68,102,.06)',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 3,
+            borderWidth: 2
+          },
+          {
+            label: 'Lucro Real',
+            data: dataLucro,
+            borderColor: 'rgba(0,212,255,.9)',
+            backgroundColor: 'rgba(0,212,255,.06)',
+            fill: false,
+            tension: 0.3,
+            pointRadius: 3,
+            borderWidth: 2,
+            borderDash: [5,3]
+          },
+          {
+            label: 'Receita Contratada',
+            data: dataMeta,
+            borderColor: 'rgba(255,209,102,.35)',
+            backgroundColor: 'transparent',
+            fill: false,
+            tension: 0,
+            pointRadius: 0,
+            borderWidth: 1,
+            borderDash: [8,4]
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        interaction: {mode:'index', intersect:false},
+        plugins: {
+          legend: {labels:{color:'rgba(180,220,255,.5)', font:{size:10}, boxWidth:12}},
+          tooltip: {callbacks:{label:function(c){ return ' '+c.dataset.label+': '+fmt(c.raw); }}}
+        },
+        scales: {
+          x: {grid:{color:'rgba(0,212,255,.05)'}, ticks:{color:'rgba(180,220,255,.4)', maxTicksLimit:8, maxRotation:0}},
+          y: {
+            grid:{color:'rgba(0,212,255,.05)'},
+            ticks:{color:'rgba(180,220,255,.4)', callback:function(v){ return 'R$'+( v>=1000?(v/1000).toFixed(0)+'k':v); }}
+          }
+        }
+      }
+    });
+  } else if (ctxP) {
+    ctxP.parentElement.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:200px;color:rgba(180,220,255,.2);font-size:13px">Lance recebimentos e custos para ver o gráfico de lucro.</div>';
   }
 }
 
