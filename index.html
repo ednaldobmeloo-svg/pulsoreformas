@@ -1153,6 +1153,10 @@ select.fi option{background:#06121e}
           <option value="">— Sem etapa específica —</option>
         </select>
       </div>
+      <div class="field">
+        <label>Conta de pagamento</label>
+        <select class="fi" id="addcost-conta"></select>
+      </div>
       <div class="fg fg2">
         <div class="field">
           <label>Valor (R$)</label>
@@ -3172,7 +3176,8 @@ function saveFinEntry(budgetId, entry) {
   fin[budgetId].entries.push(entry);
   FIN.save(fin);
   var cat = CATS.find(function(c){return c.id===entry.cat;})||{icon:'💸',name:'Custo'};
-  var mov = {id:'fin_'+entry.id, tipo:'saida', conta:CONTA_PADRAO,
+  var contaUsada = entry.conta || CONTA_PADRAO;
+  var mov = {id:'fin_'+entry.id, tipo:'saida', conta:contaUsada,
     desc: cat.icon+' '+cat.name+': '+(entry.desc||''),
     val: parseFloat(entry.val||0), date: entry.date||'',
     createdAt: Date.now(), autoGerado: true};
@@ -3438,7 +3443,8 @@ function confirmAddCost() {
   if (!desc) { toast('Digite a descrição do custo','err'); return; }
   if (!val || val<=0) { toast('Digite um valor válido','err'); return; }
   var etapa = (el('addcost-etapa') && el('addcost-etapa').value) ? el('addcost-etapa').value : '';
-  saveFinEntry(_addCostObraId, {id:uid(), cat:cat, desc:desc, val:val, date:date, etapa:etapa});
+  var conta = (el('addcost-conta') && el('addcost-conta').value) ? el('addcost-conta').value : CONTA_PADRAO;
+  saveFinEntry(_addCostObraId, {id:uid(), cat:cat, desc:desc, val:val, date:date, etapa:etapa, conta:conta});
   closeOv('ov-addcost');
   toast('Custo lançado com sucesso! ✅');
   if (el('view-obras') && el('view-obras').classList.contains('active')) renderObras();
