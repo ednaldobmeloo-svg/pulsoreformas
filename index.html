@@ -1052,6 +1052,32 @@ select.fi option{background:#06121e}
   transition:width .4s;width:0%}
 .proj-step{font-size:12px;color:rgba(0,212,255,.5);margin-top:6px}
 
+
+/* ── CONTRATOS ──────────────────────────────────────────────────── */
+.contrato-section{margin-bottom:20px}
+.contrato-section-title{font-size:11px;color:rgba(0,212,255,.45);text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid rgba(0,212,255,.08)}
+.contrato-status-bar{display:flex;align-items:center;gap:12px;background:rgba(0,8,24,.5);border:1px solid rgba(0,212,255,.1);border-radius:10px;padding:12px 16px;margin-bottom:16px}
+.contrato-status-icon{font-size:24px;flex-shrink:0}
+.contrato-status-info{flex:1}
+.contrato-status-label{font-size:13px;font-weight:700;color:var(--wh)}
+.contrato-status-sub{font-size:11px;color:rgba(0,212,255,.4);margin-top:2px}
+.contrato-pill{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap}
+.contrato-pill.pendente{background:rgba(255,209,102,.1);color:var(--yw);border:1px solid rgba(255,209,102,.2)}
+.contrato-pill.gerado{background:rgba(0,212,255,.1);color:var(--gd);border:1px solid rgba(0,212,255,.2)}
+.contrato-pill.assinado{background:rgba(0,255,136,.1);color:var(--gn);border:1px solid rgba(0,255,136,.2)}
+.contrato-dados-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.contrato-campo label{font-size:11px;color:rgba(0,212,255,.45);text-transform:uppercase;letter-spacing:.06em;font-weight:700;display:block;margin-bottom:5px}
+.contrato-upload-zone{border:2px dashed rgba(0,255,136,.2);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:all .15s;background:rgba(0,255,136,.02)}
+.contrato-upload-zone:hover{border-color:var(--gn);background:rgba(0,255,136,.05)}
+.contrato-upload-zone .cu-icon{font-size:28px;margin-bottom:8px}
+.contrato-upload-zone .cu-title{font-size:13px;font-weight:700;color:rgba(0,255,136,.7)}
+.contrato-upload-zone .cu-sub{font-size:11px;color:rgba(0,212,255,.35);margin-top:4px}
+.contrato-file-card{display:flex;align-items:center;gap:12px;background:rgba(0,255,136,.05);border:1px solid rgba(0,255,136,.15);border-radius:10px;padding:12px 16px}
+.contrato-file-card .cfc-icon{font-size:24px;flex-shrink:0}
+.contrato-file-card .cfc-name{font-size:13px;font-weight:700;color:var(--wh);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.contrato-file-card .cfc-sub{font-size:11px;color:rgba(0,212,255,.4);margin-top:2px}
+.contrato-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+
 </style>
 </head>
 <body>
@@ -2481,6 +2507,7 @@ function buildObraCard(b, obra) {
     {id:'caixa-obra',   label:'🏦 Caixa'},
     {id:'aditivos-obra',label:'📝 Aditivos'},
     {id:'distribuicao', label:'💵 Distribuição'},
+    {id:'contrato',     label:'📋 Contrato'},
     {id:'info',         label:'ℹ️ Informações'}
   ];
   tabs.forEach(function(t){
@@ -2658,6 +2685,13 @@ function buildObraCard(b, obra) {
   panelAditivosObra.id = 'obc-panel-'+b.id+'-aditivos-obra';
   buildAditivosObraPanel(panelAditivosObra, b.id, b);
   body.appendChild(panelAditivosObra);
+
+  // Panel: Contrato
+  var panelContrato = document.createElement('div');
+  panelContrato.className = 'obc-panel' + (activeTab==='contrato'?' active':'');
+  panelContrato.id = 'obc-panel-'+b.id+'-contrato';
+  buildContratoPanel(panelContrato, b.id, b);
+  body.appendChild(panelContrato);
 
   // Panel: Caixa da Obra
   var panelCaixaObra = document.createElement('div');
@@ -4836,7 +4870,8 @@ function setStatus(s) {
     // Auto-create obra entry when approved
     if (s === 'approved' && !wasApproved) {
       ensureObraExists(b.id);
-      toast('Obra criada em Obras em Andamento! 🏗️');
+      initContrato(b.id, b);
+      toast('Obra criada! Contrato gerado em Obras em Andamento → 📋 Contrato 🏗️');
     }
   }
   closeOv('ov-status'); updBadge(); updBadgeObras();
@@ -7139,6 +7174,595 @@ function projApplyToNewBudget(sections, tipoLabel, padrao) {
   }, 200);
 }
 
+
+// ═══════════════════════════════════════════════════════════
+// CONTRATOS
+// Stored in ODB: obras[bid].contrato = { dados:{}, geradoEm, assinadoEm, arquivo:{name,size,data} }
+// ═══════════════════════════════════════════════════════════
+
+function getContrato(bid) {
+  var db = ODB.load();
+  return (db[bid] && db[bid].contrato) ? db[bid].contrato : null;
+}
+
+function saveContrato(bid, contrato) {
+  var db = ODB.load();
+  if (!db[bid]) db[bid] = {};
+  db[bid].contrato = contrato;
+  ODB.save(db);
+}
+
+function initContrato(bid, b) {
+  // Only create if doesn't exist yet
+  if (getContrato(bid)) return;
+  saveContrato(bid, {
+    dados: {
+      clienteNome:      b.client || '',
+      clienteCpfCnpj:   '',
+      clienteEndereco:  '',
+      obraEndereco:     b.local  || '',
+      obraDescricao:    b.obra   || '',
+      prazoExecucao:    '',
+      valorTotal:       calcTotal(b) + getAditReceitaAprovada(bid),
+    },
+    geradoEm:  new Date().toLocaleDateString('pt-BR'),
+    status:    'gerado',
+    arquivo:   null
+  });
+}
+
+function buildContratoPanel(panel, bid, b) {
+  function rebuild() {
+    panel.innerHTML = '';
+    var contrato = getContrato(bid);
+
+    // ── If no contract yet (budget not approved) ──
+    if (!contrato) {
+      var empty = document.createElement('div');
+      empty.style.cssText = 'text-align:center;padding:40px 20px;color:rgba(180,220,255,.25)';
+      empty.innerHTML =
+        '<div style="font-size:36px;margin-bottom:12px">📋</div>'+
+        '<div style="font-size:14px;font-weight:700;margin-bottom:6px">Nenhum contrato gerado</div>'+
+        '<div style="font-size:12px">O contrato é gerado automaticamente quando o orçamento for aprovado.</div>'+
+        '<button class="btn btn-p" style="margin-top:16px" id="btn-gen-contrato">Gerar contrato agora</button>';
+      panel.appendChild(empty);
+      setTimeout(function(){
+        var btn = el('btn-gen-contrato');
+        if (btn) btn.addEventListener('click', function(){
+          initContrato(bid, b);
+          rebuild();
+        });
+      }, 0);
+      return;
+    }
+
+    var dados    = contrato.dados || {};
+    var status   = contrato.status || 'gerado';
+    var arquivo  = contrato.arquivo || null;
+
+    var statusMap = {
+      gerado:   { icon:'📄', label:'Contrato Gerado', sub:'Aguardando assinatura do cliente', cls:'gerado' },
+      assinado: { icon:'✅', label:'Contrato Assinado', sub:'Arquivo assinado enviado', cls:'assinado' }
+    };
+    var st = statusMap[status] || statusMap.gerado;
+
+    // ── Status bar ──
+    var statusBar = document.createElement('div');
+    statusBar.className = 'contrato-status-bar';
+    statusBar.innerHTML =
+      '<div class="contrato-status-icon">'+st.icon+'</div>'+
+      '<div class="contrato-status-info">'+
+        '<div class="contrato-status-label">'+st.label+'</div>'+
+        '<div class="contrato-status-sub">Gerado em: '+esc(contrato.geradoEm||'—')+
+          (contrato.assinadoEm?' · Assinado em: '+esc(contrato.assinadoEm):'')+'</div>'+
+      '</div>'+
+      '<span class="contrato-pill '+st.cls+'">'+st.label+'</span>';
+    panel.appendChild(statusBar);
+
+    // ── Dados do contrato ──
+    var dadosSec = document.createElement('div');
+    dadosSec.className = 'contrato-section';
+    dadosSec.innerHTML = '<div class="contrato-section-title">Dados do Contrato</div>';
+
+    var grid = document.createElement('div');
+    grid.className = 'contrato-dados-grid';
+
+    var campos = [
+      { id:'clienteNome',     label:'Nome do Contratante',    full:false, placeholder:'Nome completo' },
+      { id:'clienteCpfCnpj',  label:'CPF / CNPJ',             full:false, placeholder:'000.000.000-00' },
+      { id:'clienteEndereco', label:'Endereço do Contratante', full:true,  placeholder:'Rua, número, bairro, cidade' },
+      { id:'obraEndereco',    label:'Endereço da Obra',        full:true,  placeholder:'Local de execução' },
+      { id:'obraDescricao',   label:'Descrição da Obra',       full:true,  placeholder:'Ex: Reforma de cozinha e banheiro' },
+      { id:'prazoExecucao',   label:'Prazo de Execução',       full:false, placeholder:'Ex: 45 dias úteis' },
+    ];
+
+    campos.forEach(function(c) {
+      var wrap = document.createElement('div');
+      wrap.className = 'contrato-campo';
+      if (c.full) wrap.style.gridColumn = '1 / -1';
+      wrap.innerHTML =
+        '<label>'+c.label+'</label>'+
+        '<input class="fi" id="cd-'+c.id+'" value="'+esc(dados[c.id]||'')+'" placeholder="'+c.placeholder+'" style="font-size:13px">';
+      grid.appendChild(wrap);
+    });
+
+    dadosSec.appendChild(grid);
+
+    // Valor total (read-only)
+    var valorWrap = document.createElement('div');
+    valorWrap.className = 'contrato-campo';
+    valorWrap.innerHTML =
+      '<label>Valor Total do Contrato</label>'+
+      '<input class="fi" id="cd-valorTotal" value="'+fmt(dados.valorTotal||0)+'" readonly style="font-size:14px;font-weight:800;color:var(--gd)">';
+    dadosSec.appendChild(valorWrap);
+
+    // Save dados button
+    var btnSaveDados = document.createElement('button');
+    btnSaveDados.className = 'btn btn-gn btn-sm';
+    btnSaveDados.style.marginTop = '10px';
+    btnSaveDados.textContent = '💾 Salvar dados';
+    btnSaveDados.addEventListener('click', function(){
+      campos.forEach(function(c){
+        var inp = el('cd-'+c.id);
+        if (inp) dados[c.id] = inp.value.trim();
+      });
+      contrato.dados = dados;
+      saveContrato(bid, contrato);
+      toast('Dados do contrato salvos!');
+    });
+    dadosSec.appendChild(btnSaveDados);
+    panel.appendChild(dadosSec);
+
+    // ── Ações ──
+    var acoesSec = document.createElement('div');
+    acoesSec.className = 'contrato-section';
+    acoesSec.innerHTML = '<div class="contrato-section-title">Ações</div>';
+
+    var acoes = document.createElement('div');
+    acoes.className = 'contrato-actions';
+
+    // Generate PDF
+    var btnPDF = document.createElement('button');
+    btnPDF.className = 'btn btn-p';
+    btnPDF.innerHTML = '📄 Gerar PDF do Contrato';
+    btnPDF.addEventListener('click', function(){
+      // Save current dados first
+      campos.forEach(function(c){
+        var inp = el('cd-'+c.id);
+        if (inp) dados[c.id] = inp.value.trim();
+      });
+      contrato.dados = dados;
+      saveContrato(bid, contrato);
+      exportContratoPDF(bid, b, contrato);
+    });
+    acoes.appendChild(btnPDF);
+
+    // WhatsApp share
+    var btnWA = document.createElement('button');
+    btnWA.className = 'btn btn-gn';
+    btnWA.innerHTML = '💬 Enviar por WhatsApp';
+    btnWA.addEventListener('click', function(){
+      var nome = dados.clienteNome || b.client || 'Cliente';
+      var valor = fmt(dados.valorTotal || calcTotal(b));
+      var msg = encodeURIComponent(
+        'Olá '+nome+'! 👷\n\n'+
+        'Segue o contrato de prestação de serviços referente à obra:\n'+
+        '📋 '+esc(dados.obraDescricao || b.obra || '')+'\n'+
+        '📍 '+esc(dados.obraEndereco || b.local || '')+'\n'+
+        '💰 Valor: '+valor+'\n\n'+
+        'Por favor, revise e assine o contrato. Qualquer dúvida estou à disposição.\n\n'+
+        'Pulso Reformas 🏗️'
+      );
+      window.open('https://wa.me/?text='+msg, '_blank');
+    });
+    acoes.appendChild(btnWA);
+
+    acoesSec.appendChild(acoes);
+    panel.appendChild(acoesSec);
+
+    // ── Upload contrato assinado ──
+    var uploadSec = document.createElement('div');
+    uploadSec.className = 'contrato-section';
+    uploadSec.innerHTML = '<div class="contrato-section-title">Contrato Assinado</div>';
+
+    if (arquivo) {
+      // Show uploaded file
+      var fileCard = document.createElement('div');
+      fileCard.className = 'contrato-file-card';
+      fileCard.innerHTML =
+        '<div class="cfc-icon">📎</div>'+
+        '<div>'+
+          '<div class="cfc-name">'+esc(arquivo.name)+'</div>'+
+          '<div class="cfc-sub">'+arquivo.size+' · Enviado em: '+esc(contrato.assinadoEm||'—')+'</div>'+
+        '</div>';
+      uploadSec.appendChild(fileCard);
+
+      var fileActs = document.createElement('div');
+      fileActs.className = 'contrato-actions';
+
+      var btnDownload = document.createElement('button');
+      btnDownload.className = 'btn btn-gn btn-sm';
+      btnDownload.innerHTML = '⬇️ Baixar contrato assinado';
+      btnDownload.addEventListener('click', function(){
+        var a = document.createElement('a');
+        a.href = 'data:'+arquivo.tipo+';base64,'+arquivo.data;
+        a.download = arquivo.name;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      });
+      fileActs.appendChild(btnDownload);
+
+      var btnRemove = document.createElement('button');
+      btnRemove.className = 'btn btn-r btn-sm';
+      btnRemove.innerHTML = '🗑️ Remover';
+      btnRemove.addEventListener('click', function(){
+        if (!confirm('Remover o arquivo do contrato assinado?')) return;
+        contrato.arquivo = null;
+        contrato.status = 'gerado';
+        delete contrato.assinadoEm;
+        saveContrato(bid, contrato);
+        rebuild();
+      });
+      fileActs.appendChild(btnRemove);
+      uploadSec.appendChild(fileActs);
+
+    } else {
+      // Upload zone
+      var uploadInp = document.createElement('input');
+      uploadInp.type = 'file';
+      uploadInp.id = 'contrato-file-inp-'+bid;
+      uploadInp.accept = '.pdf,image/*';
+      uploadInp.style.display = 'none';
+
+      var zone = document.createElement('div');
+      zone.className = 'contrato-upload-zone';
+      zone.innerHTML =
+        '<div class="cu-icon">📎</div>'+
+        '<div class="cu-title">Clique para enviar o contrato assinado</div>'+
+        '<div class="cu-sub">PDF ou imagem · Máx 5MB</div>';
+      zone.addEventListener('click', function(){ uploadInp.click(); });
+
+      uploadInp.addEventListener('change', function(){
+        var file = this.files && this.files[0];
+        if (!file) return;
+        if (file.size > 5*1024*1024) { toast('Arquivo muito grande. Máx 5MB.','err'); return; }
+        var reader = new FileReader();
+        reader.onload = function(e){
+          var base64 = e.target.result.split(',')[1];
+          contrato.arquivo = {
+            name: file.name,
+            size: (file.size/1024).toFixed(0)+' KB',
+            tipo: file.type,
+            data: base64
+          };
+          contrato.status = 'assinado';
+          contrato.assinadoEm = new Date().toLocaleDateString('pt-BR');
+          saveContrato(bid, contrato);
+          toast('✅ Contrato assinado registrado!');
+          rebuild();
+        };
+        reader.readAsDataURL(file);
+      });
+
+      uploadSec.appendChild(uploadInp);
+      uploadSec.appendChild(zone);
+    }
+
+    panel.appendChild(uploadSec);
+  }
+
+  rebuild();
+}
+
+function exportContratoPDF(bid, b, contrato) {
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF({unit:'mm', format:'a4'});
+  var W=210, ML=16, MR=16, y=0;
+  var CW = W - ML - MR; // content width = 178mm
+
+  var dados = contrato.dados || {};
+  var pc    = b.paymentConds || defConds();
+
+  // Detect escopo from budget notes or default to completo
+  var escopo = b.escopo || 'completo';
+  var somenteMO = escopo === 'mao_de_obra';
+
+  function checkPage(h) {
+    if (y + h > 272) { doc.addPage(); y = 18; }
+  }
+
+  function secHeader(title) {
+    checkPage(12);
+    doc.setFillColor(28,43,74);
+    doc.rect(ML, y, CW, 8, 'F');
+    doc.setFillColor(200,169,110);
+    doc.rect(ML, y, 3, 8, 'F');
+    doc.setTextColor(200,169,110);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(8.5);
+    doc.text(title, ML+7, y+5.5);
+    y += 11;
+    doc.setTextColor(40,55,75);
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(9);
+  }
+
+  function row(label, value, opts) {
+    opts = opts || {};
+    checkPage(7);
+    var labelW = opts.labelW || 48;
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(8.5);
+    doc.setTextColor(80,100,135);
+    doc.text(label+':', ML+2, y);
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(9);
+    doc.setTextColor(40,55,75);
+    var lines = doc.splitTextToSize(value || 'Não informado', CW - labelW - 4);
+    doc.text(lines, ML + labelW, y);
+    y += Math.max(6.5, lines.length * 5.2);
+  }
+
+  function paragrafo(txt, opts) {
+    opts = opts || {};
+    checkPage(10);
+    doc.setFont(opts.bold ? 'helvetica' : 'helvetica', opts.bold ? 'bold' : 'normal');
+    doc.setFontSize(opts.size || 9);
+    doc.setTextColor(opts.color || 40, opts.color ? 0 : 55, opts.color ? 0 : 75);
+    var lines = doc.splitTextToSize(txt, CW - (opts.indent||0));
+    doc.text(lines, ML + (opts.indent||0), y);
+    y += lines.length * (opts.lineH || 5.4) + (opts.after || 2);
+  }
+
+  function bullet(txt) {
+    checkPage(7);
+    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(40,55,75);
+    doc.text('•', ML+2, y);
+    var lines = doc.splitTextToSize(txt, CW-8);
+    doc.text(lines, ML+6, y);
+    y += lines.length*5.2 + 1.5;
+  }
+
+  // ── HEADER ──────────────────────────────────────────────────────
+  doc.setFillColor(28,43,74); doc.rect(0,0,W,40,'F');
+  try { doc.addImage(_LOGO,'PNG',ML,5,28,28); } catch(e){}
+  doc.setTextColor(240,236,228);
+  doc.setFont('helvetica','bold'); doc.setFontSize(14);
+  doc.text('CONTRATO DE PRESTAÇÃO DE SERVIÇOS', W/2, 15, {align:'center'});
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
+  doc.text('Construção Civil e Reformas · PULSO REFORMAS', W/2, 22, {align:'center'});
+  doc.text('(81) 98365-4027  |  (81) 99393-9208  ·  pulsoreformas@gmail.com', W/2, 28, {align:'center'});
+  doc.setFillColor(200,169,110); doc.rect(0,40,W,2,'F');
+
+  // contract number bar
+  doc.setFillColor(17,29,51); doc.rect(0,42,W,11,'F');
+  doc.setTextColor(200,169,110); doc.setFont('helvetica','bold'); doc.setFontSize(9);
+  doc.text('CONTRATO Nº: '+esc(b.num||'—'), ML, 50);
+  doc.setTextColor(200,200,200); doc.setFont('helvetica','normal');
+  doc.text('DATA: '+esc(contrato.geradoEm||new Date().toLocaleDateString('pt-BR')), ML+62, 50);
+  doc.text('ESCOPO: '+(somenteMO?'Somente Mão de Obra':'Mão de Obra + Material'), W-MR, 50, {align:'right'});
+  y = 60;
+
+  // ── INTRO ───────────────────────────────────────────────────────
+  paragrafo(
+    'Pelo presente instrumento particular, as partes abaixo qualificadas celebram o presente Contrato de Prestação de Serviços de Reforma e Construção Civil, que se regerá pelas seguintes cláusulas e condições:',
+    {after:5}
+  );
+
+  // ── CLÁUSULA 1 — PARTES ─────────────────────────────────────────
+  secHeader('CLÁUSULA 1ª — DAS PARTES');
+  doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(28,43,74);
+  doc.text('CONTRATANTE (CLIENTE):', ML+2, y); y+=7;
+  row('Nome', dados.clienteNome || b.client || '');
+  row('CPF / CNPJ', dados.clienteCpfCnpj || '');
+  row('Endereço', dados.clienteEndereco || '');
+  y += 3;
+  doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(28,43,74);
+  doc.text('CONTRATADA (PRESTADORA):', ML+2, y); y+=7;
+  row('Empresa', 'Pulso Reformas — Construção Civil e Reformas');
+  row('Telefones', '(81) 98365-4027  |  (81) 99393-9208');
+  row('E-mail', 'pulsoreformas@gmail.com');
+  row('Responsável', 'Ednaldo Bezerra');
+  y += 4;
+
+  // ── CLÁUSULA 2 — OBJETO ─────────────────────────────────────────
+  secHeader('CLÁUSULA 2ª — DO OBJETO');
+  row('Serviço', dados.obraDescricao || b.obra || '');
+  row('Local da obra', dados.obraEndereco || b.local || '');
+  row('Nº Orçamento', b.num || '');
+  row('Escopo', somenteMO
+    ? 'Mão de obra apenas — os materiais serão fornecidos pelo contratante'
+    : 'Mão de obra e materiais conforme orçamento aprovado');
+  y += 4;
+
+  // ── CLÁUSULA 3 — PRAZO ──────────────────────────────────────────
+  secHeader('CLÁUSULA 3ª — DO PRAZO DE EXECUÇÃO');
+  paragrafo(
+    'O prazo para execução dos serviços é de '+(dados.prazoExecucao||'_____ dias úteis')+
+    ', contados a partir da data de assinatura deste contrato e do recebimento do sinal/primeira parcela, podendo ser prorrogado mediante Termo Aditivo em caso de eventos imprevistos, como chuvas excessivas, falta de material, atrasos de fornecedores ou solicitação do contratante.',
+    {after:5}
+  );
+
+  // ── CLÁUSULA 4 — VALOR E PAGAMENTO ──────────────────────────────
+  secHeader('CLÁUSULA 4ª — DO VALOR E CONDIÇÕES DE PAGAMENTO');
+  checkPage(12);
+  doc.setFillColor(240,244,250); doc.roundedRect(ML, y, CW, 10, 1,1,'F');
+  doc.setDrawColor(200,169,110); doc.roundedRect(ML, y, CW, 10, 1,1,'S');
+  doc.setTextColor(28,43,74); doc.setFont('helvetica','bold'); doc.setFontSize(11);
+  doc.text('VALOR TOTAL: '+fmt(dados.valorTotal || calcTotal(b)), ML+6, y+7);
+  y += 14;
+
+  // Payment installments
+  var insts = (b.installments && b.installments.length)
+    ? b.installments
+    : [{label:'1ª Etapa (Sinal)',pct:40},{label:'2ª Etapa',pct:40},{label:'3ª Etapa',pct:20}];
+  var totalVal = parseFloat(dados.valorTotal) || calcTotal(b);
+
+  // Table header
+  checkPage(8);
+  doc.setFillColor(237,241,248); doc.rect(ML, y, CW, 6.5,'F');
+  doc.setTextColor(80,100,140); doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
+  doc.text('ETAPA / DESCRIÇÃO', ML+3, y+4.5);
+  doc.text('PERCENTUAL', ML+CW*0.6, y+4.5, {align:'center'});
+  doc.text('VALOR', ML+CW-2, y+4.5, {align:'right'});
+  y += 7;
+
+  insts.forEach(function(inst, idx2){
+    checkPage(7);
+    if(idx2%2===0){doc.setFillColor(252,253,255);doc.rect(ML,y,CW,7,'F');}
+    doc.setTextColor(40,55,75); doc.setFont('helvetica','normal'); doc.setFontSize(9);
+    doc.text(esc(inst.label||('Etapa '+(idx2+1))), ML+3, y+5);
+    doc.setFont('helvetica','bold');
+    doc.text((parseFloat(inst.pct)||0).toFixed(1)+'%', ML+CW*0.6, y+5, {align:'center'});
+    doc.text(fmt(totalVal*(parseFloat(inst.pct)||0)/100), ML+CW-2, y+5, {align:'right'});
+    y += 7;
+  });
+  y += 4;
+
+  // Payment conditions from budget
+  var condRows = [
+    ['Prazo de pagamento', pc.deadline||'—'],
+    ['Forma de pagamento', pc.method||'—'],
+  ];
+  if (pc.bankInfo) condRows.push(['Dados bancários', pc.bankInfo]);
+  condRows.push(['Multa por atraso', pc.penalty||'Multa de 2% + 1% a.m. de juros']);
+  condRows.push(['Aditivos', pc.additive||'Itens não previstos serão orçados por aditivo']);
+  if (pc.notes) condRows.push(['Observações', pc.notes]);
+
+  condRows.forEach(function(cr, i){
+    checkPage(7);
+    if(i%2===0){doc.setFillColor(248,249,252);doc.rect(ML,y,CW,6.5,'F');}
+    doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(80,100,140);
+    doc.text(cr[0]+':', ML+3, y+4.5);
+    doc.setFont('helvetica','normal'); doc.setTextColor(40,55,75);
+    var vl = doc.splitTextToSize(cr[1], CW-55);
+    doc.text(vl, ML+52, y+4.5);
+    y += Math.max(6.5, vl.length*5.2);
+  });
+  y += 5;
+
+  // ── CLÁUSULA 5 — MATERIAIS ──────────────────────────────────────
+  secHeader('CLÁUSULA 5ª — DOS MATERIAIS');
+  if (somenteMO) {
+    paragrafo(
+      'O presente contrato tem como escopo SOMENTE A MÃO DE OBRA. Todos os materiais necessários à execução dos serviços são de responsabilidade exclusiva do CONTRATANTE, que deverá providenciá-los com antecedência suficiente para não gerar atrasos na obra.',
+      {after:3}
+    );
+    bullet('A contratada não se responsabiliza por atrasos decorrentes da falta de materiais.');
+    bullet('A qualidade dos materiais fornecidos é de responsabilidade do contratante.');
+    bullet('Eventuais materiais danificados durante a execução serão informados imediatamente.');
+  } else {
+    paragrafo(
+      'O presente contrato inclui o fornecimento de materiais e mão de obra conforme especificado no orçamento Nº '+esc(b.num||'—')+'. Os materiais serão adquiridos pela CONTRATADA e o custo já está incluído no valor total deste contrato.',
+      {after:3}
+    );
+    bullet('Materiais diferentes dos especificados no orçamento poderão gerar aditivo.');
+    bullet('A contratada zelará pela qualidade dos materiais adquiridos.');
+    bullet('Sobras de materiais após a conclusão ficam à disposição do contratante.');
+  }
+  y += 4;
+
+  // ── CLÁUSULA 6 — OBRIGAÇÕES ─────────────────────────────────────
+  secHeader('CLÁUSULA 6ª — DAS OBRIGAÇÕES DAS PARTES');
+  doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(28,43,74);
+  doc.text('DA CONTRATADA:', ML+2, y); y+=7;
+  bullet('Executar os serviços com qualidade e mão de obra especializada;');
+  bullet('Manter o local de trabalho organizado e limpo ao fim de cada dia;');
+  bullet('Comunicar imediatamente qualquer imprevisto que possa impactar o prazo;');
+  bullet('Cumprir as normas de segurança do trabalho vigentes.');
+  y += 3;
+  doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(28,43,74);
+  doc.text('DO CONTRATANTE:', ML+2, y); y+=7;
+  bullet('Garantir acesso ao local da obra nos horários comerciais (7h às 17h, segunda a sábado);');
+  bullet('Efetuar os pagamentos nas datas acordadas;');
+  bullet('Não interferir no processo de execução sem autorização da contratada;');
+  if (somenteMO) bullet('Fornecer todos os materiais necessários com antecedência mínima de 48 horas;');
+  bullet('Comunicar à contratada qualquer alteração desejada antes da execução.');
+  y += 4;
+
+  // ── CLÁUSULA 7 — ADITIVOS ───────────────────────────────────────
+  secHeader('CLÁUSULA 7ª — DAS ALTERAÇÕES E ADITIVOS');
+  paragrafo(
+    'Qualquer alteração no escopo dos serviços originalmente contratados deverá ser formalizada por meio de Termo Aditivo, com novo orçamento aprovado por ambas as partes antes do início dos serviços adicionais. Serviços realizados sem formalização prévia não serão de responsabilidade da contratada.',
+    {after:5}
+  );
+
+  // ── CLÁUSULA 8 — GARANTIA ───────────────────────────────────────
+  secHeader('CLÁUSULA 8ª — DA GARANTIA');
+  paragrafo(
+    'A contratada garante os serviços executados pelo prazo de 90 (noventa) dias a partir da data de entrega da obra, excluídos os danos decorrentes de mau uso, umidade estrutural preexistente, intervenções de terceiros ou eventos de força maior.',
+    {after:5}
+  );
+
+  // ── CLÁUSULA 9 — RESCISÃO ───────────────────────────────────────
+  secHeader('CLÁUSULA 9ª — DA RESCISÃO');
+  paragrafo(
+    'Este contrato poderá ser rescindido por qualquer das partes mediante comunicação por escrito com antecedência mínima de 7 (sete) dias. Em caso de rescisão:',
+    {after:2}
+  );
+  bullet('Os serviços já executados serão medidos e cobrados proporcionalmente;');
+  bullet('Materiais já adquiridos e instalados serão cobrados pelo valor de custo;');
+  bullet(''+esc(pc.penalty||'Multa de 2% sobre o saldo restante em caso de rescisão imotivada.'));
+  y += 4;
+
+  // ── CLÁUSULA 10 — FORO ──────────────────────────────────────────
+  secHeader('CLÁUSULA 10ª — DO FORO');
+  paragrafo(
+    'As partes elegem o foro da Comarca de Recife/PE para dirimir quaisquer dúvidas ou litígios decorrentes deste contrato, com renúncia expressa a qualquer outro, por mais privilegiado que seja.',
+    {after:6}
+  );
+
+  // ── ASSINATURAS ─────────────────────────────────────────────────
+  checkPage(55);
+  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(40,55,75);
+  doc.text('Recife/PE, '+esc(contrato.geradoEm||new Date().toLocaleDateString('pt-BR')), ML, y);
+  y += 8;
+
+  doc.setFillColor(28,43,74); doc.rect(ML, y, CW, 1.5,'F'); y += 8;
+
+  // Signature lines side by side
+  var colW = (CW-10)/2;
+  doc.setDrawColor(150,165,185); doc.setLineWidth(0.3);
+  doc.line(ML,    y+20, ML+colW,    y+20);
+  doc.line(ML+colW+10, y+20, ML+CW, y+20);
+
+  doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(28,43,74);
+  doc.text('CONTRATANTE', ML+2, y+25);
+  doc.text('CONTRATADA — PULSO REFORMAS', ML+colW+12, y+25);
+
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(60,75,95);
+  doc.text(esc(dados.clienteNome||b.client||''), ML+2, y+30.5);
+  doc.text('Ednaldo Bezerra', ML+colW+12, y+30.5);
+  doc.text(esc(dados.clienteCpfCnpj||'CPF/CNPJ: ___________________'), ML+2, y+35.5);
+  doc.text('CPF: 000.000.000-00', ML+colW+12, y+35.5);
+  y += 44;
+
+  // Witness lines
+  checkPage(30);
+  doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(100,115,135);
+  doc.text('TESTEMUNHAS (opcional):', ML+2, y); y+=8;
+  doc.line(ML,    y+10, ML+colW,    y+10);
+  doc.line(ML+colW+10, y+10, ML+CW, y+10);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8);
+  doc.text('Testemunha 1 · CPF: ___________________', ML+2, y+14);
+  doc.text('Testemunha 2 · CPF: ___________________', ML+colW+12, y+14);
+  y += 22;
+
+  // ── FOOTER ──────────────────────────────────────────────────────
+  var pages = doc.internal.getNumberOfPages();
+  for (var pi=1; pi<=pages; pi++){
+    doc.setPage(pi);
+    doc.setFillColor(28,43,74); doc.rect(0,287,W,10,'F');
+    doc.setFillColor(200,169,110); doc.rect(0,287,W,1,'F');
+    doc.setTextColor(150,170,200); doc.setFont('helvetica','normal'); doc.setFontSize(7);
+    doc.text('PULSO REFORMAS · Contrato Nº '+esc(b.num||'—')+' · (81) 98365-4027 · pulsoreformas@gmail.com', W/2, 292.5, {align:'center'});
+    doc.text('Pág. '+pi+'/'+pages, W-MR, 292.5, {align:'right'});
+  }
+
+  var clientSlug = esc((dados.clienteNome||b.client||'').replace(/[^a-zA-Z0-9]/g,'_').slice(0,20));
+  doc.save('Contrato-'+esc(b.num||'SN')+'-'+clientSlug+'.pdf');
+  toast('📄 Contrato PDF gerado!');
+}
+
 // ── BACKUP / RESTORE ────────────────────────────────────────────
 function exportAllData(){
   var data={exportedAt:new Date().toISOString(),pulso_v3:JSON.stringify(_mem.budgets),pulso_obras:JSON.stringify(_mem.obras),pulso_finance:JSON.stringify(_mem.finance),pulso_aditivos:JSON.stringify(_mem.aditivos)};
@@ -7412,6 +8036,9 @@ function renderAIPreview(sections){
 function applyAISections(){
   if(!_aiGeneratedSections||!_aiTargetBudgetId)return;
   var all=DB.load(),b=all.find(function(x){return x.id===_aiTargetBudgetId;});if(!b)return;
+  // Save escopo to budget for contract generation
+  var escopoEl = el('ai-escopo');
+  if (escopoEl) b.escopo = escopoEl.value;
   var newSections=_aiGeneratedSections.map(function(sec){return{id:uid(),name:sec.name,manualTotal:'',items:(sec.items||[]).map(function(it){return{id:uid(),desc:it.desc,qty:String(parseFloat(it.qty)||1),unit:it.unit||'vb',price:String(parseFloat(it.price)||0)};})};});
   b.sections=(b.sections||[]).concat(newSections);
   DB.save(all);closeOv('ov-ai');
