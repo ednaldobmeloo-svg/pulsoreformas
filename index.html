@@ -5518,16 +5518,16 @@ function migrarCaixaObras() {
     // Recebimentos
     ((odb[b.id]&&odb[b.id].recebimentos)||[]).forEach(function(e){
       var oid='rec_'+e.id, gid='grec_'+e.id;
-      if(!ids[oid]){newMovs.push({id:oid,tipo:'entrada',conta:CONTA_PADRAO,desc:e.desc||'Recebimento',val:parseFloat(e.val||0),date:e.date||'',createdAt:e.createdAt||Date.now(),autoGerado:true});totalRec++;}
-      if(!gids[gid]){newGMovs.push({id:gid,tipo:'entrada',conta:CONTA_PADRAO,desc:(e.desc||'Recebimento')+' — '+(b.client||b.num||''),val:parseFloat(e.val||0),date:e.date||'',budgetId:b.id,createdAt:e.createdAt||Date.now(),autoGerado:true});}
+      if(!ids[oid]){newMovs.push({id:oid,tipo:'entrada',conta:e.conta||CONTA_PADRAO,desc:e.desc||'Recebimento',val:parseFloat(e.val||0),date:e.date||'',createdAt:e.createdAt||Date.now(),autoGerado:true});totalRec++;}
+      if(!gids[gid]){newGMovs.push({id:gid,tipo:'entrada',conta:e.conta||CONTA_PADRAO,desc:(e.desc||'Recebimento')+' — '+(b.client||b.num||''),val:parseFloat(e.val||0),date:e.date||'',budgetId:b.id,createdAt:e.createdAt||Date.now(),autoGerado:true});}
     });
     // Custos
     ((fin[b.id]&&fin[b.id].entries)||[]).forEach(function(e){
       var oid='fin_'+e.id, gid='gfin_'+e.id;
       var cat=CATS.find(function(c){return c.id===e.cat;})||{icon:'💸',name:'Custo'};
       var desc=cat.icon+' '+cat.name+': '+(e.desc||'');
-      if(!ids[oid]){newMovs.push({id:oid,tipo:'saida',conta:CONTA_PADRAO,desc:desc,val:parseFloat(e.val||0),date:e.date||'',createdAt:e.createdAt||Date.now(),autoGerado:true});totalCost++;}
-      if(!gids[gid]){newGMovs.push({id:gid,tipo:'saida',conta:CONTA_PADRAO,desc:desc+' — '+(b.client||b.num||''),val:parseFloat(e.val||0),date:e.date||'',budgetId:b.id,createdAt:e.createdAt||Date.now(),autoGerado:true});}
+      if(!ids[oid]){newMovs.push({id:oid,tipo:'saida',conta:e.conta||CONTA_PADRAO,desc:desc,val:parseFloat(e.val||0),date:e.date||'',createdAt:e.createdAt||Date.now(),autoGerado:true});totalCost++;}
+      if(!gids[gid]){newGMovs.push({id:gid,tipo:'saida',conta:e.conta||CONTA_PADRAO,desc:desc+' — '+(b.client||b.num||''),val:parseFloat(e.val||0),date:e.date||'',budgetId:b.id,createdAt:e.createdAt||Date.now(),autoGerado:true});}
     });
     // Dist pagamentos
     ((db2[b.id]&&db2[b.id].distPagamentos)||[]).forEach(function(e){
@@ -5774,13 +5774,25 @@ function renderCaixa(){
         '</div>';
       }).join('');
       var isDone=(odb3[b.id]&&odb3[b.id].status)==='done';
+      var recTotal=getRecebimentos(b.id).reduce(function(s,e){return s+parseFloat(e.val||0);},0)+getAditRecTotal(b.id);
+      var receitaObra=calcTotal(b)+getAditReceitaAprovada(b.id);
+      var custoObra=getCustoTotal(b.id);
+      var resultadoObra=receitaObra-custoObra;
       card.innerHTML=
         '<div class="caixa-obra-card-hd">'+
           '<div class="caixa-obra-card-info">'+
             '<div class="num">'+esc(b.num||'—')+(isDone?' <span style="font-size:9px;color:var(--gn);background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.2);border-radius:8px;padding:1px 6px">✅ concluída</span>':'')+'</div>'+
             '<div class="nome">'+esc(b.client||'Sem nome')+'</div>'+
           '</div>'+
-          '<div class="caixa-obra-card-total" style="color:'+(total>=0?'var(--gn)':'var(--rd)')+'">'+fmt(total)+'</div>'+
+          '<div style="text-align:right">'+
+            '<div class="caixa-obra-card-total" style="color:'+(total>=0?'var(--gn)':'var(--rd)')+'">'+fmt(total)+'</div>'+
+            '<div style="font-size:9px;color:rgba(0,212,255,.35);margin-top:2px">saldo no caixa</div>'+
+          '</div>'+
+        '</div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:8px 14px;background:rgba(0,0,0,.15);border-top:1px solid rgba(0,212,255,.06)">'+
+          '<div style="font-size:10px;color:rgba(0,212,255,.4)">Recebido<br><span style="font-size:12px;font-weight:700;color:var(--gn)">'+fmt(recTotal)+'</span></div>'+
+          '<div style="font-size:10px;color:rgba(0,212,255,.4)">Resultado<br><span style="font-size:12px;font-weight:700;color:'+(resultadoObra>=0?'var(--gn)':'var(--rd)')+'">'+fmt(resultadoObra)+'</span></div>'+
+          '<div style="font-size:10px;color:rgba(0,212,255,.4)">A Receber<br><span style="font-size:12px;font-weight:700;color:var(--yw)">'+fmt(Math.max(0,receitaObra-recTotal))+'</span></div>'+
         '</div>'+
         (linesHtml||'<div style="font-size:11px;color:rgba(180,220,255,.2);font-style:italic;margin-top:4px">Sem movimentações</div>');
       obraGrid.appendChild(card);
@@ -6535,7 +6547,7 @@ function saveRecebimento(bid, entry) {
   db[bid].recebimentos.push(entry);
   ODB.save(db);
   // Sync to obra caixa
-  var mov = {id:'rec_'+entry.id, tipo:'entrada', conta:CONTA_PADRAO,
+  var mov = {id:'rec_'+entry.id, tipo:'entrada', conta:entry.conta||CONTA_PADRAO,
     desc: entry.desc||'Recebimento', val: parseFloat(entry.val||0),
     date: entry.date||'', createdAt: Date.now(), autoGerado: true};
   addMovObraCaixa(bid, mov);
