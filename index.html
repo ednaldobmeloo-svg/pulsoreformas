@@ -3979,6 +3979,34 @@ function confirmAddCost() {
 // ═══════════════════════════════════════
 // LIST
 // ═══════════════════════════════════════
+
+function duplicateBudget(id) {
+  var all = DB.load();
+  var orig = all.find(function(b){ return b.id === id; });
+  if (!orig) return;
+
+  var newNum = 'BVM-' + String(all.length + 1).padStart(4, '0');
+  var copy = JSON.parse(JSON.stringify(orig)); // deep clone
+
+  // Reset identity fields
+  copy.id        = uid();
+  copy.num       = newNum;
+  copy.status    = 'pending';
+  copy.createdAt = Date.now();
+  copy.date      = new Date().toLocaleDateString('pt-BR');
+
+  // Give new IDs to sections and items
+  (copy.sections || []).forEach(function(s) {
+    s.id = uid();
+    (s.items || []).forEach(function(it){ it.id = uid(); });
+  });
+
+  all.push(copy);
+  DB.save(all);
+  toast('✅ Orçamento duplicado como ' + newNum);
+  renderList('');
+}
+
 function renderList(q) {
   q = (q||'').toLowerCase();
   var all = DB.load().filter(function(b){
@@ -4017,6 +4045,7 @@ function buildCard(b) {
       '<div class="bi-acts">' +
         '<button class="btn btn-g btn-xs" data-act="edit" data-id="' + b.id + '">✏️ Editar</button>' +
         '<button class="btn btn-g btn-xs" data-act="status" data-id="' + b.id + '">🔄 Status</button>' +
+        '<button class="btn btn-g btn-xs" data-act="dup" data-id="' + b.id + '" title="Duplicar orçamento">⧉ Duplicar</button>' +
         '<button class="btn btn-r btn-xs" data-act="del" data-id="' + b.id + '">🗑️</button>' +
       '</div>' +
     '</div>';
@@ -4028,6 +4057,7 @@ function buildCard(b) {
       var act = btn.dataset.act, id = btn.dataset.id;
       if (act === 'edit')   editBudget(id);
       if (act === 'status') openStatus(id);
+      if (act === 'dup')    duplicateBudget(id);
       if (act === 'del')    askDel(id);
     } else {
       editBudget(b.id);
@@ -7209,7 +7239,35 @@ function buildRecebimentosPanel(panel,bid,receita,custo){
   prog.innerHTML='<div style="display:flex;justify-content:space-between;font-size:11px;color:rgba(0,212,255,.4);margin-bottom:5px"><span>Recebimento</span><span style="color:'+barColor+'">'+recPct.toFixed(1)+'% de '+fmt(receita)+'</span></div><div class="margin-bar-track"><div class="margin-bar-fill" style="width:'+recPct.toFixed(1)+'%;background:'+barColor+'"></div></div>';
   panel.appendChild(prog);
   var listWrap=document.createElement('div');
-  function renderList(){
+  
+function duplicateBudget(id) {
+  var all = DB.load();
+  var orig = all.find(function(b){ return b.id === id; });
+  if (!orig) return;
+
+  var newNum = 'BVM-' + String(all.length + 1).padStart(4, '0');
+  var copy = JSON.parse(JSON.stringify(orig)); // deep clone
+
+  // Reset identity fields
+  copy.id        = uid();
+  copy.num       = newNum;
+  copy.status    = 'pending';
+  copy.createdAt = Date.now();
+  copy.date      = new Date().toLocaleDateString('pt-BR');
+
+  // Give new IDs to sections and items
+  (copy.sections || []).forEach(function(s) {
+    s.id = uid();
+    (s.items || []).forEach(function(it){ it.id = uid(); });
+  });
+
+  all.push(copy);
+  DB.save(all);
+  toast('✅ Orçamento duplicado como ' + newNum);
+  renderList('');
+}
+
+function renderList(){
     var recs2=getRecebimentos(bid).slice().sort(function(a,z){return(z.date||'').localeCompare(a.date||'');});
     listWrap.innerHTML='';
     if(!recs2.length){listWrap.innerHTML='<div class="no-rec">Nenhum pagamento registrado.</div>';return;}
