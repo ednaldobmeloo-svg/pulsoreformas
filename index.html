@@ -817,174 +817,6 @@ select.fi option{background:#06121e}
 #save-cloud-indicator.err{color:var(--rd);border-color:rgba(255,68,102,.3);}
 @keyframes fadeInUp{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 
-
-/* ── CAIXA & CONTAS ─────────────────────────────────── */
-.caixa-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;margin-bottom:20px}
-.caixa-conta-card{background:var(--glass);border:1px solid var(--bd);border-radius:12px;padding:16px 18px;transition:border-color .15s}
-.caixa-conta-card:hover{border-color:var(--bd2)}
-.ccc-icon{font-size:22px;margin-bottom:8px}
-.ccc-name{font-size:10px;font-weight:700;color:rgba(180,220,255,.5);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
-.ccc-saldo{font-size:22px;font-weight:800}
-.ccc-saldo.pos{color:var(--gn)}
-.ccc-saldo.neg{color:var(--rd)}
-.ccc-saldo.zero{color:rgba(180,220,255,.2)}
-.ccc-banco{font-size:10px;color:rgba(0,212,255,.3);margin-top:3px}
-.caixa-total-bar{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;background:rgba(0,8,24,.5);border:1px solid rgba(0,212,255,.12);border-radius:10px;margin-bottom:18px}
-.caixa-total-lbl{font-size:11px;color:rgba(0,212,255,.5);text-transform:uppercase;letter-spacing:.06em}
-.caixa-total-val{font-size:24px;font-weight:800}
-/* Per-obra breakdown in global caixa */
-.caixa-obra-card{background:rgba(0,8,24,.45);border:1px solid rgba(0,212,255,.1);border-radius:11px;padding:13px 15px}
-.caixa-obra-card-hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
-.caixa-obra-card-info .num{font-size:10px;color:rgba(0,212,255,.4);margin-bottom:2px}
-.caixa-obra-card-info .nome{font-size:13px;font-weight:700;color:var(--wh);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:150px}
-.caixa-obra-card-total{font-size:18px;font-weight:800}
-.caixa-obra-line{display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:3px 0;border-top:1px solid rgba(0,212,255,.05);margin-top:4px}
-.caixa-obra-line-name{color:rgba(180,220,255,.5)}
-.caixa-obra-line-val{font-weight:700}
-/* Extrato */
-.caixa-filtros{display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap}
-.caixa-filtro{padding:4px 11px;border-radius:20px;border:1px solid var(--bd);background:transparent;color:rgba(180,220,255,.4);font-size:11px;font-weight:700;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .15s}
-.caixa-filtro.active{background:var(--gdm);color:var(--gd);border-color:var(--gd)}
-.cmov-row{display:grid;grid-template-columns:auto auto 1fr auto auto auto auto;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid rgba(0,212,255,.05);font-size:12px}
-.cmov-row:last-child{border:none}
-.cmov-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.cmov-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;white-space:nowrap}
-.cmov-badge.entrada{background:rgba(0,255,136,.1);color:var(--gn)}
-.cmov-badge.saida{background:rgba(255,68,102,.1);color:var(--rd)}
-.cmov-badge.transf{background:rgba(255,209,102,.1);color:var(--yw)}
-.cmov-desc{color:var(--cr);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cmov-obra{font-size:10px;color:rgba(0,212,255,.3);white-space:nowrap}
-.cmov-conta{font-size:10px;color:rgba(0,212,255,.3);white-space:nowrap}
-.cmov-date{font-size:10px;color:rgba(0,212,255,.25);white-space:nowrap}
-.cmov-val{font-size:13px;font-weight:700;white-space:nowrap}
-.cmov-del{padding:2px 5px;background:transparent;border:none;color:rgba(255,68,102,.4);cursor:pointer;font-size:12px;transition:color .15s}
-.cmov-del:hover{color:var(--rd)}
-/* Obra caixa tab */
-.obra-caixa-contas{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:9px;margin-bottom:14px}
-.occ-card{background:rgba(0,8,24,.55);border:1px solid var(--bd);border-radius:9px;padding:11px 13px;transition:border-color .15s}
-.occ-card:hover{border-color:var(--bd2)}
-.occ-icon{font-size:16px;margin-bottom:6px}
-.occ-name{font-size:10px;font-weight:700;color:rgba(180,220,255,.5);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
-.occ-saldo{font-size:18px;font-weight:800}
-.occ-saldo.pos{color:var(--gn)}
-.occ-saldo.neg{color:var(--rd)}
-.occ-saldo.zero{color:rgba(180,220,255,.2)}
-.occ-banco{font-size:10px;color:rgba(0,212,255,.3);margin-top:2px}
-.obra-transf-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:8px;background:rgba(255,209,102,.05);border:1px dashed rgba(255,209,102,.2);color:rgba(255,209,102,.6);border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .15s;width:100%;margin-bottom:14px}
-.obra-transf-btn:hover{border-color:var(--yw);color:var(--yw)}
-.ocm-row{display:grid;grid-template-columns:auto auto 1fr auto auto auto;gap:7px;align-items:center;padding:7px 0;border-bottom:1px solid rgba(0,212,255,.05);font-size:12px}
-.ocm-row:last-child{border:none}
-.ocm-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-.ocm-badge{font-size:10px;font-weight:700;padding:2px 6px;border-radius:8px;white-space:nowrap}
-.ocm-desc{color:var(--cr);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ocm-conta{font-size:10px;color:rgba(0,212,255,.3);white-space:nowrap}
-.ocm-date{font-size:10px;color:rgba(0,212,255,.25);white-space:nowrap}
-.ocm-val{font-size:13px;font-weight:700;white-space:nowrap}
-.ocm-del{padding:2px 5px;background:transparent;border:none;color:rgba(255,68,102,.4);cursor:pointer;font-size:11px;transition:color .15s}
-.ocm-del:hover{color:var(--rd)}
-.caixa-empty{text-align:center;padding:30px;color:rgba(180,220,255,.2);font-size:13px;font-style:italic}
-
-
-/* ── DISTRIBUIÇÃO PAGAMENTOS ──────────────────────────── */
-.dist-pag-section{margin-top:22px;padding-top:18px;border-top:1px solid rgba(0,212,255,.1)}
-.dist-pag-title{font-size:11px;color:rgba(0,212,255,.4);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:14px}
-.dist-pag-partner{margin-bottom:18px}
-.dist-pag-partner-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding:10px 14px;background:rgba(0,8,24,.5);border-radius:10px;border:1px solid rgba(0,212,255,.08)}
-.dist-pag-partner-info{display:flex;align-items:center;gap:10px}
-.dist-pag-partner-icon{font-size:18px}
-.dist-pag-partner-name{font-size:13px;font-weight:700;color:var(--wh)}
-.dist-pag-partner-role{font-size:11px;color:rgba(0,212,255,.4)}
-.dist-pag-amounts{text-align:right}
-.dist-pag-devido{font-size:11px;color:rgba(0,212,255,.4);margin-bottom:2px}
-.dist-pag-pago{font-size:16px;font-weight:800;color:var(--gn)}
-.dist-pag-pendente{font-size:11px;color:var(--yw);margin-top:1px}
-.dist-pag-entry{display:grid;grid-template-columns:auto 1fr auto auto auto;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid rgba(0,212,255,.05);font-size:12px}
-.dist-pag-entry:last-child{border:none}
-.dist-pag-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.dist-pag-desc{color:rgba(180,220,255,.65)}
-.dist-pag-date{color:rgba(0,212,255,.3);font-size:11px;white-space:nowrap}
-.dist-pag-val{font-weight:700;color:var(--gn);white-space:nowrap}
-.dist-pag-del{padding:2px 5px;background:transparent;border:none;color:rgba(255,68,102,.5);cursor:pointer;font-size:12px;transition:color .15s}
-.dist-pag-del:hover{color:var(--rd)}
-.dist-pag-empty{font-size:12px;color:rgba(180,220,255,.2);font-style:italic;padding:6px 0}
-.add-dist-pag-btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:7px 14px;background:rgba(0,212,255,.04);border:1px dashed rgba(0,212,255,.2);color:rgba(0,212,255,.5);border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .15s;width:100%;margin-top:6px}
-.add-dist-pag-btn:hover{border-color:var(--gd);color:var(--gd);background:rgba(0,212,255,.08)}
-/* Dashboard partner cards */
-.pdc-paid-lbl{font-size:10px;color:rgba(0,212,255,.4);text-transform:uppercase;letter-spacing:.05em;margin-top:8px}
-.pdc-paid{font-size:12px;font-weight:700;color:var(--gn);margin-top:2px}
-.pdc-pending{font-size:11px;color:var(--yw);margin-top:2px}
-
-
-/* ── OBRA MINIMIZE ──────────────────────────────────── */
-.obra-big-card.minimized .obc-body,
-.obra-big-card.minimized .obc-progress-section { display:none }
-.obra-big-card.minimized { margin-bottom:8px }
-.obc-minimize-btn {
-  width:28px;height:28px;border-radius:7px;border:1px solid var(--bd);
-  background:transparent;color:rgba(180,220,255,.4);cursor:pointer;
-  font-size:14px;display:flex;align-items:center;justify-content:center;
-  transition:all .15s;flex-shrink:0;font-family:'Barlow',sans-serif;
-}
-.obc-minimize-btn:hover{border-color:var(--gd);color:var(--gd);background:rgba(0,212,255,.06)}
-.obras-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
-.obras-minimize-all-btn{padding:6px 14px;border-radius:8px;border:1px solid var(--bd);
-  background:transparent;color:rgba(180,220,255,.5);font-size:12px;font-weight:700;
-  cursor:pointer;font-family:'Barlow',sans-serif;transition:all .15s}
-.obras-minimize-all-btn:hover{border-color:var(--gd);color:var(--gd)}
-.obra-minimized-summary{display:none;align-items:center;gap:14px;padding:0 4px}
-.obra-big-card.minimized .obra-minimized-summary{display:flex}
-.oms-kpi{text-align:center}
-.oms-kpi-lbl{font-size:9px;color:rgba(0,212,255,.35);text-transform:uppercase;letter-spacing:.05em}
-.oms-kpi-val{font-size:13px;font-weight:800}
-.oms-divider{width:1px;height:28px;background:rgba(0,212,255,.1);flex-shrink:0}
-
-
-/* ── ADITIVOS FINANCEIRO ────────────────────────────── */
-.adit-fin-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
-.adit-fin-card{background:rgba(0,8,24,.55);border:1px solid rgba(0,212,255,.1);border-radius:10px;padding:12px 14px}
-.adit-fin-lbl{font-size:10px;color:rgba(0,212,255,.4);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
-.adit-fin-val{font-size:18px;font-weight:800}
-.adit-item{background:rgba(0,8,24,.45);border:1px solid rgba(0,212,255,.08);border-radius:10px;margin-bottom:10px;overflow:hidden}
-.adit-item-hd{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:rgba(0,212,255,.03);border-bottom:1px solid rgba(0,212,255,.07)}
-.adit-item-num{font-size:10px;color:rgba(0,212,255,.4);font-weight:700;margin-bottom:2px}
-.adit-item-title{font-size:13px;font-weight:700;color:var(--wh)}
-.adit-item-status{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
-.adit-item-status.approved{background:rgba(0,255,136,.1);color:var(--gn)}
-.adit-item-status.pending{background:rgba(255,209,102,.1);color:var(--yw)}
-.adit-item-status.rejected{background:rgba(255,68,102,.1);color:var(--rd)}
-.adit-item-right{text-align:right}
-.adit-item-orcado{font-size:16px;font-weight:800;color:var(--gd)}
-.adit-item-sub{font-size:10px;color:rgba(0,212,255,.3);margin-top:2px}
-.adit-item-body{padding:12px 14px}
-.adit-item-progress{margin-bottom:10px}
-.adit-item-progress-row{display:flex;justify-content:space-between;font-size:11px;color:rgba(0,212,255,.4);margin-bottom:4px}
-.adit-cost-list{display:flex;flex-direction:column;gap:0}
-.adit-cost-row{display:grid;grid-template-columns:auto 1fr auto auto auto;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid rgba(0,212,255,.05);font-size:12px}
-.adit-cost-row:last-child{border:none}
-.adit-cost-cat{font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px;background:rgba(0,212,255,.08);color:rgba(0,212,255,.6);white-space:nowrap}
-.adit-cost-desc{color:var(--cr);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.adit-cost-date{font-size:10px;color:rgba(0,212,255,.3);white-space:nowrap}
-.adit-cost-val{font-weight:700;color:var(--rd);white-space:nowrap}
-.adit-cost-del{padding:2px 5px;background:transparent;border:none;color:rgba(255,68,102,.4);cursor:pointer;font-size:11px;transition:color .15s}
-.adit-cost-del:hover{color:var(--rd)}
-.add-adit-cost-btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:7px 12px;background:rgba(255,68,102,.05);border:1px dashed rgba(255,68,102,.2);color:rgba(255,68,102,.6);border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .15s;width:100%;margin-top:8px}
-.add-adit-cost-btn:hover{border-color:var(--rd);color:var(--rd);background:rgba(255,68,102,.08)}
-.adit-no-items{font-size:12px;color:rgba(180,220,255,.2);font-style:italic;text-align:center;padding:12px 0}
-
-
-/* ── ADITIVO RECEBIMENTOS ───────────────────────────── */
-.adit-rec-row{display:grid;grid-template-columns:auto 1fr auto auto auto;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid rgba(0,212,255,.05);font-size:12px}
-.adit-rec-row:last-child{border:none}
-.adit-rec-dot{width:7px;height:7px;border-radius:50%;background:var(--gn);flex-shrink:0}
-.adit-rec-desc{color:var(--cr);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.adit-rec-date{font-size:10px;color:rgba(0,212,255,.3);white-space:nowrap}
-.adit-rec-val{font-weight:700;color:var(--gn);white-space:nowrap}
-.adit-rec-del{padding:2px 5px;background:transparent;border:none;color:rgba(255,68,102,.4);cursor:pointer;font-size:11px;transition:color .15s}
-.adit-rec-del:hover{color:var(--rd)}
-.add-adit-rec-btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:7px 12px;background:rgba(0,255,136,.05);border:1px dashed rgba(0,255,136,.2);color:rgba(0,255,136,.6);border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .15s;width:100%;margin-top:6px}
-.add-adit-rec-btn:hover{border-color:var(--gn);color:var(--gn);background:rgba(0,255,136,.08)}
-.adit-section-divider{font-size:10px;font-weight:700;color:rgba(0,212,255,.4);text-transform:uppercase;letter-spacing:.06em;margin:10px 0 6px;padding-top:10px;border-top:1px solid rgba(0,212,255,.06)}
-
 </style>
 </head>
 <body>
@@ -1022,7 +854,6 @@ select.fi option{background:#06121e}
     <button class="nb" id="nb-list" onclick="goTo('list')"><span class="ni">📋</span> Orçamentos<span class="bc" id="badge">0</span></button>
     <button class="nb" id="nb-obras" onclick="goTo('obras')"><span class="ni">🏗️</span> Obras em Andamento<span class="bc" id="badge-obras">0</span></button>
     <button class="nb" id="nb-aditivos" onclick="goTo('aditivos')"><span class="ni">📝</span> Aditivos<span class="bc" id="badge-aditivos">0</span></button>
-    <button class="nb" id="nb-caixa" onclick="goTo('caixa')"><span class="ni">🏦</span> Caixa & Contas</button>
     <button class="nb" id="nb-finance" onclick="goTo('finance')"><span class="ni">💰</span> Controle Financeiro</button>
     <div class="nav-lbl">Ações</div>
     <button class="nb" onclick="newBudget()"><span class="ni">➕</span> Novo Orçamento</button>
@@ -1114,7 +945,6 @@ select.fi option{background:#06121e}
     <div class="view" id="view-aditivos">
       <div id="aditivos-content"></div>
     </div>
-    <div class="view" id="view-caixa"><div id="caixa-content"></div></div>
     <div class="view" id="view-finance">
       <!-- Finance header row -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
@@ -1224,15 +1054,6 @@ select.fi option{background:#06121e}
           <option value="">— Sem etapa específica —</option>
         </select>
       </div>
-      <div class="field">
-        <label>Conta de pagamento</label>
-        <select class="fi" id="addcost-conta">
-          <option value="nubank">💜 Nubank (padrão)</option>
-          <option value="inter">🏦 Banco Inter PF</option>
-          <option value="especie">💵 Dinheiro em Espécie</option>
-          <option value="bradesco">🏛️ Conta Corrente — Bradesco</option>
-        </select>
-      </div>
       <div class="fg fg2">
         <div class="field">
           <label>Valor (R$)</label>
@@ -1284,7 +1105,7 @@ var ADMIN_EMAILS = ['pulsoreformas@gmail.com', 'ednaldobmeloo@gmail.com'];
 var _fbApp = null, _fbAuth = null, _fbDb = null, _fbUser = null;
 var _isAdmin = false;
 var _saveDebounce = {};
-var _mem = { budgets:[], obras:{}, finance:{}, aditivos:[], caixa:{contas:[], movs:[]} };
+var _mem = { budgets:[], obras:{}, finance:{}, aditivos:[] };
 
 function fbConfigured(){ return FIREBASE_CONFIG.apiKey !== 'YOUR_API_KEY'; }
 function isAdmin(){ return _isAdmin; }
@@ -1328,8 +1149,8 @@ function showSaveIndicator(msg, isErr) {
 
 function fbSave(key, data) {
   if (!_fbDb || !_fbUser) return;
-  // Admins: full access. Sócios: can edit budgets, obras, aditivos — but NOT finance/caixa
-  var restricted = ['finance','caixa'];
+  // Admins: full access. Sócios: can edit budgets + obras status, but NOT finance/aditivos
+  var restricted = ['finance','aditivos'];
   if (restricted.indexOf(key) >= 0 && !isAdmin()) {
     console.warn('Acesso negado: apenas admin pode salvar', key);
     return;
@@ -1357,7 +1178,6 @@ function fbLoadAll(callback) {
           if (doc.id==='obras')    _mem.obras    = val;
           if (doc.id==='finance')  _mem.finance  = val;
           if (doc.id==='aditivos') _mem.aditivos = val;
-          if (doc.id==='caixa')    _mem.caixa    = val;
         } catch(e){}
       });
       callback();
@@ -1442,7 +1262,7 @@ function goTo(view) {
   document.querySelectorAll('.nb').forEach(function(b){ b.classList.remove('active'); });
   var nb = el('nb-' + view);
   if (nb) nb.classList.add('active');
-  var titles = {dash:'Dashboard', list:'Todos os Orçamentos', form:'Orçamento', obras:'Obras em Andamento', aditivos:'Aditivos', caixa:'Caixa & Contas', finance:'Controle Financeiro'};
+  var titles = {dash:'Dashboard', list:'Todos os Orçamentos', form:'Orçamento', obras:'Obras em Andamento', aditivos:'Aditivos', finance:'Controle Financeiro'};
   el('ttitle').textContent = titles[view] || 'Orçamento';
   var tr = el('tb-r');
   if (view === 'list') {
@@ -1462,7 +1282,6 @@ function goTo(view) {
   if (view === 'obras') renderObras();
   if (view === 'aditivos') renderAditivos();
   if (view === 'finance') renderFinance();
-  if (view === 'caixa') renderCaixa();
 }
 
 // ═══════════════════════════════════════
@@ -1683,12 +1502,31 @@ var DIST_PARTNERS = [
   {id:'caixa',   name:'Caixa Empresa',  icon:'🏢', pct:50, role:'Empresa',  color:'rgba(255,209,102,1)'}
 ];
 
+
+// ── ADITIVOS HELPERS FINANCEIROS ────────────────────────────────
+function getAditReceitaAprovada(bid) {
+  return ADIT.load()
+    .filter(function(a){ return a.budgetId===bid && a.status==='approved'; })
+    .reduce(function(s,a){ return s+parseFloat(a.total||0); }, 0);
+}
+function getAditCustoTotal(bid) {
+  var db=ODB.load();
+  return ((db[bid]&&db[bid].aditCustos)?db[bid].aditCustos:[])
+    .reduce(function(s,e){ return s+parseFloat(e.val||0); }, 0);
+}
+function getAditRecTotal(bid) {
+  var db=ODB.load();
+  return ((db[bid]&&db[bid].aditRecebimentos)?db[bid].aditRecebimentos:[])
+    .reduce(function(s,r){ return s+parseFloat(r.val||0); }, 0);
+}
+
 function renderDash() {
   var all = DB.load();
   var appr = all.filter(function(b){ return b.status === 'approved'; });
   var pend = all.filter(function(b){ return !b.status || b.status === 'pending'; });
   var rejc = all.filter(function(b){ return b.status === 'rejected'; });
-  var aVal = appr.reduce(function(s,b){ return s+calcTotal(b); }, 0);
+  var aValBase = appr.reduce(function(s,b){ return s+calcTotal(b); }, 0);
+  var aVal = aValBase + appr.reduce(function(s,b){ return s+getAditReceitaAprovada(b.id); }, 0);
   var pVal = pend.reduce(function(s,b){ return s+calcTotal(b); }, 0);
   var rVal = rejc.reduce(function(s,b){ return s+calcTotal(b); }, 0);
   var tVal = all.reduce(function(s,b){ return s+calcTotal(b); }, 0);
@@ -1697,45 +1535,43 @@ function renderDash() {
   // ── KPI Cards ──
   // Financial data for approved budgets
   var finAll = FIN.load();
-  var totalCusto = appr.reduce(function(s,b){ return s + getCustoTotal(b.id); }, 0);
-  var aditRecTotal = appr.reduce(function(s,b){ return s + getAditReceitaAprovada(b.id); }, 0);
-  var resultado  = (aVal + aditRecTotal) - totalCusto;
+  var totalCusto = appr.reduce(function(s,b){ return s + finTotalCost((finAll[b.id]||{}).entries||[]) + getAditCustoTotal(b.id); }, 0);
+  var resultado  = aVal - totalCusto;
   var margem     = aVal > 0 ? (resultado/aVal*100).toFixed(1) : '—';
   var margemNum  = aVal > 0 ? resultado/aVal*100 : 0;
-
-  // Aditivos KPIs
-  var allAdits = ADIT.load();
-  var aditsAprov = allAdits.filter(function(a){ return a.status==='approved'; });
-  var aditsPend  = allAdits.filter(function(a){ return a.status==='pending'; });
-  var aditValAprov = aditsAprov.reduce(function(s,a){ return s+parseFloat(a.total||0); }, 0);
-  var aditValPend  = aditsPend.reduce(function(s,a){ return s+parseFloat(a.total||0); }, 0);
-  var aditCustoTotal = appr.reduce(function(s,b){ return s+getAditCustoTotal(b.id); }, 0);
-  var aditRecebTotal = appr.reduce(function(s,b){ return s+getAditRecTotal(b.id); }, 0);
-  var aditResultado  = aditValAprov - aditCustoTotal;
-  var aditMargem     = aditValAprov > 0 ? (aditResultado/aditValAprov*100) : 0;
 
   el('stats').innerHTML =
     '<div class="stat"><div class="lbl">Total Orçamentos</div><div class="val gd">' + all.length + '</div>' +
       '<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:100%;background:var(--gd)"></div></div></div>' +
     '<div class="stat"><div class="lbl">Receita Aprovada</div><div class="val gd" style="font-size:18px;margin-top:4px">' + fmt(aVal) + '</div>' +
       '<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:' + taxa + '%;background:var(--gd)"></div></div></div>' +
-    '<div class="stat"><div class="lbl">Custo Total (obras)</div><div class="val ' + (totalCusto>(aVal+aditRecTotal)?'neg':'warn') + '" style="font-size:18px;margin-top:4px">' + fmt(totalCusto) + '</div>' +
+    '<div class="stat"><div class="lbl">Custo Total (obras)</div><div class="val ' + (totalCusto>aVal?'neg':'warn') + '" style="font-size:18px;margin-top:4px">' + fmt(totalCusto) + '</div>' +
       '<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:' + (aVal>0?Math.min(100,totalCusto/aVal*100).toFixed(0):0) + '%;background:var(--rd)"></div></div></div>' +
     '<div class="stat"><div class="lbl">Resultado Líquido</div><div class="val ' + (resultado>=0?'pos':'neg') + '" style="font-size:18px;margin-top:4px">' + fmt(resultado) + '</div>' +
       '<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:' + Math.min(100,Math.abs(margemNum)).toFixed(0) + '%;background:' + (resultado>=0?'var(--gn)':'var(--rd)') + '"></div></div></div>' +
     '<div class="stat"><div class="lbl">Margem Média</div><div class="val ' + (margemNum>=20?'pos':margemNum>=0?'yw':'neg') + '" style="font-size:26px">' + margem + '%</div>' +
       '<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:' + Math.max(0,Math.min(100,margemNum)).toFixed(0) + '%;background:' + (margemNum>=20?'var(--gn)':margemNum>=0?'var(--yw)':'var(--rd)') + '"></div></div></div>' +
-    '<div class="stat" style="border-color:rgba(200,169,110,.25);background:rgba(200,169,110,.04)">' +
-      '<div class="lbl" style="color:rgba(200,169,110,.7)">📝 Aditivos Aprovados</div>' +
-      '<div class="val gd" style="font-size:18px;margin-top:4px">' + fmt(aditValAprov) + '</div>' +
-      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px">' +
-        '<div style="font-size:10px;color:rgba(0,212,255,.4)">Pendentes<br><span style="font-size:12px;font-weight:700;color:var(--yw)">' + fmt(aditValPend) + '</span></div>' +
-        '<div style="font-size:10px;color:rgba(0,212,255,.4)">Recebido<br><span style="font-size:12px;font-weight:700;color:var(--gn)">' + fmt(aditRecebTotal) + '</span></div>' +
-        '<div style="font-size:10px;color:rgba(0,212,255,.4)">Custo<br><span style="font-size:12px;font-weight:700;color:var(--rd)">' + fmt(aditCustoTotal) + '</span></div>' +
-        '<div style="font-size:10px;color:rgba(0,212,255,.4)">Margem<br><span style="font-size:12px;font-weight:700;color:' + (aditMargem>=20?'var(--gn)':aditMargem>=0?'var(--yw)':'var(--rd)') + '">' + aditMargem.toFixed(1) + '%</span></div>' +
-      '</div>' +
-      '<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:' + (aditValAprov>0?Math.min(100,aditCustoTotal/aditValAprov*100).toFixed(0):0) + '%;background:rgba(200,169,110,.7)"></div></div>' +
-    '</div>';
+    (function(){
+      var aAdits=ADIT.load(); var aAp=aAdits.filter(function(a){return a.status==='approved';}); var aPe=aAdits.filter(function(a){return a.status==='pending';});
+      var aVAp=aAp.reduce(function(s,a){return s+parseFloat(a.total||0);},0);
+      var aVPe=aPe.reduce(function(s,a){return s+parseFloat(a.total||0);},0);
+      var aCst=appr.reduce(function(s,b){return s+getAditCustoTotal(b.id);},0);
+      var aRec=appr.reduce(function(s,b){return s+getAditRecTotal(b.id);},0);
+      var aRes=aVAp-aCst; var aMg=aVAp>0?(aRes/aVAp*100):0;
+      var aColor=aMg>=20?'var(--gn)':aMg>=0?'var(--yw)':'var(--rd)';
+      if(!aVAp && !aVPe) return '';
+      return '<div class="stat" style="border-color:rgba(200,169,110,.25);background:rgba(200,169,110,.04)">'+
+        '<div class="lbl" style="color:rgba(200,169,110,.7)">\u{1F4DD} Aditivos Aprovados</div>'+
+        '<div class="val gd" style="font-size:18px;margin-top:4px">'+fmt(aVAp)+'</div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:8px">'+
+          '<div style="font-size:10px;color:rgba(0,212,255,.4)">Recebido<br><span style="font-size:12px;font-weight:700;color:var(--gn)">'+fmt(aRec)+'</span></div>'+
+          '<div style="font-size:10px;color:rgba(0,212,255,.4)">Custo<br><span style="font-size:12px;font-weight:700;color:var(--rd)">'+fmt(aCst)+'</span></div>'+
+          '<div style="font-size:10px;color:rgba(0,212,255,.4)">Pendentes<br><span style="font-size:12px;font-weight:700;color:var(--yw)">'+fmt(aVPe)+'</span></div>'+
+          '<div style="font-size:10px;color:rgba(0,212,255,.4)">Margem<br><span style="font-size:12px;font-weight:700;color:'+aColor+'">'+aMg.toFixed(1)+'%</span></div>'+
+        '</div>'+
+        '<div class="prog-bar" style="margin-top:8px"><div class="prog-fill" style="width:'+Math.min(100,aVAp>0?aCst/aVAp*100:0).toFixed(0)+'%;background:rgba(200,169,110,.7)"></div></div>'+
+      '</div>';
+    })();
 
   if (typeof Chart === 'undefined') { renderRecentList(all); return; }
   Chart.defaults.color = 'rgba(240,236,228,0.45)';
@@ -1850,9 +1686,9 @@ function renderDashProfit(approvedBudgets) {
 
   // ── Build per-obra data with period filter ──
   var obraData = approved.map(function(b){
-    var receita   = getReceitaTotal(b);            // contrato + aditivos aprovados
+    var receita   = calcTotal(b) + getAditReceitaAprovada(b.id);
     var entries   = getFilteredEntries(b.id);
-    var custo     = finTotalCost(entries) + getAditCustoTotal(b.id); // obra + aditivos
+    var custo     = finTotalCost(entries) + getAditCustoTotal(b.id);
     var result    = receita - custo;
     var distCfg   = getDistConfig(b.id);
     return { b:b, receita:receita, custo:custo, result:result, distCfg:distCfg };
@@ -1884,23 +1720,14 @@ function renderDashProfit(approvedBudgets) {
       var card = document.createElement('div');
       card.className = 'profit-dist-card';
       card.style.setProperty('--accent-color', p.color);
-      var totalPago = p.role!=='Empresa' ? getTotalDistPagoParceiro(p.id) : 0;
-      var totalPend = partnerTotal - totalPago;
-      var payInfo = p.role!=='Empresa' && partnerTotal>0 ?
-        '<div class="pdc-paid-lbl">Pagamentos registrados</div>'+
-        '<div class="pdc-paid">'+fmt(totalPago)+'</div>'+
-        (totalPend>0.01?'<div class="pdc-pending">Pendente: '+fmt(totalPend)+'</div>':
-         totalPend<-0.01?'<div style="font-size:11px;color:var(--rd)">Excedeu: '+fmt(Math.abs(totalPend))+'</div>':
-         partnerTotal>0?'<div style="font-size:11px;color:var(--gn)">✓ Quitado</div>':'') : '';
       card.innerHTML =
         '<div class="pdc-icon">'+p.icon+'</div>'+
         '<div class="pdc-name">'+p.name+'</div>'+
         '<div class="pdc-role">'+p.role+' · '+p.pct+'% do resultado</div>'+
         '<div class="pdc-pct">'+periodLabel+'</div>'+
         '<div class="pdc-val '+valCls+'">'+fmt(partnerTotal)+'</div>'+
-        '<div class="pdc-sub">a distribuir no período</div>'+
-        payInfo+
-        '<div class="pdc-bar" style="margin-top:8px"><div class="pdc-bar-fill" style="width:'+barW+'%;background:'+p.color+';box-shadow:0 0 8px '+p.color+'"></div></div>';
+        '<div class="pdc-sub">de '+fmt(totalResultado)+' resultado total</div>'+
+        '<div class="pdc-bar"><div class="pdc-bar-fill" style="width:'+barW+'%;background:'+p.color+';box-shadow:0 0 8px '+p.color+'"></div></div>';
       cardsWrap.appendChild(card);
     });
   }
@@ -1911,19 +1738,25 @@ function renderDashProfit(approvedBudgets) {
     if (!obraData.length) {
       tableWrap.innerHTML = '<div class="no-costs" style="padding:20px 0;text-align:center">Nenhuma obra aprovada com dados no período selecionado.</div>';
     } else {
-      var partnerCols=DIST_PARTNERS.filter(function(p){return p.role!=='Empresa';});
-      var colCount=4+partnerCols.length;
-      var header='<div class="pbo-row header" style="grid-template-columns:2fr repeat('+(colCount-1)+',1fr)">'+
-        '<span>Obra</span><span style="text-align:right">Receita</span><span style="text-align:right">Custo</span><span style="text-align:right">Resultado</span>'+
-        partnerCols.map(function(p){return'<span style="text-align:right;color:'+p.color.replace('1)','0.8)')+'">'+p.name.split(' ')[0]+'</span>';}).join('')+'</div>';
-      var rows=obraData.map(function(o){
-        var rc=o.result>=0?'pos':'neg';
-        return '<div class="pbo-row" style="grid-template-columns:2fr repeat('+(colCount-1)+',1fr)">'+
+      var header =
+        '<div class="pbo-row header">' +
+          '<span>Obra</span>' +
+          '<span style="text-align:right">Receita</span>' +
+          '<span style="text-align:right">Custo</span>' +
+          '<span style="text-align:right">Resultado</span>' +
+          '<span style="text-align:right">Ednaldo (25%)</span>' +
+          '<span style="text-align:right">Paulo (25%)</span>' +
+        '</div>';
+      var rows = obraData.map(function(o){
+        var rc = o.result>=0?'pos':'neg';
+        return '<div class="pbo-row">' +
           '<span class="pbo-obra" title="'+esc(o.b.client||'—')+'">'+esc(o.b.client||'—')+' <span style="color:rgba(0,212,255,.3);font-size:11px">'+esc(o.b.num||'')+'</span></span>'+
           '<span class="pbo-val neu">'+fmt(o.receita)+'</span>'+
           '<span class="pbo-val" style="color:var(--rd)">'+fmt(o.custo)+'</span>'+
           '<span class="pbo-val '+rc+'">'+fmt(o.result)+'</span>'+
-          partnerCols.map(function(p){var pct=(o.distCfg.find(function(c){return c.id===p.id;})||{pct:p.pct}).pct;return'<span class="pbo-val '+rc+'">'+fmt(o.result*pct/100)+'</span>';}).join('')+'</div>';
+          '<span class="pbo-val '+rc+'">'+fmt(o.result*(o.distCfg.find(function(c){return c.id==='ednaldo';})||{pct:25}).pct/100)+'</span>'+
+          '<span class="pbo-val '+rc+'">'+fmt(o.result*(o.distCfg.find(function(c){return c.id==='paulo';})||{pct:25}).pct/100)+'</span>'+
+        '</div>';
       }).join('');
       // Totals row
       var totCls = totalResultado>=0?'pos':'neg';
@@ -2053,8 +1886,7 @@ function updBadgeObras() {
 }
 
 var _obraFilter = 'all';
-var _activeObraTab = {};
-var _minimizedObras = {}; // bid -> true if minimized // budgetId → tab name
+var _activeObraTab = {}; // budgetId → tab name
 
 function renderObras() {
   var all    = DB.load();
@@ -2112,25 +1944,6 @@ function renderObras() {
 
   container.innerHTML = html + '<div id="obras-list-wrap"></div>';
 
-  // Toolbar
-  var toolbar = document.createElement('div');
-  toolbar.className = 'obras-toolbar';
-
-  var allMin = DB.load().filter(function(b){return b.status==='approved';})
-    .every(function(b){return _minimizedObras[b.id];});
-
-  var minAllBtn = document.createElement('button');
-  minAllBtn.className = 'obras-minimize-all-btn';
-  minAllBtn.innerHTML = allMin ? '▼ Expandir todas' : '▲ Minimizar todas';
-  minAllBtn.addEventListener('click', function(){
-    var appr = DB.load().filter(function(b){return b.status==='approved';});
-    var shouldMin = !allMin;
-    appr.forEach(function(b){ _minimizedObras[b.id] = shouldMin; });
-    renderObras();
-  });
-  toolbar.appendChild(minAllBtn);
-  container.appendChild(toolbar);
-
   var wrap = el('obras-list-wrap');
   filtered.forEach(function(b){
     wrap.appendChild(buildObraCard(b, odbFresh[b.id]||{}));
@@ -2150,9 +1963,9 @@ function setObraFilter(f) {
 }
 
 function buildObraCard(b, obra) {
-  var receita   = getReceitaTotal(b);
+  var receita   = calcTotal(b) + getAditReceitaAprovada(b.id);
   var entries   = getFinEntries(b.id);
-  var custo     = getCustoTotal(b.id);
+  var custo     = finTotalCost(entries) + getAditCustoTotal(b.id);
   var resultado = receita - custo;
   var margem    = receita > 0 ? (resultado/receita*100) : 0;
   var custoPerc = receita > 0 ? Math.min(100, custo/receita*100) : 0;
@@ -2172,7 +1985,7 @@ function buildObraCard(b, obra) {
   var activeTab  = _activeObraTab[b.id] || 'graficos';
 
   var card = document.createElement('div');
-  card.className = 'obra-big-card' + (_minimizedObras[b.id] ? ' minimized' : '');
+  card.className = 'obra-big-card';
   card.id = 'obc-'+b.id;
 
   // ── HEADER — built with createElement so select event fires reliably ──
@@ -2218,44 +2031,9 @@ function buildObraCard(b, obra) {
     renderObras();
   });
 
-  // Minimize button
-  var minBtn = document.createElement('button');
-  minBtn.className = 'obc-minimize-btn';
-  minBtn.title = _minimizedObras[b.id] ? 'Expandir' : 'Minimizar';
-  minBtn.innerHTML = _minimizedObras[b.id] ? '▼' : '▲';
-  minBtn.addEventListener('click', function(e){
-    e.stopPropagation();
-    _minimizedObras[b.id] = !_minimizedObras[b.id];
-    card.classList.toggle('minimized', !!_minimizedObras[b.id]);
-    minBtn.innerHTML = _minimizedObras[b.id] ? '▼' : '▲';
-    minBtn.title = _minimizedObras[b.id] ? 'Expandir' : 'Minimizar';
-  });
-
-  // Minimized summary row (inline KPIs shown when collapsed)
-  var minSummary = document.createElement('div');
-  minSummary.className = 'obra-minimized-summary';
-  var recRec = getRecebimentos(b.id).reduce(function(s,r){return s+parseFloat(r.val||0);},0)
-              + getAditRecTotal(b.id);
-  var lucroReal2 = recRec - custo;
-  var mPct = receita > 0 ? (resultado/receita*100) : 0;
-  var mColor = mPct>=20?'var(--gn)':mPct>=0?'var(--yw)':'var(--rd)';
-  minSummary.innerHTML =
-    '<div class="oms-divider"></div>'+
-    '<div class="oms-kpi"><div class="oms-kpi-lbl">Receita</div><div class="oms-kpi-val" style="color:var(--gd)">'+fmt(receita)+'</div></div>'+
-    '<div class="oms-divider"></div>'+
-    '<div class="oms-kpi"><div class="oms-kpi-lbl">Recebido</div><div class="oms-kpi-val" style="color:var(--gn)">'+fmt(recRec)+'</div></div>'+
-    '<div class="oms-divider"></div>'+
-    '<div class="oms-kpi"><div class="oms-kpi-lbl">Custo</div><div class="oms-kpi-val" style="color:var(--rd)">'+fmt(custo)+'</div></div>'+
-    '<div class="oms-divider"></div>'+
-    '<div class="oms-kpi"><div class="oms-kpi-lbl">Resultado</div><div class="oms-kpi-val" style="color:'+(resultado>=0?'var(--gn)':'var(--rd)')+'">'+fmt(resultado)+'</div></div>'+
-    '<div class="oms-divider"></div>'+
-    '<div class="oms-kpi"><div class="oms-kpi-lbl">Margem</div><div class="oms-kpi-val" style="color:'+mColor+'">'+mPct.toFixed(1)+'%</div></div>';
-
   metaRight.appendChild(receitaDiv);
   metaRight.appendChild(statusSelect);
-  metaRight.appendChild(minBtn);
   hdr.appendChild(titleGroup);
-  hdr.appendChild(minSummary);
   hdr.appendChild(metaRight);
 
 
@@ -2264,8 +2042,9 @@ function buildObraCard(b, obra) {
   prog.className = 'obc-progress-section';
   prog.innerHTML =
     '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">' +
-      kpiMini('Custo Acumulado', fmt(custo + (getAditCustos(b.id).reduce(function(s,e){return s+parseFloat(e.val||0);},0))), 'warn') +
-      (function(){var rA=ADIT.load().filter(function(a){return a.budgetId===b.id&&a.status==='approved';}).reduce(function(s,a){return s+parseFloat(a.total||0);},0);var cA=getAditCustos(b.id).reduce(function(s,e){return s+parseFloat(e.val||0);},0);var rT=receita+rA;var res=rT-(custo+cA);var mg=rT>0?(res/rT*100):0;var mc2=mg>=20?'pos':mg>=0?'warn':'neg';return kpiMini('Resultado', fmt(res), mc2)+kpiMini('Margem', mg.toFixed(1)+'%', mc2);})() +
+      kpiMini('Custo Acumulado', fmt(custo), 'warn') +
+      kpiMini('Resultado', fmt(resultado), margemCls) +
+      kpiMini('Margem', margem.toFixed(1)+'%', margemCls) +
     '</div>' +
     '<div style="margin-top:14px">' +
       '<div class="obc-prog-row"><span class="obc-prog-lbl">Progresso das Etapas</span><span class="obc-prog-val" style="color:var(--gd)">'+doneCount+'/'+insts.length+' concluídas</span></div>' +
@@ -2285,8 +2064,6 @@ function buildObraCard(b, obra) {
     {id:'etapas',   label:'📋 Etapas'},
     {id:'sections', label:'📦 Seções do Orçamento'},
     {id:'recebimentos', label:'💰 Recebimentos'},
-    {id:'caixa-obra',   label:'🏦 Caixa'},
-    {id:'aditivos-obra',label:'📝 Aditivos'},
     {id:'distribuicao', label:'💵 Distribuição'},
     {id:'info',         label:'ℹ️ Informações'}
   ];
@@ -2451,20 +2228,6 @@ function buildObraCard(b, obra) {
   body.appendChild(panelRec);
 
   // Panel: Distribuição de Lucros
-  // Panel: Aditivos da Obra
-  var panelAditivosObra = document.createElement('div');
-  panelAditivosObra.className = 'obc-panel' + (activeTab==='aditivos-obra'?' active':'');
-  panelAditivosObra.id = 'obc-panel-'+b.id+'-aditivos-obra';
-  buildAditivosObraPanel(panelAditivosObra, b.id, b);
-  body.appendChild(panelAditivosObra);
-
-  // Panel: Caixa da Obra
-  var panelCaixaObra = document.createElement('div');
-  panelCaixaObra.className = 'obc-panel' + (activeTab==='caixa-obra'?' active':'');
-  panelCaixaObra.id = 'obc-panel-'+b.id+'-caixa-obra';
-  buildCaixaObraPanel(panelCaixaObra, b.id, b);
-  body.appendChild(panelCaixaObra);
-
   var panelDist = document.createElement('div');
   panelDist.className = 'obc-panel' + (activeTab==='distribuicao'?' active':'');
   panelDist.id = 'obc-panel-'+b.id+'-distribuicao';
@@ -2532,15 +2295,6 @@ function buildGraficosHTML(bid) {
         '<div class="occ-sub">Velocidade de consumo financeiro</div>' +
         '<div class="occ-wrap" style="height:200px"><canvas id="oc-weekly-'+bid+'"></canvas></div>' +
       '</div>' +
-    '</div>' +
-    '<div class="obra-chart-card" style="margin-top:16px">' +
-      '<div class="occ-title">📈 Lucro em Tempo Real</div>' +
-      '<div class="occ-sub">Receita recebida, custos acumulados e lucro líquido ao longo da obra</div>' +
-      '<div style="display:grid;grid-template-columns:auto 1fr;gap:16px;margin-bottom:16px;align-items:center">'+
-        '<div id="oc-profit-bigpct-'+bid+'" style="background:rgba(0,8,24,.6);border:1px solid rgba(0,212,255,.12);border-radius:12px;padding:16px 24px;text-align:center;min-width:160px"></div>'+
-        '<div id="oc-profit-kpis-'+bid+'" style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px"></div>'+
-      '</div>' +
-      '<div class="occ-wrap" style="height:220px"><canvas id="oc-profit-'+bid+'"></canvas></div>' +
     '</div>'
   );
 }
@@ -2550,7 +2304,6 @@ function renderObraCharts(bid, b, entries, insts, instStatus, receita, custo) {
   Chart.defaults.color = 'rgba(180,220,255,0.45)';
   Chart.defaults.font.family = 'Barlow, sans-serif';
 
-  // receita and custo already include aditivos (via getReceitaTotal/getCustoTotal in buildObraCard)
   var margem   = receita > 0 ? ((receita-custo)/receita*100) : 0;
   var custoPerc = receita > 0 ? Math.min(100, custo/receita*100) : 0;
   var doneCount = insts.filter(function(i){ return (instStatus[i.id]||'wait')==='done'; }).length;
@@ -2562,9 +2315,9 @@ function renderObraCharts(bid, b, entries, insts, instStatus, receita, custo) {
   if (ckpi) {
     var mc = margem>=20?'pos':margem>=0?'warn':'neg';
     ckpi.innerHTML =
-      kpiBox('Receita Total',   fmt(receita),        'neu') +
-      kpiBox('Custo Acumulado', fmt(custo),          custoPerc>90?'neg':custoPerc>70?'warn':'gn') +
-      kpiBox('Resultado',       fmt(receita-custo),  (receita-custo)>=0?'pos':'neg') +
+      kpiBox('Receita Total',   fmt(receita),  'neu') +
+      kpiBox('Custo Acumulado', fmt(custo),    custoPerc>90?'neg':custoPerc>70?'warn':'gn') +
+      kpiBox('Resultado',       fmt(resultado), resultado>=0?'pos':'neg') +
       kpiBox('Margem',          margem.toFixed(1)+'%', mc) +
       kpiBox('Progresso',       progPct.toFixed(0)+'%', progPct>=100?'pos':'neu') +
       kpiBox('Consumo Orçam.',  custoPerc.toFixed(1)+'%', custoPerc>90?'neg':custoPerc>70?'warn':'pos');
@@ -2828,151 +2581,6 @@ function renderObraCharts(bid, b, entries, insts, instStatus, receita, custo) {
       ctxW.parentElement.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:200px;color:rgba(0,212,255,.25);font-size:13px">Nenhum custo com data registrada</div>';
     }
   }
-
-  // ── CHART 5: Lucro em Tempo Real ──────────────────────────────
-  destroyChart('oc-profit-'+bid);
-  var ctxP = el('oc-profit-'+bid);
-
-  // receita and custo already include aditivos (via getReceitaTotal/getCustoTotal)
-  // Build recebimentos timeline
-  var recs = getRecebimentos(bid).filter(function(r){ return r.date && r.val; })
-    .sort(function(a,b){ return parseDateBR(a.date)-parseDateBR(b.date); });
-
-  // Build costs timeline
-  var costsTimeline = entries.slice().filter(function(e){ return e.date; })
-    .sort(function(a,b){ return parseDateBR(a.date)-parseDateBR(b.date); });
-
-  // KPIs
-  var totalRec  = recs.reduce(function(s,r){ return s+parseFloat(r.val||0); }, 0);
-  var lucroReal = totalRec - custo;
-  var margem2   = totalRec > 0 ? (lucroReal/totalRec*100) : 0;
-  var pendente  = receita - totalRec;
-
-  var kpisEl = el('oc-profit-kpis-'+bid);
-  if (kpisEl) {
-    var margemPct  = receita > 0 ? (lucroReal / receita * 100) : 0;
-    var margemRec  = totalRec > 0 ? (lucroReal / totalRec * 100) : 0;
-    var margemColor = margemPct >= 20 ? 'var(--gn)' : margemPct >= 10 ? 'var(--yw)' : 'var(--rd)';
-    var kpis = [
-      {lbl:'Receita Contratada', val:fmt(receita),   color:'var(--gd)'},
-      {lbl:'Recebido',           val:fmt(totalRec),  color:'var(--gn)'},
-      {lbl:'Custos Totais',      val:fmt(custo),     color:'var(--rd)'},
-      {lbl:'Lucro Real',         val:fmt(lucroReal), color:lucroReal>=0?'var(--gn)':'var(--rd)'},
-      {lbl:'A Receber',          val:fmt(pendente),  color:'var(--yw)'},
-      {lbl:'Custo / Receita',    val:receita>0?(custo/receita*100).toFixed(1)+'%':'—', color:custo/receita>0.9?'var(--rd)':custo/receita>0.7?'var(--yw)':'var(--gd)'},
-    ];
-    kpisEl.style.gridTemplateColumns = 'repeat(6,1fr)';
-
-    // Big % margin highlight
-    var bigPct = document.getElementById('oc-profit-bigpct-'+bid);
-    if (bigPct) {
-      bigPct.innerHTML =
-        '<div style="font-size:11px;color:rgba(0,212,255,.4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Margem de Lucro</div>'+
-        '<div style="font-size:52px;font-weight:800;line-height:1;color:'+margemColor+';text-shadow:0 0 24px '+margemColor.replace('var(--','rgba(').replace(')','')+', .3)">'+margemPct.toFixed(1)+'<span style="font-size:28px">%</span></div>'+
-        '<div style="font-size:11px;color:rgba(0,212,255,.3);margin-top:6px">sobre receita contratada</div>'+
-        '<div style="font-size:13px;font-weight:700;color:'+margemColor+';margin-top:4px">'+margemRec.toFixed(1)+'% sobre recebido</div>';
-    }
-
-    kpisEl.innerHTML = kpis.map(function(k){
-      return '<div style="background:rgba(0,8,24,.55);border:1px solid rgba(0,212,255,.1);border-radius:9px;padding:10px 12px">'+
-        '<div style="font-size:10px;color:rgba(0,212,255,.4);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">'+k.lbl+'</div>'+
-        '<div style="font-size:16px;font-weight:800;color:'+k.color+'">'+k.val+'</div>'+
-        (k.sub?'<div style="font-size:9px;color:rgba(0,212,255,.3);margin-top:2px">'+k.sub+'</div>':'')+
-      '</div>';
-    }).join('');
-  }
-
-  if (ctxP && (recs.length || costsTimeline.length)) {
-    // Merge all dates
-    var allDates = {};
-    recs.forEach(function(r){ allDates[r.date] = true; });
-    costsTimeline.forEach(function(e){ allDates[e.date] = true; });
-    var sortedDates = Object.keys(allDates).sort(function(a,b){ return parseDateBR(a)-parseDateBR(b); });
-
-    // Accumulate per date
-    var accRec=0, accCost=0;
-    var dataRec=[], dataCost=[], dataLucro=[], dataMeta=[], dataMargem=[];
-    sortedDates.forEach(function(date){
-      recs.filter(function(r){return r.date===date;}).forEach(function(r){ accRec+=parseFloat(r.val||0); });
-      costsTimeline.filter(function(e){return e.date===date;}).forEach(function(e){ accCost+=parseFloat(e.val||0); });
-      var lucroAcc = accRec - accCost;
-      dataRec.push(accRec);
-      dataCost.push(accCost);
-      dataLucro.push(lucroAcc);
-      dataMeta.push(receita);
-      // Margem % sobre receita contratada
-      dataMargem.push(receita > 0 ? parseFloat((lucroAcc / receita * 100).toFixed(1)) : 0);
-    });
-
-    _charts['oc-profit-'+bid] = new Chart(ctxP, {
-      type: 'line',
-      data: {
-        labels: sortedDates,
-        datasets: [
-          {
-            label: 'Recebido',
-            data: dataRec,
-            borderColor: 'rgba(0,255,136,.8)',
-            backgroundColor: 'rgba(0,255,136,.08)',
-            fill: true,
-            tension: 0.3,
-            pointRadius: 3,
-            borderWidth: 2
-          },
-          {
-            label: 'Custo Acumulado',
-            data: dataCost,
-            borderColor: 'rgba(255,68,102,.8)',
-            backgroundColor: 'rgba(255,68,102,.06)',
-            fill: true,
-            tension: 0.3,
-            pointRadius: 3,
-            borderWidth: 2
-          },
-          {
-            label: 'Lucro Real',
-            data: dataLucro,
-            borderColor: 'rgba(0,212,255,.9)',
-            backgroundColor: 'rgba(0,212,255,.06)',
-            fill: false,
-            tension: 0.3,
-            pointRadius: 3,
-            borderWidth: 2,
-            borderDash: [5,3]
-          },
-          {
-            label: 'Receita Contratada',
-            data: dataMeta,
-            borderColor: 'rgba(255,209,102,.35)',
-            backgroundColor: 'transparent',
-            fill: false,
-            tension: 0,
-            pointRadius: 0,
-            borderWidth: 1,
-            borderDash: [8,4]
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        interaction: {mode:'index', intersect:false},
-        plugins: {
-          legend: {labels:{color:'rgba(180,220,255,.5)', font:{size:10}, boxWidth:12}},
-          tooltip: {callbacks:{label:function(c){ return ' '+c.dataset.label+': '+fmt(c.raw); }}}
-        },
-        scales: {
-          x: {grid:{color:'rgba(0,212,255,.05)'}, ticks:{color:'rgba(180,220,255,.4)', maxTicksLimit:8, maxRotation:0}},
-          y: {
-            grid:{color:'rgba(0,212,255,.05)'},
-            ticks:{color:'rgba(180,220,255,.4)', callback:function(v){ return 'R$'+( v>=1000?(v/1000).toFixed(0)+'k':v); }}
-          }
-        }
-      }
-    });
-  } else if (ctxP) {
-    ctxP.parentElement.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:200px;color:rgba(180,220,255,.2);font-size:13px">Lance recebimentos e custos para ver o gráfico de lucro.</div>';
-  }
 }
 
 function kpiBox(lbl, val, cls) {
@@ -3139,9 +2747,6 @@ function buildDistribuicaoPanel(bid, receita, custo) {
       ? 'Obra <span style="color:var(--gn);font-weight:700">lucrativa</span> — distribuição positiva.'
       : '<span style="color:var(--rd);font-weight:700">Atenção:</span> resultado negativo.');
   wrapper.appendChild(note);
-
-  // Payment history
-  buildDistPagamentosSection(bid, resultado, wrapper);
 
   return wrapper;
 }
@@ -3320,14 +2925,8 @@ function buildAditCard(adit, obra) {
     renderAditivos();
   });
 
-  var pdfBtn = document.createElement('button');
-  pdfBtn.className = 'btn btn-g btn-xs';
-  pdfBtn.textContent = '📄 PDF';
-  pdfBtn.addEventListener('click', function(){ exportAditPDF(adit.id); });
-
   actions.appendChild(stSelect);
   actions.appendChild(editBtn);
-  actions.appendChild(pdfBtn);
   actions.appendChild(delBtn);
   footer.appendChild(actions);
   bd.appendChild(footer);
@@ -3472,7 +3071,6 @@ function saveAditivo() {
 // FINANCE DB
 // ═══════════════════════════════════════
 var FIN = { load(){ return _mem.finance; }, save(d){ _mem.finance=d; fbSave('finance',d); } };
-var CAIXA = { load(){ return _mem.caixa; }, save(d){ _mem.caixa=d; fbSave('caixa',d); } };
 // finance data structure: { [budgetId]: { entries: [{id,cat,desc,val,date}] } }
 
 var CATS = [
@@ -3497,26 +3095,12 @@ function saveFinEntry(budgetId, entry) {
   if (!fin[budgetId]) fin[budgetId] = {entries:[]};
   fin[budgetId].entries.push(entry);
   FIN.save(fin);
-  var cat = CATS.find(function(c){return c.id===entry.cat;})||{icon:'💸',name:'Custo'};
-  var contaUsada = entry.conta || CONTA_PADRAO;
-  var mov = {id:'fin_'+entry.id, tipo:'saida', conta:contaUsada,
-    desc: cat.icon+' '+cat.name+': '+(entry.desc||''),
-    val: parseFloat(entry.val||0), date: entry.date||'',
-    createdAt: Date.now(), autoGerado: true};
-  addMovObraCaixa(budgetId, mov);
-  var b = DB.load().find(function(x){return x.id===budgetId;});
-  addMovGlobalCaixa(Object.assign({}, mov, {
-    id:'gfin_'+entry.id, budgetId:budgetId,
-    desc: mov.desc+' — '+(b?b.client||b.num||'':'')
-  }));
 }
 function deleteFinEntry(budgetId, entryId) {
   var fin = FIN.load();
   if (!fin[budgetId]) return;
   fin[budgetId].entries = fin[budgetId].entries.filter(function(e){ return e.id!==entryId; });
   FIN.save(fin);
-  removeMovObraCaixa(budgetId, 'fin_'+entryId);
-  removeMovGlobalCaixa('gfin_'+entryId);
 }
 
 // ═══════════════════════════════════════
@@ -3546,8 +3130,8 @@ function renderFinance(filterBudgetId) {
   var workList = filterVal ? approved.filter(function(b){ return b.id===filterVal; }) : approved;
 
   // ── KPI Cards ──
-  var totalOrcado = workList.reduce(function(s,b){ return s+getReceitaTotal(b); }, 0);
-  var totalCusto  = workList.reduce(function(s,b){ return s+getCustoTotal(b.id); }, 0);
+  var totalOrcado = workList.reduce(function(s,b){ return s+calcTotal(b)+getAditReceitaAprovada(b.id); }, 0);
+  var totalCusto  = workList.reduce(function(s,b){ return s+finTotalCost(getFinEntries(b.id))+getAditCustoTotal(b.id); }, 0);
   var resultado   = totalOrcado - totalCusto;
   var margem      = totalOrcado > 0 ? (resultado/totalOrcado*100) : 0;
   var totalObras  = workList.length;
@@ -3574,8 +3158,8 @@ function renderFinance(filterBudgetId) {
     var ctxO = el('fin-chart-obras');
     if (ctxO && workList.length) {
       var labels = workList.map(function(b){ return b.client||b.num||'—'; });
-      var dataOrc = workList.map(function(b){ return getReceitaTotal(b); });
-      var dataCst = workList.map(function(b){ return getCustoTotal(b.id); });
+      var dataOrc = workList.map(function(b){ return calcTotal(b); });
+      var dataCst = workList.map(function(b){ return finTotalCost(getFinEntries(b.id)); });
       _charts['fin-obras'] = new Chart(ctxO, {
         type:'bar',
         data:{ labels:labels, datasets:[
@@ -3632,8 +3216,8 @@ function renderFinance(filterBudgetId) {
 
   workList.forEach(function(b) {
     var entries = getFinEntries(b.id);
-    var receita = getReceitaTotal(b);
-    var custo   = getCustoTotal(b.id);
+    var receita = calcTotal(b);
+    var custo   = finTotalCost(entries);
     var result  = receita - custo;
     var margem  = receita > 0 ? (result/receita*100) : 0;
     var margemCls = margem >= 20 ? 'pos' : margem >= 0 ? 'warn' : 'neg';
@@ -3765,8 +3349,7 @@ function confirmAddCost() {
   if (!desc) { toast('Digite a descrição do custo','err'); return; }
   if (!val || val<=0) { toast('Digite um valor válido','err'); return; }
   var etapa = (el('addcost-etapa') && el('addcost-etapa').value) ? el('addcost-etapa').value : '';
-  var conta = (el('addcost-conta') && el('addcost-conta').value) ? el('addcost-conta').value : CONTA_PADRAO;
-  saveFinEntry(_addCostObraId, {id:uid(), cat:cat, desc:desc, val:val, date:date, etapa:etapa, conta:conta});
+  saveFinEntry(_addCostObraId, {id:uid(), cat:cat, desc:desc, val:val, date:date, etapa:etapa});
   closeOv('ov-addcost');
   toast('Custo lançado com sucesso! ✅');
   if (el('view-obras') && el('view-obras').classList.contains('active')) renderObras();
@@ -4617,145 +4200,6 @@ function setStatus(s) {
 // ═══════════════════════════════════════
 // EXPORT PDF
 // ═══════════════════════════════════════
-
-// ═══════════════════════════════════════
-// ADITIVO — EXPORTAR PDF
-// ═══════════════════════════════════════
-function fmtN(v){ return 'R$ '+parseFloat(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
-
-function exportAditPDF(aditId) {
-  var adit = ADIT.load().find(function(a){ return a.id===aditId; });
-  if (!adit) { toast('Aditivo não encontrado.','err'); return; }
-  var obra = DB.load().find(function(b){ return b.id===adit.budgetId; });
-
-  var jsPDF = window.jspdf.jsPDF;
-  var doc = new jsPDF({unit:'mm', format:'a4'});
-  var W=210, M=14, y=0;
-
-  function check(h){ if(y+h>278){ doc.addPage(); y=16; } }
-
-  // ── Header navy ──
-  doc.setFillColor(28,43,74); doc.rect(0,0,W,38,'F');
-  try { doc.addImage(_LOGO,'PNG',M,4,30,30); } catch(e){}
-  doc.setTextColor(240,236,228); doc.setFont('helvetica','normal'); doc.setFontSize(8);
-  doc.text('Construção Civil e Reformas',W-M,10,{align:'right'});
-  doc.text('(81) 98365-4027  |  (81) 99393-9208',W-M,16,{align:'right'});
-  doc.text('pulsoreformas@gmail.com',W-M,22,{align:'right'});
-
-  // ── Gold line + aditivo bar ──
-  doc.setFillColor(200,169,110); doc.rect(0,38,W,2,'F');
-  doc.setFillColor(17,29,51); doc.rect(0,40,W,14,'F');
-  doc.setTextColor(200,169,110); doc.setFont('helvetica','bold'); doc.setFontSize(9);
-  doc.text('ADITIVO Nº: ADT-'+String(adit.num||'?').padStart(4,'0'),M,49);
-  doc.setTextColor(200,200,200); doc.setFont('helvetica','normal');
-  doc.text('DATA: '+(adit.date||'—')+'   ·   STATUS: '+({approved:'Aprovado',pending:'Pendente',rejected:'Recusado'}[adit.status||'pending']||'—'),M+62,49);
-  y=62;
-
-  // ── Obra / client box ──
-  doc.setFillColor(240,244,250); doc.roundedRect(M,y,W-2*M,24,2,2,'F');
-  doc.setDrawColor(200,210,230); doc.roundedRect(M,y,W-2*M,24,2,2,'S');
-  doc.setFillColor(28,43,74); doc.roundedRect(M,y,4,24,1,1,'F');
-  doc.setTextColor(28,43,74); doc.setFont('helvetica','bold'); doc.setFontSize(8.5);
-  doc.text('DADOS DA OBRA',M+8,y+8);
-  doc.setFont('helvetica','normal'); doc.setFontSize(9.5);
-  doc.text('Cliente: '+(obra?obra.client||'—':'—'),M+8,y+15);
-  doc.text('Obra: '+(obra?obra.obra||'—':'—')+'   ·   Local: '+(obra?obra.local||'—':'—'),M+8,y+21.5);
-  y+=30;
-
-  // ── Aditivo title + description ──
-  check(14);
-  doc.setFillColor(28,43,74); doc.rect(M,y,W-2*M,9,'F');
-  doc.setTextColor(200,169,110); doc.setFont('helvetica','bold'); doc.setFontSize(10);
-  doc.text((adit.title||'ADITIVO').toUpperCase(),M+4,y+6.2);
-  y+=12;
-
-  if (adit.description) {
-    check(12);
-    doc.setTextColor(60,80,100); doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
-    var descLines = doc.splitTextToSize(adit.description, W-2*M-4);
-    descLines.forEach(function(dl){
-      check(6);
-      doc.text(dl,M+2,y);
-      y+=5.5;
-    });
-    y+=4;
-  }
-
-  // ── Sections / itens ──
-  var sections = adit.sections || [];
-  if (sections.length) {
-    // Header
-    check(16);
-    doc.setFillColor(237,241,248); doc.rect(M,y,W-2*M,6.5,'F');
-    doc.setTextColor(80,100,140); doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
-    doc.text('DESCRIÇÃO DO ITEM / SERVIÇO',M+2,y+4.5);
-    doc.text('VALOR',W-M-2,y+4.5,{align:'right'});
-    y+=7;
-
-    sections.forEach(function(s,idx){
-      if (!s.name && !parseFloat(s.value||0)) return;
-      check(7);
-      if(idx%2===0){ doc.setFillColor(252,253,255); doc.rect(M,y,W-2*M,7,'F'); }
-      doc.setTextColor(40,50,70); doc.setFont('helvetica','normal'); doc.setFontSize(9);
-      var nameLines = doc.splitTextToSize(s.name||'Item',140);
-      doc.text(nameLines[0],M+2,y+5);
-      doc.setFont('helvetica','bold');
-      doc.text(fmtN(s.value||0),W-M-2,y+5,{align:'right'});
-      y+=7;
-    });
-    y+=2;
-  }
-
-  // ── Total block ──
-  var total = parseFloat(adit.total||0);
-  check(18);
-  doc.setFillColor(17,29,51); doc.rect(M,y,W-2*M,16,'F');
-  doc.setFillColor(200,169,110); doc.rect(M,y,3,16,'F');
-  doc.setTextColor(240,236,228); doc.setFont('helvetica','bold'); doc.setFontSize(12);
-  doc.text('TOTAL DO ADITIVO',M+7,y+10.5);
-  doc.setTextColor(200,169,110); doc.setFontSize(14);
-  doc.text(fmt(total),W-M-2,y+10.5,{align:'right'});
-  y+=22;
-
-  // ── Orçamento de referência ──
-  if (obra) {
-    check(14);
-    doc.setFillColor(240,244,250); doc.roundedRect(M,y,W-2*M,10,1,1,'F');
-    doc.setFillColor(28,43,74); doc.roundedRect(M,y,4,10,1,1,'F');
-    doc.setTextColor(28,43,74); doc.setFont('helvetica','bold'); doc.setFontSize(8.5);
-    doc.text('REFERÊNCIA: Orçamento '+esc(obra.num||'—')+' · Valor original: '+fmt(calcTotal(obra)),M+8,y+7);
-    y+=16;
-  }
-
-  // ── Signatures ──
-  check(36);
-  doc.setFillColor(28,43,74); doc.rect(M,y,W-2*M,2,'F'); y+=8;
-  doc.setDrawColor(180,190,200);
-  doc.line(M,y+16,M+75,y+16); doc.line(W-M-75,y+16,W-M,y+16);
-  doc.setTextColor(40,50,70); doc.setFont('helvetica','bold'); doc.setFontSize(9);
-  doc.text('PULSO REFORMAS',M+4,y+21);
-  doc.text('CLIENTE (ACEITE)',W-M-71,y+21);
-  doc.setFont('helvetica','normal'); doc.setFontSize(8);
-  doc.text('Representante Legal / Técnico Responsável',M+4,y+26.5);
-  doc.text('Data: ____/____/________',W-M-71,y+26.5);
-
-  // ── Footer all pages ──
-  var pages=doc.internal.getNumberOfPages();
-  for(var i=1;i<=pages;i++){
-    doc.setPage(i);
-    doc.setFillColor(28,43,74); doc.rect(0,287,W,10,'F');
-    doc.setFillColor(200,169,110); doc.rect(0,287,W,1,'F');
-    doc.setTextColor(150,170,200); doc.setFont('helvetica','normal'); doc.setFontSize(7);
-    doc.text('PULSO REFORMAS · Construção Civil e Reformas · (81) 98365-4027 · pulsoreformas@gmail.com',W/2,292.5,{align:'center'});
-    doc.text('Página '+i+' de '+pages,W-M,292.5,{align:'right'});
-  }
-
-  var filename = 'Aditivo-ADT-'+String(adit.num||'?').padStart(4,'0')+
-    (obra?'-'+esc(obra.client||obra.num||'').replace(/[^a-zA-Z0-9]/g,'_'):'')+'.pdf';
-  doc.save(filename);
-  toast('PDF gerado! 📄');
-}
-
 function exportPDF() {
   autoSave();
   var b = DB.load().find(function(x){ return x.id===CID; });
@@ -5289,1033 +4733,6 @@ function applyTRSections(sections) {
   renderForm(b);
 }
 
-
-// ════════════════════════════════════════════════════════
-// CAIXA & CONTAS — configuração
-// ════════════════════════════════════════════════════════
-var CONTA_PADRAO = 'nubank';
-var DEFAULT_CONTAS = [
-  {id:'nubank',   nome:'Nubank',              icon:'💜', banco:'Nubank',   padrao:true},
-  {id:'inter',    nome:'Banco Inter PF',       icon:'🏦', banco:'Inter'},
-  {id:'especie',  nome:'Dinheiro em Espécie',  icon:'💵', banco:''},
-  {id:'corrente', nome:'Conta Corrente',        icon:'🏛️', banco:'Bradesco'}
-];
-
-function getCaixaData() {
-  var d = CAIXA.load();
-  if (!d||typeof d!=='object') d={contas:[],movs:[]};
-  if (!d.contas) d.contas=[];
-  if (!d.movs)   d.movs=[];
-  if (!d.contas.length) d.contas=DEFAULT_CONTAS.map(function(c){return Object.assign({},c);});
-  return d;
-}
-
-// ── Obra-level caixa (stored inside ODB per obra) ──────────────
-function getObraMovs(bid) {
-  var db=ODB.load();
-  return (db[bid]&&db[bid].caixaMovs)?db[bid].caixaMovs:[];
-}
-function setObraMovs(bid, movs) {
-  var db=ODB.load();
-  if(!db[bid]) db[bid]={};
-  db[bid].caixaMovs=movs;
-  ODB.save(db);
-}
-function addMovObraCaixa(bid, mov) {
-  var movs=getObraMovs(bid);
-  if(movs.find(function(m){return m.id===mov.id;})) return; // no duplicate
-  movs.push(mov);
-  setObraMovs(bid, movs);
-}
-function removeMovObraCaixa(bid, movId) {
-  setObraMovs(bid, getObraMovs(bid).filter(function(m){return m.id!==movId;}));
-}
-
-// ── Global caixa (stored in CAIXA store) ───────────────────────
-function addMovGlobalCaixa(mov) {
-  var d=getCaixaData();
-  if(d.movs.find(function(m){return m.id===mov.id;})) return;
-  d.movs.push(mov);
-  CAIXA.save(d);
-}
-function removeMovGlobalCaixa(movId) {
-  var d=getCaixaData();
-  d.movs=d.movs.filter(function(m){return m.id!==movId;});
-  CAIXA.save(d);
-}
-
-// ── Saldo helpers ──────────────────────────────────────────────
-function getSaldoContaObra(bid, contaId) {
-  return getObraMovs(bid).reduce(function(s,m){
-    if(m.tipo==='transf_out'&&m.conta===contaId) return s-parseFloat(m.val||0);
-    if(m.tipo==='transf_in' &&m.conta===contaId) return s+parseFloat(m.val||0);
-    if(m.conta!==contaId) return s;
-    return m.tipo==='entrada'?s+parseFloat(m.val||0):s-parseFloat(m.val||0);
-  },0);
-}
-function getSaldoContaGlobal(contaId) {
-  var budgets=DB.load().filter(function(b){return b.status==='approved';});
-  return budgets.reduce(function(s,b){return s+getSaldoContaObra(b.id,contaId);},0);
-}
-
-// ── Migration ──────────────────────────────────────────────────
-function migrarCaixaObras() {
-  var budgets=DB.load().filter(function(b){return b.status==='approved';});
-  var odb=ODB.load(); var fin=FIN.load();
-  var totalRec=0,totalCost=0;
-  budgets.forEach(function(b){
-    var existing=getObraMovs(b.id);
-    var ids={}; existing.forEach(function(m){ids[m.id]=true;});
-    var newMovs=existing.slice();
-    var gd=getCaixaData(); var gids={};
-    gd.movs.forEach(function(m){gids[m.id]=true;});
-    var newGMovs=gd.movs.slice();
-    // Recebimentos
-    ((odb[b.id]&&odb[b.id].recebimentos)||[]).forEach(function(e){
-      var oid='rec_'+e.id, gid='grec_'+e.id;
-      if(!ids[oid]){newMovs.push({id:oid,tipo:'entrada',conta:CONTA_PADRAO,desc:e.desc||'Recebimento',val:parseFloat(e.val||0),date:e.date||'',createdAt:e.createdAt||Date.now(),autoGerado:true});totalRec++;}
-      if(!gids[gid]){newGMovs.push({id:gid,tipo:'entrada',conta:CONTA_PADRAO,desc:(e.desc||'Recebimento')+' — '+(b.client||b.num||''),val:parseFloat(e.val||0),date:e.date||'',budgetId:b.id,createdAt:e.createdAt||Date.now(),autoGerado:true});}
-    });
-    // Custos
-    ((fin[b.id]&&fin[b.id].entries)||[]).forEach(function(e){
-      var oid='fin_'+e.id, gid='gfin_'+e.id;
-      var cat=CATS.find(function(c){return c.id===e.cat;})||{icon:'💸',name:'Custo'};
-      var desc=cat.icon+' '+cat.name+': '+(e.desc||'');
-      if(!ids[oid]){newMovs.push({id:oid,tipo:'saida',conta:CONTA_PADRAO,desc:desc,val:parseFloat(e.val||0),date:e.date||'',createdAt:e.createdAt||Date.now(),autoGerado:true});totalCost++;}
-      if(!gids[gid]){newGMovs.push({id:gid,tipo:'saida',conta:CONTA_PADRAO,desc:desc+' — '+(b.client||b.num||''),val:parseFloat(e.val||0),date:e.date||'',budgetId:b.id,createdAt:e.createdAt||Date.now(),autoGerado:true});}
-    });
-    // Dist pagamentos
-    ((db2[b.id]&&db2[b.id].distPagamentos)||[]).forEach(function(e){
-      var oid='dist_'+e.id, gid='gdist_'+e.id;
-      var partner2=DIST_PARTNERS.find(function(p){return p.id===e.partnerId;})||{name:'Sócio',icon:'👤'};
-      var contaD=e.conta||CONTA_PADRAO;
-      var descD='Distribuição '+partner2.name.split(' ')[0]+': '+(e.desc||'');
-      if(!ids[oid]){newMovs.push({id:oid,tipo:'saida',conta:contaD,desc:descD,val:parseFloat(e.val||0),date:e.date||'',createdAt:e.createdAt||Date.now(),autoGerado:true});}
-      if(!gids[gid]){newGMovs.push({id:gid,tipo:'saida',conta:contaD,desc:descD+' — '+(b.client||b.num||''),val:parseFloat(e.val||0),date:e.date||'',budgetId:b.id,createdAt:e.createdAt||Date.now(),autoGerado:true});}
-    });
-
-    if(newMovs.length>existing.length) setObraMovs(b.id,newMovs);
-    if(newGMovs.length>gd.movs.length){gd.movs=newGMovs;CAIXA.save(gd);}
-  });
-  // Also migrate aditivo recebimentos
-  var aditRecMig = migrarAditRecebimentos();
-  toast('✅ '+totalRec+' recebimentos, '+totalCost+' custos e '+aditRecMig+' recebimentos de aditivos importados!');
-  renderCaixa();
-}
-
-// ════════════════════════════════════════════════════════
-// CAIXA OBRA PANEL
-// ════════════════════════════════════════════════════════
-function buildCaixaObraPanel(panel, bid, b) {
-  var d=getCaixaData();
-
-  function rebuild() {
-    panel.innerHTML='';
-    var movs=getObraMovs(bid);
-    var total=d.contas.reduce(function(s,c){return s+getSaldoContaObra(bid,c.id);},0);
-
-    // Total header
-    var hdr=document.createElement('div');
-    hdr.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:rgba(0,8,24,.5);border:1px solid rgba(0,212,255,.1);border-radius:9px;margin-bottom:12px';
-    hdr.innerHTML='<span style="font-size:11px;color:rgba(0,212,255,.5);text-transform:uppercase;letter-spacing:.06em">Saldo total desta obra</span>'+
-      '<span style="font-size:20px;font-weight:800;color:'+(total>=0?'var(--gn)':'var(--rd)')+'">'+fmt(total)+'</span>';
-    panel.appendChild(hdr);
-
-    // Cards por conta
-    var grid=document.createElement('div');
-    grid.className='obra-caixa-contas';
-    d.contas.forEach(function(conta){
-      var s=getSaldoContaObra(bid,conta.id);
-      var card=document.createElement('div');
-      card.className='occ-card';
-      card.innerHTML='<div class="occ-icon">'+conta.icon+'</div>'+
-        '<div class="occ-name">'+esc(conta.nome)+'</div>'+
-        '<div class="occ-saldo '+(s>0?'pos':s<0?'neg':'zero')+'">'+fmt(s)+'</div>'+
-        (conta.banco?'<div class="occ-banco">'+esc(conta.banco)+'</div>':'');
-      grid.appendChild(card);
-    });
-    panel.appendChild(grid);
-
-    // Transfer button (admin only)
-    if(isAdmin()){
-      var tBtn=document.createElement('button');
-      tBtn.className='obra-transf-btn';
-      tBtn.innerHTML='⇄ Transferir entre contas desta obra';
-      tBtn.addEventListener('click',function(){openObraTransfModal(bid,rebuild);});
-      panel.appendChild(tBtn);
-    }
-
-    // Extrato
-    var exTitle=document.createElement('div');
-    exTitle.style.cssText='font-size:11px;font-weight:700;color:rgba(0,212,255,.4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px';
-    exTitle.textContent='Extrato desta obra';
-    panel.appendChild(exTitle);
-
-    if(!movs.length){
-      var em=document.createElement('div');
-      em.className='caixa-empty';
-      em.textContent='Nenhuma movimentação. Os recebimentos e custos entram automaticamente.';
-      panel.appendChild(em);
-      return;
-    }
-
-    var sorted=movs.slice().sort(function(a,b){return(b.date||'').localeCompare(a.date||'')||(b.createdAt||0)-(a.createdAt||0);});
-    var list=document.createElement('div');
-
-    function contaNome(id){
-      var c=d.contas.find(function(x){return x.id===id;});
-      return c?c.icon+' '+c.nome.split(' ')[0]:id;
-    }
-
-    sorted.forEach(function(m){
-      var isEnt=m.tipo==='entrada';
-      var isSai=m.tipo==='saida';
-      var isTO =m.tipo==='transf_out';
-      var isTI =m.tipo==='transf_in';
-      var isT  =isTO||isTI;
-      var dot  =isEnt?'var(--gn)':isSai?'var(--rd)':'var(--yw)';
-      var vcls =isEnt?'pos':isSai?'neg':'neu';
-      var vsign=isEnt?'+':isSai?'−':'⇄';
-      var bCls =isEnt?'entrada':isSai?'saida':'transf';
-      var tLbl ={entrada:'Recebimento',saida:'Custo',transf_in:'Transf. ↓',transf_out:'Transf. ↑'}[m.tipo]||m.tipo;
-      var contaInfo=isT?(m.contaOrigem&&m.contaDest?contaNome(m.contaOrigem)+'→'+contaNome(m.contaDest):contaNome(m.conta)):contaNome(m.conta);
-      var row=document.createElement('div');
-      row.className='ocm-row';
-      row.innerHTML=
-        '<div class="ocm-dot" style="background:'+dot+'"></div>'+
-        '<span class="ocm-badge '+bCls+'">'+tLbl+'</span>'+
-        '<div class="ocm-desc">'+esc(m.desc||'—')+(m.autoGerado?'<span style="font-size:9px;color:rgba(0,212,255,.2);margin-left:5px">auto</span>':'')+'</div>'+
-        '<span class="ocm-conta">'+contaInfo+'</span>'+
-        '<span class="ocm-date">'+esc(m.date||'')+'</span>'+
-        '<span class="ocm-val '+vcls+'">'+vsign+' '+fmt(m.val)+'</span>'+
-        (isAdmin()&&!m.autoGerado?'<button class="ocm-del" data-id="'+m.id+'" title="Excluir">🗑️</button>':'<span></span>');
-      if(isAdmin()&&!m.autoGerado){
-        row.querySelector('.ocm-del').addEventListener('click',function(){
-          if(!confirm('Excluir?'))return;
-          removeMovObraCaixa(bid,this.dataset.id);
-          rebuild();
-          if(el('view-caixa')&&el('view-caixa').classList.contains('active'))renderCaixa();
-        });
-      }
-      list.appendChild(row);
-    });
-    panel.appendChild(list);
-  }
-  rebuild();
-}
-
-function openObraTransfModal(bid,cb){
-  var d=getCaixaData();
-  var inner=el('ov-caixa-mov-inner');if(!inner)return;
-  inner.innerHTML=
-    '<h2>⇄ Transferência entre Contas</h2>'+
-    '<div style="font-size:12px;color:rgba(0,212,255,.4);margin-bottom:16px">Ex: dinheiro saiu do Nubank e virou espécie</div>'+
-    '<div style="display:flex;flex-direction:column;gap:12px">'+
-      '<div class="field"><label>De</label><select class="fi" id="ot-orig">'+d.contas.map(function(c){return'<option value="'+c.id+'">'+c.icon+' '+c.nome+(c.banco?' ('+c.banco+')':'')+'</option>';}).join('')+'</select></div>'+
-      '<div class="field"><label>Para</label><select class="fi" id="ot-dest">'+d.contas.map(function(c){return'<option value="'+c.id+'">'+c.icon+' '+c.nome+(c.banco?' ('+c.banco+')':'')+'</option>';}).join('')+'</select></div>'+
-      '<div class="field"><label>Descrição</label><input class="fi" id="ot-desc" placeholder="Ex: Pix virou espécie..."></div>'+
-      '<div class="fg fg2"><div class="field"><label>Valor (R$)</label><input class="fi" id="ot-val" type="number" min="0" step="any"></div>'+
-      '<div class="field"><label>Data</label><input class="fi" id="ot-date" value="'+new Date().toLocaleDateString('pt-BR')+'"></div></div>'+
-    '</div>'+
-    '<div class="mf"><button class="btn btn-p" id="ot-save">Registrar</button><button class="btn btn-g" id="ot-cancel">Cancelar</button></div>';
-  el('ov-caixa-mov').classList.add('open');
-  setTimeout(function(){
-    el('ot-save').addEventListener('click',function(){
-      var orig=el('ot-orig').value,dest=el('ot-dest').value;
-      var desc=el('ot-desc').value.trim(),val=parseFloat(el('ot-val').value),date=el('ot-date').value;
-      if(orig===dest){toast('Origem e destino diferentes','err');return;}
-      if(!val||val<=0){toast('Valor inválido','err');return;}
-      var id=uid();
-      var b=DB.load().find(function(x){return x.id===bid;})||{};
-      // Obra movs
-      addMovObraCaixa(bid,{id:'to_'+id,tipo:'transf_out',conta:orig,contaOrigem:orig,contaDest:dest,desc:desc||'Transferência',val:val,date:date,createdAt:Date.now()});
-      addMovObraCaixa(bid,{id:'ti_'+id,tipo:'transf_in', conta:dest,contaOrigem:orig,contaDest:dest,desc:desc||'Transferência',val:val,date:date,createdAt:Date.now()});
-      // Global movs
-      var sfx=' — '+(b.client||b.num||'');
-      addMovGlobalCaixa({id:'gto_'+id,tipo:'transf_out',conta:orig,contaOrigem:orig,contaDest:dest,desc:(desc||'Transferência')+sfx,val:val,date:date,budgetId:bid,createdAt:Date.now()});
-      addMovGlobalCaixa({id:'gti_'+id,tipo:'transf_in', conta:dest,contaOrigem:orig,contaDest:dest,desc:(desc||'Transferência')+sfx,val:val,date:date,budgetId:bid,createdAt:Date.now()});
-      closeOv('ov-caixa-mov');
-      toast('Transferência registrada! ⇄');
-      if(cb)cb();
-      if(el('view-caixa')&&el('view-caixa').classList.contains('active'))renderCaixa();
-    });
-    el('ot-cancel').addEventListener('click',function(){closeOv('ov-caixa-mov');});
-  },0);
-}
-
-// ════════════════════════════════════════════════════════
-// CAIXA GLOBAL PAGE
-// ════════════════════════════════════════════════════════
-var _caixaFiltro='todas';
-
-function renderCaixa(){
-  var container=el('caixa-content');if(!container)return;
-  var d=getCaixaData();
-  var budgets=DB.load().filter(function(b){return b.status==='approved';});
-  container.innerHTML='';
-
-  // Header
-  var hdr=document.createElement('div');
-  hdr.style.cssText='display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px';
-  hdr.innerHTML='<div><div class="dash-recent-title">Caixa & Contas</div>'+
-    '<div style="font-size:12px;color:rgba(0,212,255,.4);margin-top:3px">Onde está o dinheiro da empresa, obra a obra</div></div>';
-  if(isAdmin()){
-    var acts=document.createElement('div');
-    acts.style.cssText='display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end';
-    var buttons=[
-      {label:'⚡ Importar lançamentos',style:'background:rgba(255,209,102,.12);border:1px solid rgba(255,209,102,.35);color:var(--yw);',cb:function(){if(confirm('Importar todos os recebimentos e custos para o Caixa?'))migrarCaixaObras();}},
-      {label:'⇄ Transferência',cls:'btn btn-g btn-sm',cb:function(){openObraTransfModal(null,function(){renderCaixa();},'global');}},
-      {label:'＋ Nova Conta',cls:'btn btn-g btn-sm',cb:openCaixaContaModal}
-    ];
-    buttons.forEach(function(b){
-      var btn=document.createElement('button');
-      btn.className=b.cls||'btn btn-sm';
-      if(b.style)btn.style.cssText=b.style;
-      btn.innerHTML=b.label;
-      btn.addEventListener('click',b.cb);
-      acts.appendChild(btn);
-    });
-    hdr.appendChild(acts);
-  }
-  container.appendChild(hdr);
-
-  // Saldo total por conta
-  var totalGeral=d.contas.reduce(function(s,c){return s+getSaldoContaGlobal(c.id);},0);
-  var totBar=document.createElement('div');
-  totBar.className='caixa-total-bar';
-  totBar.innerHTML='<span class="caixa-total-lbl">💰 Saldo Total da Empresa</span>'+
-    '<span class="caixa-total-val" style="color:'+(totalGeral>=0?'var(--gn)':'var(--rd)')+'">'+fmt(totalGeral)+'</span>';
-  container.appendChild(totBar);
-
-  // Conta cards
-  var grid=document.createElement('div');
-  grid.className='caixa-grid';
-  d.contas.forEach(function(conta){
-    var s=getSaldoContaGlobal(conta.id);
-    var card=document.createElement('div');
-    card.className='caixa-conta-card';
-    card.innerHTML='<div class="ccc-icon">'+conta.icon+'</div>'+
-      '<div class="ccc-name">'+esc(conta.nome)+'</div>'+
-      '<div class="ccc-saldo '+(s>0?'pos':s<0?'neg':'zero')+'">'+fmt(s)+'</div>'+
-      (conta.banco?'<div class="ccc-banco">'+esc(conta.banco)+(conta.padrao?' · conta padrão':'')+'</div>':'');
-    grid.appendChild(card);
-  });
-  container.appendChild(grid);
-
-  // Per-obra breakdown por conta
-  if(budgets.length){
-    var obraSecTitle=document.createElement('div');
-    obraSecTitle.style.cssText='font-size:11px;color:rgba(0,212,255,.4);text-transform:uppercase;letter-spacing:.06em;font-weight:700;margin-bottom:12px';
-    obraSecTitle.textContent='Distribuição por Obra';
-    container.appendChild(obraSecTitle);
-
-    var obraGrid=document.createElement('div');
-    obraGrid.style.cssText='display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-bottom:22px';
-    budgets.forEach(function(b){
-      var total=d.contas.reduce(function(s,c){return s+getSaldoContaObra(b.id,c.id);},0);
-      var contasComSaldo=d.contas.filter(function(c){return Math.abs(getSaldoContaObra(b.id,c.id))>0.01;});
-      var card=document.createElement('div');
-      card.className='caixa-obra-card';
-      var linesHtml=contasComSaldo.map(function(conta){
-        var s=getSaldoContaObra(b.id,conta.id);
-        return '<div class="caixa-obra-line">'+
-          '<span class="caixa-obra-line-name">'+conta.icon+' '+esc(conta.nome)+'</span>'+
-          '<span class="caixa-obra-line-val" style="color:'+(s>=0?'var(--gn)':'var(--rd)')+'">'+fmt(s)+'</span>'+
-        '</div>';
-      }).join('');
-      card.innerHTML=
-        '<div class="caixa-obra-card-hd">'+
-          '<div class="caixa-obra-card-info">'+
-            '<div class="num">'+esc(b.num||'—')+'</div>'+
-            '<div class="nome">'+esc(b.client||'Sem nome')+'</div>'+
-          '</div>'+
-          '<div class="caixa-obra-card-total" style="color:'+(total>=0?'var(--gn)':'var(--rd)')+'">'+fmt(total)+'</div>'+
-        '</div>'+
-        (linesHtml||'<div style="font-size:11px;color:rgba(180,220,255,.2);font-style:italic;margin-top:4px">Sem movimentações</div>');
-      obraGrid.appendChild(card);
-    });
-    container.appendChild(obraGrid);
-  }
-
-  // Extrato global
-  var exTitle=document.createElement('div');
-  exTitle.style.cssText='font-size:11px;color:rgba(0,212,255,.4);text-transform:uppercase;letter-spacing:.06em;font-weight:700;margin-bottom:10px';
-  exTitle.textContent='Extrato Geral';
-  container.appendChild(exTitle);
-
-  // Filtros
-  var filtros=document.createElement('div');
-  filtros.className='caixa-filtros';
-  var fOpts=[{id:'todas',l:'Todas'},{id:'entrada',l:'✅ Entradas'},{id:'saida',l:'🔴 Saídas'},{id:'transf',l:'⇄ Transferências'}];
-  d.contas.forEach(function(c){fOpts.push({id:c.id,l:c.icon+' '+c.nome.split(' ')[0]});});
-  fOpts.forEach(function(f){
-    var btn=document.createElement('button');
-    btn.className='caixa-filtro'+(_caixaFiltro===f.id?' active':'');
-    btn.textContent=f.l;
-    btn.addEventListener('click',function(){_caixaFiltro=f.id;renderCaixa();});
-    filtros.appendChild(btn);
-  });
-  container.appendChild(filtros);
-
-  // Movimentações
-  var movs=d.movs.slice().sort(function(a,b){return(b.date||'').localeCompare(a.date||'')||(b.createdAt||0)-(a.createdAt||0);});
-  var filtered=movs.filter(function(m){
-    if(_caixaFiltro==='todas')return true;
-    if(_caixaFiltro==='entrada')return m.tipo==='entrada';
-    if(_caixaFiltro==='saida')return m.tipo==='saida';
-    if(_caixaFiltro==='transf')return m.tipo==='transf_in'||m.tipo==='transf_out';
-    return m.conta===_caixaFiltro||m.contaOrigem===_caixaFiltro||m.contaDest===_caixaFiltro;
-  });
-
-  var list=document.createElement('div');
-  if(!filtered.length){
-    list.innerHTML='<div class="caixa-empty">Nenhuma movimentação.</div>';
-  } else {
-    function contaNome(id){
-      var c=d.contas.find(function(x){return x.id===id;});
-      return c?c.icon+' '+c.nome.split(' ')[0]:id||'—';
-    }
-    filtered.forEach(function(m){
-      var isEnt=m.tipo==='entrada';
-      var isSai=m.tipo==='saida';
-      var isT  =m.tipo==='transf_in'||m.tipo==='transf_out';
-      var dot  =isEnt?'var(--gn)':isSai?'var(--rd)':'var(--yw)';
-      var vcls =isEnt?'pos':isSai?'neg':'neu';
-      var vsign=isEnt?'+':isSai?'−':'⇄';
-      var bCls =isEnt?'entrada':isSai?'saida':'transf';
-      var tLbl ={entrada:'Recebimento',saida:'Custo',transf_in:'Transf.',transf_out:'Transf.'}[m.tipo]||m.tipo;
-      var cInfo=isT?(m.contaOrigem&&m.contaDest?contaNome(m.contaOrigem)+'→'+contaNome(m.contaDest):contaNome(m.conta)):contaNome(m.conta);
-      var bRef='';
-      if(m.budgetId){var bx=DB.load().find(function(x){return x.id===m.budgetId;});if(bx)bRef=bx.num||'';}
-      var row=document.createElement('div');
-      row.className='cmov-row';
-      row.innerHTML=
-        '<div class="cmov-dot" style="background:'+dot+'"></div>'+
-        '<span class="cmov-badge '+bCls+'">'+tLbl+'</span>'+
-        '<div class="cmov-desc">'+esc(m.desc||'—')+'</div>'+
-        (bRef?'<span class="cmov-obra">'+bRef+'</span>':'<span></span>')+
-        '<span class="cmov-conta">'+cInfo+'</span>'+
-        '<span class="cmov-date">'+esc(m.date||'')+'</span>'+
-        '<span class="cmov-val '+vcls+'">'+vsign+' '+fmt(m.val)+'</span>';
-      list.appendChild(row);
-    });
-  }
-  container.appendChild(list);
-}
-
-function openCaixaContaModal(){
-  var inner=el('ov-caixa-mov-inner');if(!inner)return;
-  inner.innerHTML=
-    '<h2>＋ Nova Conta</h2>'+
-    '<div style="display:flex;flex-direction:column;gap:12px">'+
-      '<div class="field"><label>Nome</label><input class="fi" id="cc-nome" placeholder="Ex: Conta Inter PJ, Caixa Obra..."></div>'+
-      '<div class="fg fg2">'+
-        '<div class="field"><label>Ícone</label><select class="fi" id="cc-icon"><option value="💵">💵 Espécie</option><option value="🏦">🏦 Banco</option><option value="📱">📱 Digital</option><option value="💜">💜 Nubank</option><option value="🏛️">🏛️ Corrente</option></select></div>'+
-        '<div class="field"><label>Banco</label><input class="fi" id="cc-banco" placeholder="Ex: Inter, Bradesco..."></div>'+
-      '</div>'+
-    '</div>'+
-    '<div class="mf"><button class="btn btn-p" id="cc-save">Criar</button><button class="btn btn-g" id="cc-cancel">Cancelar</button></div>';
-  el('ov-caixa-mov').classList.add('open');
-  setTimeout(function(){
-    el('cc-save').addEventListener('click',function(){
-      var nome=el('cc-nome').value.trim();
-      if(!nome){toast('Digite o nome','err');return;}
-      var d2=getCaixaData();
-      d2.contas.push({id:'conta_'+Date.now(),nome:nome,icon:el('cc-icon').value,banco:el('cc-banco').value.trim(),tipo:'custom'});
-      CAIXA.save(d2);
-      closeOv('ov-caixa-mov');
-      toast('Conta criada! 🏦');
-      renderCaixa();
-    });
-    el('cc-cancel').addEventListener('click',function(){closeOv('ov-caixa-mov');});
-    el('cc-nome').focus();
-  },0);
-}
-
-
-// ═══════════════════════════════════════
-// DISTRIBUIÇÃO — PAGAMENTOS REAIS
-// Stored in ODB: obras[bid].distPagamentos = [{id,partnerId,desc,val,date}]
-// ═══════════════════════════════════════
-function getDistPagamentos(bid) {
-  var db = ODB.load();
-  return (db[bid] && db[bid].distPagamentos) ? db[bid].distPagamentos : [];
-}
-function saveDistPagamento(bid, entry) {
-  var db = ODB.load();
-  if (!db[bid]) db[bid] = {};
-  if (!db[bid].distPagamentos) db[bid].distPagamentos = [];
-  db[bid].distPagamentos.push(entry);
-  ODB.save(db);
-}
-function deleteDistPagamento(bid, entryId) {
-  var db = ODB.load();
-  if (!db[bid] || !db[bid].distPagamentos) return;
-  db[bid].distPagamentos = db[bid].distPagamentos.filter(function(e){ return e.id !== entryId; });
-  ODB.save(db);
-  // Remove from caixa
-  removeMovObraCaixa(bid, 'dist_'+entryId);
-  removeMovGlobalCaixa('gdist_'+entryId);
-}
-function getDistPago(bid, partnerId) {
-  return getDistPagamentos(bid)
-    .filter(function(e){ return e.partnerId === partnerId; })
-    .reduce(function(s,e){ return s + parseFloat(e.val||0); }, 0);
-}
-function getTotalDistPagoParceiro(partnerId) {
-  return DB.load().filter(function(b){ return b.status==='approved'; })
-    .reduce(function(s,b){ return s + getDistPago(b.id, partnerId); }, 0);
-}
-
-// Modal
-var _distPagBid=null, _distPagPartnerId=null, _distPagCb=null;
-function openDistPagModal(bid, partnerId, cb) {
-  _distPagBid=bid; _distPagPartnerId=partnerId; _distPagCb=cb;
-  var partner = DIST_PARTNERS.find(function(p){ return p.id===partnerId; });
-  var inner = el('ov-dist-pag-inner'); if (!inner) return;
-  inner.innerHTML =
-    '<h2>💵 Registrar Pagamento</h2>'+
-    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;padding:10px 14px;background:rgba(0,8,24,.5);border-radius:9px;border:1px solid rgba(0,212,255,.1)">'+
-      '<span style="font-size:20px">'+(partner?partner.icon:'👤')+'</span>'+
-      '<div><div style="font-size:13px;font-weight:700;color:var(--wh)">'+(partner?partner.name:'Sócio')+'</div>'+
-      '<div style="font-size:11px;color:rgba(0,212,255,.4)">'+(partner?partner.role:'')+'</div></div>'+
-    '</div>'+
-    '<div style="display:flex;flex-direction:column;gap:13px">'+
-      '<div class="field"><label>Descrição</label><input class="fi" id="dp-desc" placeholder="Ex: Distribuição março, Adiantamento..."></div>'+
-      '<div class="field"><label>Conta de pagamento</label><select class="fi" id="dp-conta">'+(function(){var cD=getCaixaData();var cs=(cD.contas&&cD.contas.length)?cD.contas:DEFAULT_CONTAS;return cs.map(function(c){return'<option value="'+c.id+'">'+c.icon+' '+c.nome+(c.banco?' — '+c.banco:'')+(c.padrao?' (padrão)':'')+'</option>';}).join('');})()+'</select></div>'+
-      '<div class="fg fg2">'+
-        '<div class="field"><label>Valor (R$)</label><input class="fi" id="dp-val" type="number" min="0" step="any" placeholder="0,00"></div>'+
-        '<div class="field"><label>Data</label><input class="fi" id="dp-date" value="'+new Date().toLocaleDateString('pt-BR')+'"></div>'+
-      '</div>'+
-    '</div>'+
-    '<div class="mf">'+
-      '<button class="btn btn-p" id="dp-save">💵 Registrar</button>'+
-      '<button class="btn btn-g" id="dp-cancel">Cancelar</button>'+
-    '</div>';
-  el('ov-dist-pag').classList.add('open');
-  setTimeout(function(){
-    if (el('dp-conta')) el('dp-conta').value = CONTA_PADRAO;
-    el('dp-save').addEventListener('click', confirmDistPag);
-    el('dp-cancel').addEventListener('click', function(){ closeOv('ov-dist-pag'); });
-    el('dp-val').focus();
-  }, 0);
-}
-function confirmDistPag() {
-  var desc    = (el('dp-desc').value||'').trim()||'Distribuição';
-  var val     = parseFloat(el('dp-val').value);
-  var date    = el('dp-date').value||'';
-  var conta   = (el('dp-conta')&&el('dp-conta').value) ? el('dp-conta').value : CONTA_PADRAO;
-  if (!val||val<=0) { toast('Digite um valor válido','err'); return; }
-
-  var entryId = uid();
-  saveDistPagamento(_distPagBid, {id:entryId, partnerId:_distPagPartnerId, desc:desc, val:val, date:date, conta:conta});
-
-  // Sync to obra caixa (saída da conta escolhida)
-  var partner = DIST_PARTNERS.find(function(p){ return p.id===_distPagPartnerId; });
-  var movDesc = 'Distribuição ' + (partner?partner.name.split(' ')[0]:'Sócio') + ': ' + desc;
-  var mov = {id:'dist_'+entryId, tipo:'saida', conta:conta, desc:movDesc, val:val, date:date, createdAt:Date.now(), autoGerado:true};
-  addMovObraCaixa(_distPagBid, mov);
-
-  // Sync to global caixa
-  var b = DB.load().find(function(x){return x.id===_distPagBid;});
-  addMovGlobalCaixa(Object.assign({}, mov, {
-    id: 'gdist_'+entryId,
-    budgetId: _distPagBid,
-    desc: movDesc + (b?' — '+(b.client||b.num||''):'')
-  }));
-
-  closeOv('ov-dist-pag');
-  toast('Pagamento registrado! 💵');
-  if (_distPagCb) _distPagCb();
-  if (el('view-dash')&&el('view-dash').classList.contains('active')) renderDash();
-  if (el('view-caixa')&&el('view-caixa').classList.contains('active')) renderCaixa();
-}
-
-function buildDistPagamentosSection(bid, resultado, wrapper) {
-  var distCfg = getDistConfig(bid);
-  var section = document.createElement('div');
-  section.className = 'dist-pag-section';
-  var title = document.createElement('div');
-  title.className = 'dist-pag-title';
-  title.textContent = '💵 Histórico de Pagamentos de Distribuição';
-  section.appendChild(title);
-
-  function rebuildSection() {
-    while (section.children.length > 1) section.removeChild(section.lastChild);
-    var pags = getDistPagamentos(bid);
-    DIST_PARTNERS.forEach(function(partner) {
-      if (partner.role === 'Empresa') return;
-      var cfg = distCfg.find(function(c){ return c.id===partner.id; }) || {pct:partner.pct};
-      var devido  = resultado * (parseFloat(cfg.pct)||0) / 100;
-      var pago    = pags.filter(function(e){ return e.partnerId===partner.id; })
-                        .reduce(function(s,e){ return s+parseFloat(e.val||0); }, 0);
-      var pendente = devido - pago;
-
-      var pw = document.createElement('div'); pw.className = 'dist-pag-partner';
-
-      var hd = document.createElement('div'); hd.className = 'dist-pag-partner-hd';
-      hd.innerHTML =
-        '<div class="dist-pag-partner-info">'+
-          '<span class="dist-pag-partner-icon">'+partner.icon+'</span>'+
-          '<div><div class="dist-pag-partner-name">'+partner.name+'</div>'+
-          '<div class="dist-pag-partner-role">'+partner.role+' · '+cfg.pct+'%</div></div>'+
-        '</div>'+
-        '<div class="dist-pag-amounts">'+
-          '<div class="dist-pag-devido">A distribuir: '+fmt(devido)+'</div>'+
-          '<div class="dist-pag-pago">Pago: '+fmt(pago)+'</div>'+
-          (pendente>0.01?'<div class="dist-pag-pendente">Pendente: '+fmt(pendente)+'</div>':
-           pendente<-0.01?'<div style="font-size:11px;color:var(--rd)">Excedeu: '+fmt(Math.abs(pendente))+'</div>':
-           '<div style="font-size:11px;color:var(--gn)">✓ Quitado</div>')+
-        '</div>';
-      pw.appendChild(hd);
-
-      var entries = pags.filter(function(e){ return e.partnerId===partner.id; })
-                        .sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
-      if (entries.length) {
-        var list = document.createElement('div'); list.style.cssText='padding:0 4px';
-        entries.forEach(function(e) {
-          var row = document.createElement('div'); row.className='dist-pag-entry';
-          // Get conta name for display
-          var entryContaNome = (function(){
-            var caixaD2 = getCaixaData();
-            var c = caixaD2.contas.find(function(x){ return x.id===(e.conta||CONTA_PADRAO); });
-            return c ? c.icon+' '+c.nome.split(' ')[0] : '';
-          })();
-          row.innerHTML =
-            '<div class="dist-pag-dot" style="background:'+partner.color+'"></div>'+
-            '<div class="dist-pag-desc">'+esc(e.desc||'Distribuição')+'</div>'+
-            '<div class="dist-pag-date" style="color:rgba(0,212,255,.3);font-size:11px">'+entryContaNome+'</div>'+
-            '<div class="dist-pag-date">'+esc(e.date||'')+'</div>'+
-            '<div class="dist-pag-val">'+fmt(e.val)+'</div>'+
-            '<button class="dist-pag-del" data-id="'+e.id+'">🗑️</button>';
-          row.querySelector('.dist-pag-del').addEventListener('click', function(){
-            if (!confirm('Excluir este pagamento?')) return;
-            deleteDistPagamento(bid, this.dataset.id);
-            rebuildSection();
-            if (el('view-dash')&&el('view-dash').classList.contains('active')) renderDash();
-          });
-          list.appendChild(row);
-        });
-        pw.appendChild(list);
-      } else {
-        var empty = document.createElement('div'); empty.className='dist-pag-empty';
-        empty.textContent = 'Nenhum pagamento registrado.';
-        pw.appendChild(empty);
-      }
-
-      if (isAdmin()) {
-        var addBtn = document.createElement('button'); addBtn.className='add-dist-pag-btn';
-        addBtn.innerHTML = '＋ Registrar pagamento para '+partner.name.split(' ')[0];
-        addBtn.addEventListener('click', function(){ openDistPagModal(bid, partner.id, rebuildSection); });
-        pw.appendChild(addBtn);
-      }
-      section.appendChild(pw);
-    });
-  }
-  rebuildSection();
-  wrapper.appendChild(section);
-}
-
-
-// ═══════════════════════════════════════
-// ADITIVOS — CUSTOS FINANCEIROS
-// Stored in ODB: obras[bid].aditCustos = [{id,aditId,cat,desc,val,date,conta}]
-// ═══════════════════════════════════════
-function getAditCustos(bid) {
-  var db = ODB.load();
-  return (db[bid] && db[bid].aditCustos) ? db[bid].aditCustos : [];
-}
-function saveAditCusto(bid, entry) {
-  var db = ODB.load();
-  if (!db[bid]) db[bid] = {};
-  if (!db[bid].aditCustos) db[bid].aditCustos = [];
-  db[bid].aditCustos.push(entry);
-  ODB.save(db);
-  // Sync to obra caixa
-  var cat = CATS.find(function(c){return c.id===entry.cat;})||{icon:'💸',name:'Custo'};
-  var mov = {id:'aditfin_'+entry.id, tipo:'saida', conta:entry.conta||CONTA_PADRAO,
-    desc:'[Aditivo] '+cat.icon+' '+cat.name+': '+(entry.desc||''),
-    val:parseFloat(entry.val||0), date:entry.date||'', createdAt:Date.now(), autoGerado:true};
-  addMovObraCaixa(bid, mov);
-  var b = DB.load().find(function(x){return x.id===bid;});
-  addMovGlobalCaixa(Object.assign({},mov,{id:'gaditfin_'+entry.id,budgetId:bid,
-    desc:mov.desc+' — '+(b?b.client||b.num||'':'')}));
-}
-function deleteAditCusto(bid, entryId) {
-  var db = ODB.load();
-  if (!db[bid]||!db[bid].aditCustos) return;
-  db[bid].aditCustos = db[bid].aditCustos.filter(function(e){return e.id!==entryId;});
-  ODB.save(db);
-  removeMovObraCaixa(bid,'aditfin_'+entryId);
-  removeMovGlobalCaixa('gaditfin_'+entryId);
-}
-
-// Modal for aditivo cost launch
-var _aditCostBid=null, _aditCostAditId=null, _aditCostCb=null;
-function openAditCostModal(bid, aditId, cb) {
-  _aditCostBid=bid; _aditCostAditId=aditId; _aditCostCb=cb;
-  var inner=el('ov-adit-cost-inner'); if(!inner) return;
-  var caixaD=getCaixaData();
-  var contas=(caixaD.contas&&caixaD.contas.length)?caixaD.contas:DEFAULT_CONTAS;
-  inner.innerHTML=
-    '<h2>💸 Lançar Custo do Aditivo</h2>'+
-    '<div style="display:flex;flex-direction:column;gap:12px">'+
-      '<div class="field"><label>Categoria</label>'+
-        '<select class="fi" id="ac-cat">'+
-          CATS.map(function(c){return'<option value="'+c.id+'">'+c.icon+' '+c.name+'</option>';}).join('')+
-        '</select></div>'+
-      '<div class="field"><label>Descrição</label>'+
-        '<input class="fi" id="ac-desc" placeholder="Ex: Pedreiro diária, Material extra..."></div>'+
-      '<div class="field"><label>Conta de pagamento</label>'+
-        '<select class="fi" id="ac-conta">'+
-          contas.map(function(c){return'<option value="'+c.id+'"'+(c.padrao?' selected':'')+'>'+c.icon+' '+c.nome+(c.banco?' — '+c.banco:'')+'</option>';}).join('')+
-        '</select></div>'+
-      '<div class="fg fg2">'+
-        '<div class="field"><label>Valor (R$)</label><input class="fi" id="ac-val" type="number" min="0" step="any" placeholder="0,00"></div>'+
-        '<div class="field"><label>Data</label><input class="fi" id="ac-date" value="'+new Date().toLocaleDateString('pt-BR')+'"></div>'+
-      '</div>'+
-    '</div>'+
-    '<div class="mf"><button class="btn btn-p" id="ac-save">💾 Lançar</button><button class="btn btn-g" id="ac-cancel">Cancelar</button></div>';
-  el('ov-adit-cost').classList.add('open');
-  setTimeout(function(){
-    el('ac-save').addEventListener('click', function(){
-      var cat=el('ac-cat').value, desc=el('ac-desc').value.trim();
-      var val=parseFloat(el('ac-val').value), date=el('ac-date').value;
-      var conta=el('ac-conta').value||CONTA_PADRAO;
-      if(!val||val<=0){toast('Valor inválido','err');return;}
-      saveAditCusto(_aditCostBid,{id:uid(),aditId:_aditCostAditId,cat:cat,desc:desc,val:val,date:date,conta:conta});
-      closeOv('ov-adit-cost');
-      toast('Custo lançado! 💸');
-      if(_aditCostCb)_aditCostCb();
-      if(el('view-dash')&&el('view-dash').classList.contains('active'))renderDash();
-    });
-    el('ac-cancel').addEventListener('click',function(){closeOv('ov-adit-cost');});
-    el('ac-val').focus();
-  },0);
-}
-
-// ── Panel builder ─────────────────────────────────────────────
-function buildAditivosObraPanel(panel, bid, b) {
-  var aditivos = ADIT.load().filter(function(a){ return a.budgetId===bid; });
-  var allCustos = getAditCustos(bid);
-
-  function rebuild() {
-    panel.innerHTML='';
-    var aditivos2 = ADIT.load().filter(function(a){ return a.budgetId===bid; });
-    var allCustos2 = getAditCustos(bid);
-
-    if (!aditivos2.length) {
-      var empty=document.createElement('div'); empty.className='adit-no-items';
-      empty.innerHTML='Nenhum aditivo vinculado a esta obra.<br><span style="font-size:11px;color:rgba(0,212,255,.25)">Crie aditivos na aba 📝 Aditivos do menu.</span>';
-      panel.appendChild(empty);
-      return;
-    }
-
-    // Global KPIs
-    var recAprov    = aditivos2.filter(function(a){return a.status==='approved';}).reduce(function(s,a){return s+parseFloat(a.total||0);},0);
-    var recPend     = aditivos2.filter(function(a){return a.status==='pending';}).reduce(function(s,a){return s+parseFloat(a.total||0);},0);
-    var custoAdit   = allCustos2.reduce(function(s,e){return s+parseFloat(e.val||0);},0);
-    var totalRecAditGlobal = getAditRecebimentos(bid).reduce(function(s,r){return s+parseFloat(r.val||0);},0);
-    var lucroAdit   = totalRecAditGlobal - custoAdit;
-    var margemAdit  = recAprov>0?(lucroAdit/recAprov*100):0;
-    var mColor      = margemAdit>=20?'var(--gn)':margemAdit>=0?'var(--yw)':'var(--rd)';
-    var pendenteAdit= recAprov - totalRecAditGlobal;
-
-    var kpisDiv=document.createElement('div');
-    kpisDiv.className='adit-fin-kpis';
-    kpisDiv.style.gridTemplateColumns='repeat(5,1fr)';
-    [
-      {l:'Receita Aprovada',  v:fmt(recAprov),              c:'var(--gd)'},
-      {l:'Total Recebido',    v:fmt(totalRecAditGlobal),    c:'var(--gn)'},
-      {l:'A Receber',         v:fmt(Math.max(0,pendenteAdit)), c:'var(--yw)'},
-      {l:'Custos Lançados',   v:fmt(custoAdit),             c:'var(--rd)'},
-      {l:'Lucro Aditivos',    v:fmt(lucroAdit)+' ('+margemAdit.toFixed(1)+'%)', c:mColor},
-    ].forEach(function(k){
-      kpisDiv.innerHTML+='<div class="adit-fin-card">'+
-        '<div class="adit-fin-lbl">'+k.l+'</div>'+
-        '<div class="adit-fin-val" style="color:'+k.c+'">'+k.v+'</div>'+
-      '</div>';
-    });
-    panel.appendChild(kpisDiv);
-
-    // Per-aditivo cards
-    aditivos2.sort(function(a,b){return(b.createdAt||0)-(a.createdAt||0);}).forEach(function(adit){
-      var stInfo={approved:{cls:'approved',icon:'✅',label:'Aprovado'},pending:{cls:'pending',icon:'⏳',label:'Pendente'},rejected:{cls:'rejected',icon:'❌',label:'Recusado'}}[adit.status||'pending'];
-      var orcado=parseFloat(adit.total||0);
-      var custos=allCustos2.filter(function(e){return e.aditId===adit.id;});
-      var custoAd=custos.reduce(function(s,e){return s+parseFloat(e.val||0);},0);
-      var lucroAd=orcado-custoAd;
-      var pct=orcado>0?Math.min(100,custoAd/orcado*100):0;
-      var pColor=pct>90?'var(--rd)':pct>70?'var(--yw)':'var(--gn)';
-
-      var item=document.createElement('div'); item.className='adit-item';
-
-      // Header
-      var hd=document.createElement('div'); hd.className='adit-item-hd';
-      hd.innerHTML=
-        '<div>'+
-          '<div class="adit-item-num">ADT-'+String(adit.num||'?').padStart(4,'0')+'</div>'+
-          '<div class="adit-item-title">'+esc(adit.title||'Sem título')+'</div>'+
-          '<span class="adit-item-status '+stInfo.cls+'">'+stInfo.icon+' '+stInfo.label+'</span>'+
-        '</div>'+
-        '<div class="adit-item-right">'+
-          '<div class="adit-item-orcado">'+fmt(orcado)+'</div>'+
-          '<div class="adit-item-sub">orçado no aditivo</div>'+
-        '</div>';
-      item.appendChild(hd);
-
-      // Body
-      var bd=document.createElement('div'); bd.className='adit-item-body';
-
-      // Progress bar: custo vs orçado
-      var prog=document.createElement('div'); prog.className='adit-item-progress';
-      prog.innerHTML=
-        '<div class="adit-item-progress-row">'+
-          '<span>Custo: '+fmt(custoAd)+' · Lucro: <span style="color:'+(lucroAd>=0?'var(--gn)':'var(--rd)')+'">'+fmt(lucroAd)+'</span></span>'+
-          '<span style="color:'+pColor+'">'+pct.toFixed(1)+'% consumido</span>'+
-        '</div>'+
-        '<div class="obc-bar"><div class="obc-bar-fill" style="width:'+pct.toFixed(1)+'%;background:'+pColor+'"></div></div>';
-      bd.appendChild(prog);
-
-      // Cost list
-      if(custos.length){
-        var costList=document.createElement('div'); costList.className='adit-cost-list';
-        custos.slice().sort(function(a,b){return(b.date||'').localeCompare(a.date||'');}).forEach(function(e){
-          var cat=CATS.find(function(c){return c.id===e.cat;})||{icon:'💸',name:'Custo'};
-          var row=document.createElement('div'); row.className='adit-cost-row';
-          row.innerHTML=
-            '<span class="adit-cost-cat">'+cat.icon+' '+cat.name+'</span>'+
-            '<span class="adit-cost-desc">'+esc(e.desc||'—')+'</span>'+
-            '<span class="adit-cost-date">'+esc(e.date||'')+'</span>'+
-            '<span class="adit-cost-val">−'+fmt(e.val)+'</span>'+
-            (isAdmin()?'<button class="adit-cost-del" data-id="'+e.id+'">🗑️</button>':'<span></span>');
-          if(isAdmin()){
-            row.querySelector('.adit-cost-del').addEventListener('click',function(){
-              if(!confirm('Excluir este custo?'))return;
-              deleteAditCusto(bid,this.dataset.id);
-              rebuild();
-            });
-          }
-          costList.appendChild(row);
-        });
-        bd.appendChild(costList);
-      } else {
-        var noC=document.createElement('div'); noC.className='adit-no-items';
-        noC.textContent='Nenhum custo lançado neste aditivo.';
-        bd.appendChild(noC);
-      }
-
-      // Recebimentos section
-      var recAdit = allCustos2.length >= 0 ? getAditRecebimentos(bid).filter(function(r){return r.aditId===adit.id;}) : [];
-      var recAditList = getAditRecebimentos(bid).filter(function(r){return r.aditId===adit.id;});
-      var totalRecAdit = recAditList.reduce(function(s,r){return s+parseFloat(r.val||0);},0);
-      var saldoAdit = totalRecAdit - custoAd;
-
-      var recDiv=document.createElement('div'); recDiv.className='adit-section-divider';
-      recDiv.innerHTML='💰 Recebimentos &nbsp;·&nbsp; <span style="color:var(--gn)">'+fmt(totalRecAdit)+'</span>'+
-        (orcado>0?' &nbsp;·&nbsp; <span style="color:'+(saldoAdit>=0?'var(--gn)':'var(--rd)')+'">Saldo: '+fmt(saldoAdit)+'</span>':'');
-      bd.appendChild(recDiv);
-
-      if(recAditList.length){
-        var recList=document.createElement('div');
-        recAditList.slice().sort(function(a,b){return(b.date||'').localeCompare(a.date||'');}).forEach(function(r){
-          var row=document.createElement('div'); row.className='adit-rec-row';
-          row.innerHTML=
-            '<div class="adit-rec-dot"></div>'+
-            '<span class="adit-rec-desc">'+esc(r.desc||'Recebimento')+'</span>'+
-            '<span class="adit-rec-date">'+esc(r.date||'')+'</span>'+
-            '<span class="adit-rec-val">+'+fmt(r.val)+'</span>'+
-            (isAdmin()?'<button class="adit-rec-del" data-id="'+r.id+'">🗑️</button>':'<span></span>');
-          if(isAdmin()){
-            row.querySelector('.adit-rec-del').addEventListener('click',function(){
-              if(!confirm('Excluir este recebimento?'))return;
-              deleteAditRecebimento(bid,this.dataset.id);
-              rebuild();
-            });
-          }
-          recList.appendChild(row);
-        });
-        bd.appendChild(recList);
-      } else {
-        var noR=document.createElement('div');
-        noR.style.cssText='font-size:11px;color:rgba(180,220,255,.2);font-style:italic;padding:4px 0';
-        noR.textContent='Nenhum recebimento registrado.';
-        bd.appendChild(noR);
-      }
-
-      if(isAdmin()&&adit.status!=='rejected'){
-        var addRecBtn=document.createElement('button'); addRecBtn.className='add-adit-rec-btn';
-        addRecBtn.innerHTML='＋ Registrar recebimento deste aditivo';
-        addRecBtn.addEventListener('click',function(){openAditRecModal(bid,adit.id,rebuild);});
-        bd.appendChild(addRecBtn);
-      }
-
-      // Costs section divider
-      var costDiv=document.createElement('div'); costDiv.className='adit-section-divider';
-      costDiv.innerHTML='💸 Custos &nbsp;·&nbsp; <span style="color:var(--rd)">'+fmt(custoAd)+'</span>'+
-        (orcado>0?' &nbsp;·&nbsp; <span style="color:'+(pct>90?'var(--rd)':pct>70?'var(--yw)':'var(--gd)')+'">'+pct.toFixed(1)+'% do orçado</span>':'');
-      bd.appendChild(costDiv);
-
-      // Add cost button (admin only)
-      if(isAdmin()&&adit.status!=='rejected'){
-        var addBtn=document.createElement('button'); addBtn.className='add-adit-cost-btn';
-        addBtn.innerHTML='＋ Lançar custo neste aditivo';
-        addBtn.addEventListener('click',function(){openAditCostModal(bid,adit.id,rebuild);});
-        bd.appendChild(addBtn);
-      }
-
-      item.appendChild(bd);
-      panel.appendChild(item);
-    });
-  }
-  rebuild();
-}
-
-
-// ═══════════════════════════════════════
-// ADITIVOS — RECEBIMENTOS
-// Stored in ODB: obras[bid].aditRecebimentos = [{id,aditId,desc,val,date,conta}]
-// ═══════════════════════════════════════
-function getAditRecebimentos(bid) {
-  var db = ODB.load();
-  return (db[bid] && db[bid].aditRecebimentos) ? db[bid].aditRecebimentos : [];
-}
-function saveAditRecebimento(bid, entry) {
-  var db = ODB.load();
-  if (!db[bid]) db[bid] = {};
-  if (!db[bid].aditRecebimentos) db[bid].aditRecebimentos = [];
-  db[bid].aditRecebimentos.push(entry);
-  ODB.save(db);
-  // Sync to obra caixa (entrada)
-  var b = DB.load().find(function(x){return x.id===bid;});
-  var mov = {
-    id: 'aditrec_'+entry.id, tipo: 'entrada', conta: entry.conta||CONTA_PADRAO,
-    desc: '[Aditivo] '+(entry.desc||'Recebimento'),
-    val: parseFloat(entry.val||0), date: entry.date||'',
-    createdAt: Date.now(), autoGerado: true
-  };
-  addMovObraCaixa(bid, mov);
-  addMovGlobalCaixa(Object.assign({}, mov, {
-    id: 'gaditrec_'+entry.id, budgetId: bid,
-    desc: mov.desc+' — '+(b?b.client||b.num||'':'')
-  }));
-}
-function deleteAditRecebimento(bid, entryId) {
-  var db = ODB.load();
-  if (!db[bid]||!db[bid].aditRecebimentos) return;
-  db[bid].aditRecebimentos = db[bid].aditRecebimentos.filter(function(e){return e.id!==entryId;});
-  ODB.save(db);
-  removeMovObraCaixa(bid, 'aditrec_'+entryId);
-  removeMovGlobalCaixa('gaditrec_'+entryId);
-}
-
-// Modal
-var _aditRecBid=null, _aditRecAditId=null, _aditRecCb=null;
-function openAditRecModal(bid, aditId, cb) {
-  _aditRecBid=bid; _aditRecAditId=aditId; _aditRecCb=cb;
-  var inner=el('ov-adit-rec-inner'); if(!inner) return;
-  var caixaD=getCaixaData();
-  var contas=(caixaD.contas&&caixaD.contas.length)?caixaD.contas:DEFAULT_CONTAS;
-  inner.innerHTML=
-    '<h2>💰 Registrar Recebimento do Aditivo</h2>'+
-    '<div style="display:flex;flex-direction:column;gap:12px">'+
-      '<div class="field"><label>Descrição</label>'+
-        '<input class="fi" id="ar-desc" placeholder="Ex: Pagamento parcela 1, Entrada aditivo..."></div>'+
-      '<div class="field"><label>Conta de entrada</label>'+
-        '<select class="fi" id="ar-conta">'+
-          contas.map(function(c){return'<option value="'+c.id+'"'+(c.padrao?' selected':'')+'>'+c.icon+' '+c.nome+(c.banco?' — '+c.banco:'')+'</option>';}).join('')+
-        '</select></div>'+
-      '<div class="fg fg2">'+
-        '<div class="field"><label>Valor (R$)</label><input class="fi" id="ar-val" type="number" min="0" step="any" placeholder="0,00"></div>'+
-        '<div class="field"><label>Data</label><input class="fi" id="ar-date" value="'+new Date().toLocaleDateString('pt-BR')+'"></div>'+
-      '</div>'+
-    '</div>'+
-    '<div class="mf"><button class="btn btn-gn" id="ar-save">💰 Registrar</button><button class="btn btn-g" id="ar-cancel">Cancelar</button></div>';
-  el('ov-adit-rec').classList.add('open');
-  setTimeout(function(){
-    el('ar-save').addEventListener('click', function(){
-      var desc=el('ar-desc').value.trim();
-      var val=parseFloat(el('ar-val').value);
-      var date=el('ar-date').value;
-      var conta=el('ar-conta').value||CONTA_PADRAO;
-      if(!val||val<=0){toast('Valor inválido','err');return;}
-      saveAditRecebimento(_aditRecBid,{id:uid(),aditId:_aditRecAditId,desc:desc||'Recebimento aditivo',val:val,date:date,conta:conta});
-      closeOv('ov-adit-rec');
-      toast('Recebimento registrado! 💰');
-      if(_aditRecCb)_aditRecCb();
-      if(el('view-dash')&&el('view-dash').classList.contains('active'))renderDash();
-    });
-    el('ar-cancel').addEventListener('click',function(){closeOv('ov-adit-rec');});
-    el('ar-val').focus();
-  },0);
-}
-
-
-// ═══════════════════════════════════════
-// ADITIVOS — HELPERS FINANCEIROS GLOBAIS
-// Adicionam receita/custo/recebimentos dos aditivos ao resultado da obra
-// ═══════════════════════════════════════
-
-// Receita aprovada dos aditivos de uma obra
-function getAditReceitaAprovada(bid) {
-  return ADIT.load()
-    .filter(function(a){ return a.budgetId===bid && a.status==='approved'; })
-    .reduce(function(s,a){ return s + parseFloat(a.total||0); }, 0);
-}
-
-// Total de custos lançados nos aditivos de uma obra
-function getAditCustoTotal(bid) {
-  return getAditCustos(bid).reduce(function(s,e){ return s + parseFloat(e.val||0); }, 0);
-}
-
-// Total recebido nos aditivos de uma obra
-function getAditRecTotal(bid) {
-  return getAditRecebimentos(bid).reduce(function(s,r){ return s + parseFloat(r.val||0); }, 0);
-}
-
-// Receita total da obra (contrato + aditivos aprovados)
-function getReceitaTotal(b) {
-  return calcTotal(b) + getAditReceitaAprovada(b.id);
-}
-
-// Custo total da obra (lançamentos + custos de aditivos)
-function getCustoTotal(bid) {
-  var entries = getFinEntries(bid);
-  return finTotalCost(entries) + getAditCustoTotal(bid);
-}
-
-// Migração: adicionar aditivos recebimentos ao caixa
-function migrarAditRecebimentos() {
-  var budgets = DB.load().filter(function(b){ return b.status==='approved'; });
-  var total = 0;
-  budgets.forEach(function(b){
-    var recs = getAditRecebimentos(b.id);
-    var gd = getCaixaData();
-    var gids = {}; gd.movs.forEach(function(m){ gids[m.id]=true; });
-    var newGMovs = gd.movs.slice();
-    var obraMovs = getObraMovs(b.id);
-    var oIds = {}; obraMovs.forEach(function(m){ oIds[m.id]=true; });
-    var newObraMovs = obraMovs.slice();
-    recs.forEach(function(r){
-      var oid='aditrec_'+r.id, gid='gaditrec_'+r.id;
-      if(!oIds[oid]){
-        newObraMovs.push({id:oid,tipo:'entrada',conta:r.conta||CONTA_PADRAO,
-          desc:'[Aditivo] '+(r.desc||'Recebimento'),val:parseFloat(r.val||0),
-          date:r.date||'',createdAt:Date.now(),autoGerado:true});
-        total++;
-      }
-      if(!gids[gid]){
-        newGMovs.push({id:gid,tipo:'entrada',conta:r.conta||CONTA_PADRAO,
-          desc:'[Aditivo] '+(r.desc||'Recebimento')+' — '+(b.client||b.num||''),
-          val:parseFloat(r.val||0),date:r.date||'',budgetId:b.id,createdAt:Date.now(),autoGerado:true});
-      }
-    });
-    if(newObraMovs.length>obraMovs.length) setObraMovs(b.id,newObraMovs);
-    if(newGMovs.length>gd.movs.length){gd.movs=newGMovs;CAIXA.save(gd);}
-  });
-  return total;
-}
-
 // ── BACKUP / RESTORE ────────────────────────────────────────────
 function exportAllData(){
   var data={exportedAt:new Date().toISOString(),pulso_v3:JSON.stringify(_mem.budgets),pulso_obras:JSON.stringify(_mem.obras),pulso_finance:JSON.stringify(_mem.finance),pulso_aditivos:JSON.stringify(_mem.aditivos)};
@@ -6377,32 +4794,8 @@ function bkStat(lbl,val){return '<div style="background:rgba(0,8,24,.5);border:1
 
 // ── RECEBIMENTOS ────────────────────────────────────────────────
 function getRecebimentos(bid){var db=ODB.load();return(db[bid]&&db[bid].recebimentos)?db[bid].recebimentos:[];}
-function saveRecebimento(bid, entry) {
-  var db = ODB.load();
-  if (!db[bid]) db[bid] = {};
-  if (!db[bid].recebimentos) db[bid].recebimentos = [];
-  db[bid].recebimentos.push(entry);
-  ODB.save(db);
-  // Sync to obra caixa
-  var mov = {id:'rec_'+entry.id, tipo:'entrada', conta:CONTA_PADRAO,
-    desc: entry.desc||'Recebimento', val: parseFloat(entry.val||0),
-    date: entry.date||'', createdAt: Date.now(), autoGerado: true};
-  addMovObraCaixa(bid, mov);
-  // Sync to global caixa
-  var b = DB.load().find(function(x){return x.id===bid;});
-  addMovGlobalCaixa(Object.assign({}, mov, {
-    id: 'grec_'+entry.id, budgetId: bid,
-    desc: (entry.desc||'Recebimento')+' — '+(b?b.client||b.num||'':'')
-  }));
-}
-function deleteRecebimento(bid, entryId) {
-  var db = ODB.load();
-  if (!db[bid]||!db[bid].recebimentos) return;
-  db[bid].recebimentos = db[bid].recebimentos.filter(function(e){return e.id!==entryId;});
-  ODB.save(db);
-  removeMovObraCaixa(bid, 'rec_'+entryId);
-  removeMovGlobalCaixa('grec_'+entryId);
-}
+function saveRecebimento(bid,entry){var db=ODB.load();if(!db[bid])db[bid]={};if(!db[bid].recebimentos)db[bid].recebimentos=[];db[bid].recebimentos.push(entry);ODB.save(db);}
+function deleteRecebimento(bid,entryId){var db=ODB.load();if(!db[bid]||!db[bid].recebimentos)return;db[bid].recebimentos=db[bid].recebimentos.filter(function(e){return e.id!==entryId;});ODB.save(db);}
 function buildRecebimentosPanel(panel,bid,receita,custo){
   var recs=getRecebimentos(bid);
   var totalRec=recs.reduce(function(s,r){return s+parseFloat(r.val||0);},0);
@@ -6492,7 +4885,7 @@ function buildPriceReference(){
   if(!budgets.length)return'';
   var refs=[];
   budgets.slice(0,6).forEach(function(b){
-    var total=getReceitaTotal(b);if(total<100)return;
+    var total=calcTotal(b);if(total<100)return;
     var secs=(b.sections||[]).map(function(s){var sub=calcSub(s);return sub>1?s.name+': R$'+sub.toFixed(0):null;}).filter(Boolean);
     if(secs.length)refs.push((b.obra||b.client||'Obra')+' — '+secs.join(', ')+' (total: R$'+total.toFixed(0)+')');
   });
@@ -6688,14 +5081,6 @@ setTimeout(function(){
     </div>
   </div>
 </div>
-
-<div class="ov" id="ov-adit-rec" onclick="if(event.target===this)closeOv('ov-adit-rec')"><div class="modal sm" id="ov-adit-rec-inner"></div></div>
-
-<div class="ov" id="ov-adit-cost" onclick="if(event.target===this)closeOv('ov-adit-cost')"><div class="modal sm" id="ov-adit-cost-inner"></div></div>
-
-<div class="ov" id="ov-dist-pag"><div class="modal sm" id="ov-dist-pag-inner"></div></div>
-
-<div class="ov" id="ov-caixa-mov" onclick="if(event.target===this)closeOv('ov-caixa-mov')"><div class="modal sm" id="ov-caixa-mov-inner"></div></div>
 
 <div class="ov" id="ov-rec"><div class="modal sm" id="ov-rec-inner"></div></div>
 
