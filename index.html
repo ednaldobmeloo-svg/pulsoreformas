@@ -1328,8 +1328,8 @@ function showSaveIndicator(msg, isErr) {
 
 function fbSave(key, data) {
   if (!_fbDb || !_fbUser) return;
-  // Admins: full access. Sócios: can edit budgets + obras status, but NOT finance/aditivos
-  var restricted = ['finance','aditivos','caixa'];
+  // Admins: full access. Sócios: can edit budgets, obras, aditivos — but NOT finance/caixa
+  var restricted = ['finance','caixa'];
   if (restricted.indexOf(key) >= 0 && !isAdmin()) {
     console.warn('Acesso negado: apenas admin pode salvar', key);
     return;
