@@ -1688,18 +1688,18 @@ function renderDash() {
   var appr = all.filter(function(b){ return b.status === 'approved'; });
   var pend = all.filter(function(b){ return !b.status || b.status === 'pending'; });
   var rejc = all.filter(function(b){ return b.status === 'rejected'; });
-  var aValBase = appr.reduce(function(s,b){ return s+calcTotal(b); }, 0);  // só orçamentos
-  var aditAprovDash = appr.reduce(function(s,b){ return s+getAditReceitaAprovada(b.id); }, 0);
-  var aVal = aValBase + aditAprovDash;  // orçamentos + aditivos aprovados
+  var aVal = appr.reduce(function(s,b){ return s+calcTotal(b); }, 0);
   var pVal = pend.reduce(function(s,b){ return s+calcTotal(b); }, 0);
   var rVal = rejc.reduce(function(s,b){ return s+calcTotal(b); }, 0);
   var tVal = all.reduce(function(s,b){ return s+calcTotal(b); }, 0);
   var taxa = tVal > 0 ? (aVal/tVal*100).toFixed(0) : 0;
 
   // ── KPI Cards ──
+  // Financial data for approved budgets
   var finAll = FIN.load();
   var totalCusto = appr.reduce(function(s,b){ return s + getCustoTotal(b.id); }, 0);
-  var resultado  = aVal - totalCusto;
+  var aditRecTotal = appr.reduce(function(s,b){ return s + getAditReceitaAprovada(b.id); }, 0);
+  var resultado  = (aVal + aditRecTotal) - totalCusto;
   var margem     = aVal > 0 ? (resultado/aVal*100).toFixed(1) : '—';
   var margemNum  = aVal > 0 ? resultado/aVal*100 : 0;
 
@@ -1717,7 +1717,7 @@ function renderDash() {
   el('stats').innerHTML =
     '<div class="stat"><div class="lbl">Total Orçamentos</div><div class="val gd">' + all.length + '</div>' +
       '<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:100%;background:var(--gd)"></div></div></div>' +
-    '<div class="stat"><div class="lbl">Receita Aprovada<br><span style="font-size:9px;color:rgba(0,212,255,.35);font-weight:400">contratos + aditivos</span></div><div class="val gd" style="font-size:18px;margin-top:4px">' + fmt(aVal) + '</div>' +
+    '<div class="stat"><div class="lbl">Receita Aprovada</div><div class="val gd" style="font-size:18px;margin-top:4px">' + fmt(aVal) + '</div>' +
       '<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:' + taxa + '%;background:var(--gd)"></div></div></div>' +
     '<div class="stat"><div class="lbl">Custo Total (obras)</div><div class="val ' + (totalCusto>(aVal+aditRecTotal)?'neg':'warn') + '" style="font-size:18px;margin-top:4px">' + fmt(totalCusto) + '</div>' +
       '<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:' + (aVal>0?Math.min(100,totalCusto/aVal*100).toFixed(0):0) + '%;background:var(--rd)"></div></div></div>' +
