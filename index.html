@@ -1688,32 +1688,54 @@ function renderDash() {
   var appr = all.filter(function(b){ return b.status === 'approved'; });
   var pend = all.filter(function(b){ return !b.status || b.status === 'pending'; });
   var rejc = all.filter(function(b){ return b.status === 'rejected'; });
-  var aVal = appr.reduce(function(s,b){ return s+calcTotal(b); }, 0);
+  var aValBase = appr.reduce(function(s,b){ return s+calcTotal(b); }, 0);  // só orçamentos
+  var aditAprovDash = appr.reduce(function(s,b){ return s+getAditReceitaAprovada(b.id); }, 0);
+  var aVal = aValBase + aditAprovDash;  // orçamentos + aditivos aprovados
   var pVal = pend.reduce(function(s,b){ return s+calcTotal(b); }, 0);
   var rVal = rejc.reduce(function(s,b){ return s+calcTotal(b); }, 0);
   var tVal = all.reduce(function(s,b){ return s+calcTotal(b); }, 0);
   var taxa = tVal > 0 ? (aVal/tVal*100).toFixed(0) : 0;
 
   // ── KPI Cards ──
-  // Financial data for approved budgets
   var finAll = FIN.load();
   var totalCusto = appr.reduce(function(s,b){ return s + getCustoTotal(b.id); }, 0);
-  var aditRecTotal = appr.reduce(function(s,b){ return s + getAditReceitaAprovada(b.id); }, 0);
-  var resultado  = (aVal + aditRecTotal) - totalCusto;
+  var resultado  = aVal - totalCusto;
   var margem     = aVal > 0 ? (resultado/aVal*100).toFixed(1) : '—';
   var margemNum  = aVal > 0 ? resultado/aVal*100 : 0;
+
+  // Aditivos KPIs
+  var allAdits = ADIT.load();
+  var aditsAprov = allAdits.filter(function(a){ return a.status==='approved'; });
+  var aditsPend  = allAdits.filter(function(a){ return a.status==='pending'; });
+  var aditValAprov = aditsAprov.reduce(function(s,a){ return s+parseFloat(a.total||0); }, 0);
+  var aditValPend  = aditsPend.reduce(function(s,a){ return s+parseFloat(a.total||0); }, 0);
+  var aditCustoTotal = appr.reduce(function(s,b){ return s+getAditCustoTotal(b.id); }, 0);
+  var aditRecebTotal = appr.reduce(function(s,b){ return s+getAditRecTotal(b.id); }, 0);
+  var aditResultado  = aditValAprov - aditCustoTotal;
+  var aditMargem     = aditValAprov > 0 ? (aditResultado/aditValAprov*100) : 0;
 
   el('stats').innerHTML =
     '<div class="stat"><div class="lbl">Total Orçamentos</div><div class="val gd">' + all.length + '</div>' +
       '<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:100%;background:var(--gd)"></div></div></div>' +
-    '<div class="stat"><div class="lbl">Receita Aprovada</div><div class="val gd" style="font-size:18px;margin-top:4px">' + fmt(aVal) + '</div>' +
+    '<div class="stat"><div class="lbl">Receita Aprovada<br><span style="font-size:9px;color:rgba(0,212,255,.35);font-weight:400">contratos + aditivos</span></div><div class="val gd" style="font-size:18px;margin-top:4px">' + fmt(aVal) + '</div>' +
       '<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:' + taxa + '%;background:var(--gd)"></div></div></div>' +
     '<div class="stat"><div class="lbl">Custo Total (obras)</div><div class="val ' + (totalCusto>(aVal+aditRecTotal)?'neg':'warn') + '" style="font-size:18px;margin-top:4px">' + fmt(totalCusto) + '</div>' +
       '<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:' + (aVal>0?Math.min(100,totalCusto/aVal*100).toFixed(0):0) + '%;background:var(--rd)"></div></div></div>' +
     '<div class="stat"><div class="lbl">Resultado Líquido</div><div class="val ' + (resultado>=0?'pos':'neg') + '" style="font-size:18px;margin-top:4px">' + fmt(resultado) + '</div>' +
       '<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:' + Math.min(100,Math.abs(margemNum)).toFixed(0) + '%;background:' + (resultado>=0?'var(--gn)':'var(--rd)') + '"></div></div></div>' +
     '<div class="stat"><div class="lbl">Margem Média</div><div class="val ' + (margemNum>=20?'pos':margemNum>=0?'yw':'neg') + '" style="font-size:26px">' + margem + '%</div>' +
-      '<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:' + Math.max(0,Math.min(100,margemNum)).toFixed(0) + '%;background:' + (margemNum>=20?'var(--gn)':margemNum>=0?'var(--yw)':'var(--rd)') + '"></div></div></div>';
+      '<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:' + Math.max(0,Math.min(100,margemNum)).toFixed(0) + '%;background:' + (margemNum>=20?'var(--gn)':margemNum>=0?'var(--yw)':'var(--rd)') + '"></div></div></div>' +
+    '<div class="stat" style="border-color:rgba(200,169,110,.25);background:rgba(200,169,110,.04)">' +
+      '<div class="lbl" style="color:rgba(200,169,110,.7)">📝 Aditivos Aprovados</div>' +
+      '<div class="val gd" style="font-size:18px;margin-top:4px">' + fmt(aditValAprov) + '</div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px">' +
+        '<div style="font-size:10px;color:rgba(0,212,255,.4)">Pendentes<br><span style="font-size:12px;font-weight:700;color:var(--yw)">' + fmt(aditValPend) + '</span></div>' +
+        '<div style="font-size:10px;color:rgba(0,212,255,.4)">Recebido<br><span style="font-size:12px;font-weight:700;color:var(--gn)">' + fmt(aditRecebTotal) + '</span></div>' +
+        '<div style="font-size:10px;color:rgba(0,212,255,.4)">Custo<br><span style="font-size:12px;font-weight:700;color:var(--rd)">' + fmt(aditCustoTotal) + '</span></div>' +
+        '<div style="font-size:10px;color:rgba(0,212,255,.4)">Margem<br><span style="font-size:12px;font-weight:700;color:' + (aditMargem>=20?'var(--gn)':aditMargem>=0?'var(--yw)':'var(--rd)') + '">' + aditMargem.toFixed(1) + '%</span></div>' +
+      '</div>' +
+      '<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:' + (aditValAprov>0?Math.min(100,aditCustoTotal/aditValAprov*100).toFixed(0):0) + '%;background:rgba(200,169,110,.7)"></div></div>' +
+    '</div>';
 
   if (typeof Chart === 'undefined') { renderRecentList(all); return; }
   Chart.defaults.color = 'rgba(240,236,228,0.45)';
