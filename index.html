@@ -1724,6 +1724,18 @@ function renderDash() {
       '<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:' + (aVal>0?Math.min(100,totalCusto/aVal*100).toFixed(0):0) + '%;background:var(--rd)"></div></div></div>' +
     '<div class="stat"><div class="lbl">Resultado Líquido</div><div class="val ' + (resultado>=0?'pos':'neg') + '" style="font-size:18px;margin-top:4px">' + fmt(resultado) + '</div>' +
       '<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:' + Math.min(100,Math.abs(margemNum)).toFixed(0) + '%;background:' + (resultado>=0?'var(--gn)':'var(--rd)') + '"></div></div></div>' +
+    (function(){
+      var tRec=appr.reduce(function(s,b){
+        return s+getRecebimentos(b.id).reduce(function(r,e){return r+parseFloat(e.val||0);},0)+getAditRecTotal(b.id);
+      },0);
+      var aRec=Math.max(0,aVal-tRec);
+      var pct=aVal>0?Math.min(100,tRec/aVal*100).toFixed(0):0;
+      return '<div class="stat"><div class="lbl">A Receber</div>'+
+        '<div class="val '+(aRec>0?'warn':'pos')+'" style="font-size:18px;margin-top:4px">'+fmt(aRec)+'</div>'+
+        '<div style="font-size:10px;color:rgba(0,212,255,.35);margin-top:4px">'+fmt(tRec)+' recebido de '+fmt(aVal)+'</div>'+
+        '<div class="prog-bar" style="margin-top:8px"><div class="prog-fill" style="width:'+pct+'%;background:var(--gn)"></div></div>'+
+      '</div>';
+    })() +
     '<div class="stat"><div class="lbl">Margem Média</div><div class="val ' + (margemNum>=20?'pos':margemNum>=0?'yw':'neg') + '" style="font-size:26px">' + margem + '%</div>' +
       '<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:' + Math.max(0,Math.min(100,margemNum)).toFixed(0) + '%;background:' + (margemNum>=20?'var(--gn)':margemNum>=0?'var(--yw)':'var(--rd)') + '"></div></div></div>' +
     '<div class="stat" style="border-color:rgba(200,169,110,.25);background:rgba(200,169,110,.04)">' +
