@@ -1027,6 +1027,31 @@ select.fi option{background:#06121e}
 .qc-cat-edit{font-size:11px;padding:3px 7px;border-radius:6px;border:1px solid rgba(0,212,255,.15);
   background:rgba(0,8,24,.6);color:var(--cr);font-family:'Barlow',sans-serif;cursor:pointer}
 
+
+/* ── ORÇAMENTO POR PROJETO ──────────────────────────────────────── */
+.proj-drop-zone{border:2px dashed rgba(0,212,255,.2);border-radius:14px;padding:32px 20px;
+  text-align:center;cursor:pointer;transition:all .2s;background:rgba(0,8,24,.4);margin-bottom:14px}
+.proj-drop-zone:hover,.proj-drop-zone.drag{border-color:var(--gd);background:rgba(0,212,255,.05)}
+.proj-drop-icon{font-size:36px;margin-bottom:10px}
+.proj-drop-title{font-size:14px;font-weight:700;color:rgba(180,220,255,.8);margin-bottom:4px}
+.proj-drop-sub{font-size:11px;color:rgba(0,212,255,.35)}
+.proj-file-info{display:flex;align-items:center;gap:10px;background:rgba(0,8,24,.6);
+  border:1px solid rgba(0,212,255,.15);border-radius:10px;padding:10px 14px;margin-bottom:12px}
+.proj-file-icon{font-size:22px;flex-shrink:0}
+.proj-file-name{font-size:13px;font-weight:700;color:var(--cr);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.proj-file-size{font-size:11px;color:rgba(0,212,255,.4);white-space:nowrap}
+.proj-file-remove{background:transparent;border:none;color:rgba(255,68,102,.4);cursor:pointer;font-size:16px;padding:2px 4px}
+.proj-file-remove:hover{color:var(--rd)}
+.proj-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.proj-opt-field label{font-size:11px;color:rgba(0,212,255,.45);text-transform:uppercase;
+  letter-spacing:.06em;font-weight:700;display:block;margin-bottom:5px}
+.proj-progress{background:rgba(0,8,24,.5);border:1px solid rgba(0,212,255,.1);border-radius:10px;
+  padding:14px 16px;margin-bottom:12px}
+.proj-progress-bar-wrap{background:rgba(0,212,255,.08);border-radius:20px;height:6px;margin-top:8px;overflow:hidden}
+.proj-progress-bar{height:100%;background:linear-gradient(90deg,var(--gd),var(--gn));border-radius:20px;
+  transition:width .4s;width:0%}
+.proj-step{font-size:12px;color:rgba(0,212,255,.5);margin-top:6px}
+
 </style>
 </head>
 <body>
@@ -1068,6 +1093,7 @@ select.fi option{background:#06121e}
     <button class="nb" id="nb-finance" onclick="goTo('finance')"><span class="ni">💰</span> Controle Financeiro</button>
     <div class="nav-lbl">Ações</div>
     <button class="nb" onclick="newBudget()"><span class="ni">➕</span> Novo Orçamento</button>
+    <button class="nb" onclick="openProjectModal()" style="background:rgba(0,212,255,.06);border-color:rgba(0,212,255,.2)"><span class="ni">📐</span> Orçamento por Projeto</button>
   </div>
   <div class="sf" style="display:flex;flex-direction:column;gap:8px"><button class="btn btn-g btn-xs" style="width:100%;justify-content:center" id="backup-sidebar-btn">💾 Backup / Restaurar</button><div style="font-size:10px;color:rgba(180,220,255,.2)">v3.1 · Pulso Reformas © 2026</div></div>
 </aside>
@@ -6814,6 +6840,275 @@ function confirmQuickCost() {
   if (el('view-dash')  && el('view-dash').classList.contains('active'))  renderDash();
 }
 
+
+// ═══════════════════════════════════════════════════════════
+// ORÇAMENTO POR PROJETO ARQUITETÔNICO
+// ═══════════════════════════════════════════════════════════
+var _projFile = null, _projBase64 = null, _projType = null;
+
+function openProjectModal() {
+  _projFile = null; _projBase64 = null; _projType = null;
+  var inner = el('ov-project-inner');
+  if (!inner) return;
+
+  inner.innerHTML =
+    '<h2>📐 Orçamento por Projeto</h2>'+
+    '<div style="font-size:12px;color:rgba(0,212,255,.4);margin-bottom:16px">'+
+      'Envie a planta ou projeto arquitetônico — a IA gera o orçamento completo automaticamente'+
+    '</div>'+
+
+    // Drop zone
+    '<div class="proj-drop-zone" id="proj-drop" onclick="el(\'proj-file-inp\').click()" '+
+      'ondragover="event.preventDefault();this.classList.add(\'drag\')" '+
+      'ondragleave="this.classList.remove(\'drag\')" '+
+      'ondrop="projHandleDrop(event)">'+
+      '<div class="proj-drop-icon">📁</div>'+
+      '<div class="proj-drop-title">Clique para selecionar ou arraste o arquivo</div>'+
+      '<div class="proj-drop-sub">Imagem (JPG, PNG, WEBP) ou PDF · Máx 5MB</div>'+
+    '</div>'+
+    '<input type="file" id="proj-file-inp" accept="image/*,.pdf" style="display:none">'+
+    '<div id="proj-file-info" style="display:none"></div>'+
+
+    // Options
+    '<div class="proj-opts">'+
+      '<div class="proj-opt-field">'+
+        '<label>Tipo de obra</label>'+
+        '<select class="fi" id="proj-tipo" style="font-size:13px">'+
+          '<option value="residencial">🏠 Residencial</option>'+
+          '<option value="comercial">🏢 Sala Comercial</option>'+
+          '<option value="reforma">🔧 Reforma Geral</option>'+
+        '</select>'+
+      '</div>'+
+      '<div class="proj-opt-field">'+
+        '<label>Padrão de acabamento</label>'+
+        '<select class="fi" id="proj-padrao" style="font-size:13px">'+
+          '<option value="simples">Simples / Econômico</option>'+
+          '<option value="medio" selected>Médio / Padrão</option>'+
+          '<option value="alto">Alto padrão</option>'+
+        '</select>'+
+      '</div>'+
+      '<div class="proj-opt-field" style="grid-column:1/-1">'+
+        '<label>Escopo do orçamento</label>'+
+        '<select class="fi" id="proj-escopo" style="font-size:13px">'+
+          '<option value="completo" selected>🧱 Mão de obra + Material</option>'+
+          '<option value="mao_de_obra">👷 Somente Mão de Obra</option>'+
+        '</select>'+
+      '</div>'+
+    '</div>'+
+    '<div class="proj-opt-field" style="margin-bottom:14px">'+
+      '<label>Observações para a IA (opcional)</label>'+
+      '<input class="fi" id="proj-obs" style="font-size:13px" '+
+        'placeholder="Ex: incluir piscina, desconsiderar área de serviço, cliente quer porcelanato...">'+
+    '</div>'+
+
+    // Progress (hidden)
+    '<div id="proj-progress" style="display:none" class="proj-progress">'+
+      '<div style="font-size:13px;font-weight:700;color:var(--gd)" id="proj-progress-title">Analisando projeto...</div>'+
+      '<div class="proj-progress-bar-wrap"><div class="proj-progress-bar" id="proj-bar"></div></div>'+
+      '<div class="proj-step" id="proj-step">Enviando arquivo...</div>'+
+    '</div>'+
+
+    '<div class="mf">'+
+      '<button class="btn btn-p" id="proj-run-btn" disabled>📐 Gerar Orçamento</button>'+
+      '<button class="btn btn-g" onclick="closeOv(\'ov-project\')">Cancelar</button>'+
+    '</div>';
+
+  el('ov-project').classList.add('open');
+
+  setTimeout(function(){
+    el('proj-file-inp').addEventListener('change', function(){
+      if (this.files && this.files[0]) projLoadFile(this.files[0]);
+    });
+    el('proj-run-btn').addEventListener('click', runProjectAI);
+  }, 0);
+}
+
+function projHandleDrop(e) {
+  e.preventDefault();
+  el('proj-drop').classList.remove('drag');
+  var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+  if (f) projLoadFile(f);
+}
+
+function projLoadFile(file) {
+  if (file.size > 5 * 1024 * 1024) { toast('Arquivo muito grande. Máx 5MB.','err'); return; }
+  _projFile = file;
+  _projType = file.type;
+
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    _projBase64 = e.target.result.split(',')[1];
+
+    // Show file info
+    var isPDF = file.type === 'application/pdf';
+    el('proj-drop').style.display = 'none';
+    el('proj-file-info').style.display = '';
+    el('proj-file-info').innerHTML =
+      '<div class="proj-file-info">'+
+        '<div class="proj-file-icon">'+(isPDF?'📄':'🖼️')+'</div>'+
+        '<div>'+
+          '<div class="proj-file-name">'+esc(file.name)+'</div>'+
+          '<div class="proj-file-size">'+(file.size/1024).toFixed(0)+' KB · '+(isPDF?'PDF':'Imagem')+'</div>'+
+        '</div>'+
+        '<button class="proj-file-remove" onclick="projClearFile()">✕</button>'+
+      '</div>';
+    el('proj-run-btn').disabled = false;
+  };
+  reader.readAsDataURL(file);
+}
+
+function projClearFile() {
+  _projFile = null; _projBase64 = null; _projType = null;
+  el('proj-drop').style.display = '';
+  el('proj-file-info').style.display = 'none';
+  el('proj-file-info').innerHTML = '';
+  el('proj-file-inp').value = '';
+  el('proj-run-btn').disabled = true;
+}
+
+function projSetProgress(pct, step) {
+  var bar = el('proj-bar');
+  if (bar) bar.style.width = pct + '%';
+  var stepEl = el('proj-step');
+  if (stepEl) stepEl.textContent = step;
+}
+
+function runProjectAI() {
+  if (!_projBase64) { toast('Selecione um arquivo primeiro.','err'); return; }
+
+  var tipo    = (el('proj-tipo')    ? el('proj-tipo').value    : 'residencial');
+  var padrao  = (el('proj-padrao')  ? el('proj-padrao').value  : 'medio');
+  var pEscopo = (el('proj-escopo')  ? el('proj-escopo').value  : 'completo');
+  var obs     = (el('proj-obs')     ? el('proj-obs').value.trim() : '');
+
+  var tipoLabel   = {residencial:'residencial',comercial:'sala comercial',reforma:'reforma geral'}[tipo]||tipo;
+  var padraoLabel = {simples:'simples/econômico',medio:'médio/padrão',alto:'alto padrão'}[padrao]||padrao;
+  var escopoProj  = pEscopo==='mao_de_obra'
+    ? 'SOMENTE MÃO DE OBRA — NÃO inclua materiais. O cliente fornece os materiais.'
+    : 'MÃO DE OBRA + MATERIAL — preços finais ao cliente incluindo tudo.';
+
+  el('proj-run-btn').disabled = true;
+  el('proj-progress').style.display = '';
+  projSetProgress(15, 'Enviando arquivo para análise...');
+
+  var priceRef = buildPriceReference();
+
+  var systemPrompt =
+    'Você é um especialista em orçamento de obras de construção civil e reformas no Brasil, '+
+    'com vasta experiência em obras '+tipoLabel+' em Recife/PE.\n'+
+    'Sua tarefa é analisar um projeto arquitetônico e gerar um orçamento detalhado e realista.\n\n'+
+    'INSTRUÇÕES:\n'+
+    '1. Analise a planta/projeto na imagem com atenção\n'+
+    '2. Identifique todos os ambientes, áreas e serviços necessários\n'+
+    '3. Gere um orçamento com seções organizadas por etapa/serviço\n'+
+    '4. Use preços de referência para Recife/PE em 2025\n'+
+    '5. Padrão de acabamento: '+padraoLabel+'\n'+
+    (obs?'6. Observações do cliente: '+obs+'\n':'')+
+    (priceRef?'\nREFERÊNCIA DE PREÇOS (orçamentos anteriores aprovados):\n'+priceRef+'\n':'')+
+    '\nRESPONDA SOMENTE com JSON válido, sem markdown:\n'+
+    '{"sections":[{"name":"Demolição e Preparação","items":[{"desc":"Descrição do serviço","unit":"m²","qty":20,"price":45}]},...]}\n'+
+    'Cada item deve ter: desc (string), unit (string), qty (number), price (number em R$).\n'+
+    'Seja detalhado e realista. Mínimo 6 seções, mínimo 3 itens por seção.';
+
+  projSetProgress(30, 'IA analisando o projeto arquitetônico...');
+
+  // Detect media type
+  var mediaType = _projType || 'image/jpeg';
+  if (mediaType === 'application/pdf') mediaType = 'application/pdf';
+
+  var msgContent = [
+    {
+      type: mediaType === 'application/pdf' ? 'document' : 'image',
+      source: { type: 'base64', media_type: mediaType, data: _projBase64 }
+    },
+    {
+      type: 'text',
+      text: 'Analise este projeto arquitetônico de obra '+tipoLabel+' e gere o orçamento completo conforme as instruções do sistema.'
+    }
+  ];
+
+  fetch('/api/ai', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 4000,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: msgContent }]
+    })
+  })
+  .then(function(r){ return r.text(); })
+  .then(function(raw){
+    projSetProgress(80, 'Montando o orçamento...');
+    try {
+      var clean = raw.replace(/```json|```/g,'').trim();
+      var obj = JSON.parse(clean);
+      // Handle nested response
+      if (obj.content && obj.content[0] && obj.content[0].text) {
+        clean = obj.content[0].text.replace(/```json|```/g,'').trim();
+        obj = JSON.parse(clean);
+      }
+      // Also handle {resposta:...}
+      if (obj.resposta) {
+        clean = obj.resposta.replace(/```json|```/g,'').trim();
+        obj = JSON.parse(clean);
+      }
+      var sections = obj.sections || [];
+      if (!sections.length) throw new Error('Nenhuma seção gerada');
+
+      projSetProgress(100, 'Orçamento gerado!');
+      setTimeout(function(){
+        closeOv('ov-project');
+        projApplyToNewBudget(sections, tipoLabel, padrao);
+      }, 600);
+
+    } catch(e) {
+      el('proj-run-btn').disabled = false;
+      el('proj-progress').style.display = 'none';
+      toast('Erro ao interpretar o projeto. Tente com imagem mais nítida.','err');
+      console.error('Project AI error:', e, raw);
+    }
+  })
+  .catch(function(e){
+    el('proj-run-btn').disabled = false;
+    el('proj-progress').style.display = 'none';
+    toast('Erro de conexão com a IA.','err');
+  });
+}
+
+function projApplyToNewBudget(sections, tipoLabel, padrao) {
+  // Create new budget and apply sections
+  var all = DB.load();
+  var num = 'BVM-' + String(all.length + 1).padStart(4, '0');
+  var newBudget = {
+    id: uid(), num: num, status: 'pending',
+    client: '', obra: 'Projeto '+tipoLabel, local: 'Recife/PE',
+    date: new Date().toLocaleDateString('pt-BR'),
+    sections: sections.map(function(sec){
+      return {
+        id: uid(),
+        name: sec.name || 'Seção',
+        manualTotal: '',
+        items: (sec.items||[]).map(function(it){
+          return { id:uid(), desc:it.desc||'', unit:it.unit||'un', qty:it.qty||1, price:it.price||0 };
+        })
+      };
+    }),
+    paymentConds: defConds()
+  };
+
+  all.push(newBudget);
+  DB.save(all);
+
+  // Open the new budget
+  CID = newBudget.id;
+  navigate('budgets');
+  setTimeout(function(){
+    renderForm(newBudget);
+    toast('✅ Orçamento gerado com '+sections.length+' seções! Revise e ajuste os valores.');
+  }, 200);
+}
+
 // ── BACKUP / RESTORE ────────────────────────────────────────────
 function exportAllData(){
   var data={exportedAt:new Date().toISOString(),pulso_v3:JSON.stringify(_mem.budgets),pulso_obras:JSON.stringify(_mem.obras),pulso_finance:JSON.stringify(_mem.finance),pulso_aditivos:JSON.stringify(_mem.aditivos)};
@@ -7011,14 +7306,21 @@ function runAIGenerate(){
   el('ai-err').style.display='none';
   var priceRef=buildPriceReference();
   var areaInfo=area>0?'\nÁREA: '+area+' m² — use para calcular quantidades.':'';
-  var systemPrompt='Você é um especialista em orçamentos de reformas em Recife/PE para a Pulso Reformas.\n\nA empresa faz obras RESIDENCIAIS e COMERCIAIS. Os preços são os valores finais cobrados ao cliente (mão de obra + material + lucro já incluídos).\n\nTABELA DE PREÇOS RECIFE/PE 2025 (valor final ao cliente):\nDemolição/preparação: R$45-70/m²\nContrapiso/regularização: R$55-80/m²\nChapisco+reboco: R$60-85/m²\nPiso cerâmico simples: R$95-130/m²\nPiso porcelanato 60x60: R$130-180/m²\nPiso porcelanato retificado 80x80+: R$160-220/m²\nRevestimento parede: R$110-160/m²\nRodapé porcelanato: R$35-55/ml\nPintura látex: R$22-32/m²\nPintura acrílica premium: R$30-45/m²\nPintura epóxi: R$45-70/m²\nForro gesso liso: R$80-110/m²\nForro gesso com sanca: R$110-160/m²\nForro PVC: R$70-95/m²\nPonto elétrico: R$220-320/pto\nPonto iluminação: R$180-280/pto\nQuadro elétrico: R$1200-2800/un\nInstalação ar condicionado split: R$400-700/un\nPonto hidráulico: R$300-500/pto\nInstalação louça: R$250-400/un\nPorta madeira completa: R$600-1200/un\nBox vidro temperado: R$800-1500/m²\nDivisória drywall: R$150-220/m²'+priceRef+areaInfo+'\n\nREGRAS:\n1. Se projeto PDF/imagem foi enviado: analise todos os ambientes, áreas e serviços indicados\n2. Organize por tipo de serviço: Demolição, Piso e Revestimento, Pintura, Elétrica, Hidráulica, Gessaria, Acabamentos\n3. 4 a 9 seções, itens com quantidades realistas\n4. Descrições específicas\n5. Preços são valores finais ao cliente\n\nRESPONDA APENAS JSON válido sem markdown:\n{"sections":[{"name":"Nome","items":[{"desc":"Descrição","qty":10,"unit":"m²","price":150.00}]}]}\nUnidades: m², m, m³, vb, un, pç, hr, pto, saco, kg, ml';
+  var escopo = (el('ai-escopo') ? el('ai-escopo').value : 'completo');
+  var escopoLabel = escopo === 'mao_de_obra'
+    ? 'SOMENTE MÃO DE OBRA (sem materiais). Os valores NÃO incluem materiais — apenas mão de obra e encargos.'
+    : 'MÃO DE OBRA + MATERIAL. Os preços são valores finais ao cliente, já incluindo material, mão de obra e lucro.';
+  var tabelaPrecos = escopo==='mao_de_obra'
+    ? 'TABELA MÃO DE OBRA RECIFE/PE 2025 (apenas mão de obra, sem material):\nDemolição/preparação: R$25-40/m²\nContrapiso: R$30-45/m²\nReboco/chapisco: R$35-50/m²\nAssentamento piso/azulejo: R$45-70/m²\nPintura parede (mão de obra): R$12-20/m²\nInstalação elétrica (por ponto): R$120-180\nInstalação hidráulica (por ponto): R$150-250\nInstalação porta/janela: R$150-250\nMarcenaria instalação: R$80-140/m²\nGesso/drywall (mão de obra): R$35-55/m²'
+    : 'TABELA DE PREÇOS RECIFE/PE 2025 (valor final ao cliente):\nDemolição/preparação: R$45-70/m²\nContrapiso/regularização: R$55-80/m²\nChapisco+reboco: R$60-85/m²\nPiso cerâmico simples: R$95-130/m²\nPiso porcelanato 60x60: R$130-180/m²\nPiso porcelanato retificado 80x80+: R$160-220/m²\nRevestimento parede: R$110-160/m²\nRodapé porcelanato: R$35-55/ml\nPintura látex: R$22-32/m²\nPintura acrílica premium: R$30-45/m²\nPintura epóxi: R$45-70/m²\nForro gesso liso: R$80-110/m²\nForro gesso com sanca: R$110-160/m²\nForro PVC: R$70-95/m²\nPonto elétrico: R$220-320/pto\nPonto iluminação: R$180-280/pto\nQuadro elétrico: R$1200-2800/un\nInstalação ar condicionado split: R$400-700/un\nPonto hidráulico: R$300-500/pto\nInstalação louça: R$250-400/un\nPorta madeira completa: R$600-1200/un\nBox vidro temperado: R$800-1500/m²\nDivisória drywall: R$150-220/m²';
+  var systemPrompt='Você é um especialista em orçamentos de reformas em Recife/PE para a Pulso Reformas.\n\nA empresa faz obras RESIDENCIAIS e COMERCIAIS. ESCOPO DESTE ORÇAMENTO: '+escopoLabel+'\n\n'+tabelaPrecos+priceRef+areaInfo+'\n\nREGRAS:\n1. Se projeto PDF/imagem foi enviado: analise todos os ambientes, áreas e serviços indicados\n2. Organize por tipo de serviço: Demolição, Piso e Revestimento, Pintura, Elétrica, Hidráulica, Gessaria, Acabamentos\n3. 4 a 9 seções, itens com quantidades realistas\n4. Descrições específicas\n5. Preços são valores finais ao cliente\n\nRESPONDA APENAS JSON válido sem markdown:\n{"sections":[{"name":"Nome","items":[{"desc":"Descrição","qty":10,"unit":"m²","price":150.00}]}]}\nUnidades: m², m, m³, vb, un, pç, hr, pto, saco, kg, ml';
   var msgContent;
   if(hasFile&&_aiFileData){
     var isPDF=_aiFileData.type==='application/pdf';
     var contentBlock=isPDF?{type:'document',source:{type:'base64',media_type:'application/pdf',data:_aiFileData.data}}:{type:'image',source:{type:'base64',media_type:_aiFileData.type,data:_aiFileData.data}};
-    var textBlock={type:'text',text:prompt||'Analise este projeto e gere o orçamento completo.'};
+    var textBlock={type:'text',text:(prompt||'Analise este projeto e gere o orçamento completo.')+(escopo==='mao_de_obra'?' IMPORTANTE: apenas mão de obra, sem materiais.':' Inclua materiais e mão de obra.')};
     msgContent=[contentBlock,textBlock];
-  }else{msgContent=prompt;}
+  }else{msgContent=prompt+(escopo==='mao_de_obra'?'\n\nIMPORTANTE: Este orçamento é SOMENTE MÃO DE OBRA. Não inclua o custo dos materiais — apenas serviço.':'\n\nIncluir materiais e mão de obra nos preços.');}
   fetch('/api/ai',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
@@ -7090,9 +7392,18 @@ setTimeout(function(){
 
     <!-- Normal mode fields -->
     <div id="ai-mode-normal">
-      <div style="margin-bottom:14px">
-        <label style="font-size:11px;color:rgba(0,212,255,.5);text-transform:uppercase;letter-spacing:.06em;font-weight:700;display:block;margin-bottom:5px">Área total (opcional)</label>
-        <div style="display:flex;align-items:center;gap:8px"><input class="fi" id="ai-area" type="number" min="0" step="0.5" placeholder="Ex: 45" style="max-width:140px"><span style="color:rgba(0,212,255,.4);font-size:13px">m²</span></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+        <div>
+          <label style="font-size:11px;color:rgba(0,212,255,.5);text-transform:uppercase;letter-spacing:.06em;font-weight:700;display:block;margin-bottom:5px">Área total (opcional)</label>
+          <div style="display:flex;align-items:center;gap:8px"><input class="fi" id="ai-area" type="number" min="0" step="0.5" placeholder="Ex: 45" style="max-width:140px"><span style="color:rgba(0,212,255,.4);font-size:13px">m²</span></div>
+        </div>
+        <div>
+          <label style="font-size:11px;color:rgba(0,212,255,.5);text-transform:uppercase;letter-spacing:.06em;font-weight:700;display:block;margin-bottom:5px">Escopo do orçamento</label>
+          <select class="fi" id="ai-escopo" style="font-size:13px">
+            <option value="completo" selected>🧱 Mão de obra + Material</option>
+            <option value="mao_de_obra">👷 Somente Mão de Obra</option>
+          </select>
+        </div>
       </div>
       <div style="margin-bottom:14px">
         <label style="font-size:11px;color:rgba(0,212,255,.5);text-transform:uppercase;letter-spacing:.06em;font-weight:700;display:block;margin-bottom:6px">Projeto da arquiteta (PDF ou imagem)</label>
@@ -7190,6 +7501,10 @@ setTimeout(function(){
 <div class="ov" id="ov-adit-rec" onclick="if(event.target===this)closeOv('ov-adit-rec')"><div class="modal sm" id="ov-adit-rec-inner"></div></div>
 
 <div class="ov" id="ov-adit-cost" onclick="if(event.target===this)closeOv('ov-adit-cost')"><div class="modal sm" id="ov-adit-cost-inner"></div></div>
+
+<div class="ov" id="ov-project" onclick="if(event.target===this)closeOv('ov-project')">
+  <div class="modal" id="ov-project-inner" style="max-width:580px"></div>
+</div>
 
 <div class="ov" id="ov-quickcost" onclick="if(event.target===this)closeOv('ov-quickcost')">
   <div class="modal" id="ov-quickcost-inner" style="max-width:560px"></div>
