@@ -985,6 +985,22 @@ select.fi option{background:#06121e}
 .add-adit-rec-btn:hover{border-color:var(--gn);color:var(--gn);background:rgba(0,255,136,.08)}
 .adit-section-divider{font-size:10px;font-weight:700;color:rgba(0,212,255,.4);text-transform:uppercase;letter-spacing:.06em;margin:10px 0 6px;padding-top:10px;border-top:1px solid rgba(0,212,255,.06)}
 
+
+/* ── CONSOLIDATED KPIs ──────────────────────────────── */
+.consolidado-section{margin-bottom:18px}
+.consolidado-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.consolidado-title{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:rgba(0,255,136,.7);text-transform:uppercase;letter-spacing:.08em}
+.consolidado-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.2);color:var(--gn)}
+.stat-consolidado{background:rgba(0,8,24,.55);border:1px solid rgba(0,255,136,.15);border-radius:var(--r1);padding:18px 20px;position:relative;overflow:hidden}
+.stat-consolidado::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gn),transparent)}
+.stat-consolidado .lbl{font-size:11px;color:rgba(0,212,255,.5);text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-bottom:6px}
+.stat-consolidado .val{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;line-height:1.1}
+.stat-consolidado .val.pos{color:var(--gn);text-shadow:0 0 12px rgba(0,255,136,.3)}
+.stat-consolidado .val.neg{color:var(--rd)}
+.stat-consolidado .val.neu{color:var(--gd)}
+.stat-consolidado .val.warn{color:var(--yw)}
+.stat-consolidado .sub{font-size:11px;color:rgba(0,212,255,.35);margin-top:4px}
+
 </style>
 </head>
 <body>
@@ -1039,6 +1055,8 @@ select.fi option{background:#06121e}
   <div class="content">
     <div class="view active" id="view-dash">
       <div class="stats-row" id="stats"></div>
+
+      <div id="stats-consolidado" style="margin-top:0"></div>
 
       <!-- Row 1: three individual status charts -->
       <div class="dash-grid-3" style="margin-bottom:18px">
@@ -1683,6 +1701,82 @@ var DIST_PARTNERS = [
   {id:'caixa',   name:'Caixa Empresa',  icon:'🏢', pct:50, role:'Empresa',  color:'rgba(255,209,102,1)'}
 ];
 
+
+function renderConsolidado(appr) {
+  var wrap = el('stats-consolidado');
+  if (!wrap) return;
+
+  // Only obras with status 'done'
+  var odb = ODB.load();
+  var concluidas = appr.filter(function(b){
+    return (odb[b.id] && odb[b.id].status === 'done');
+  });
+
+  wrap.innerHTML = '';
+  if (!concluidas.length) return;
+
+  var section = document.createElement('div');
+  section.className = 'consolidado-section';
+
+  // Header
+  var hdr = document.createElement('div');
+  hdr.className = 'consolidado-header';
+  hdr.innerHTML =
+    '<div class="consolidado-title">✅ Resultado Consolidado</div>'+
+    '<div class="consolidado-badge">'+concluidas.length+' obra'+(concluidas.length>1?'s':'')+' concluída'+(concluidas.length>1?'s':'')+'</div>';
+  section.appendChild(hdr);
+
+  // Calculate KPIs for concluded obras only
+  var receita  = concluidas.reduce(function(s,b){ return s+calcTotal(b)+getAditReceitaAprovada(b.id); }, 0);
+  var custo    = concluidas.reduce(function(s,b){ return s+getCustoTotal(b.id); }, 0);
+  var recebido = concluidas.reduce(function(s,b){
+    return s + getRecebimentos(b.id).reduce(function(r,e){return r+parseFloat(e.val||0);},0)
+             + getAditRecTotal(b.id);
+  }, 0);
+  var resultado = receita - custo;
+  var margem    = receita > 0 ? (resultado/receita*100) : 0;
+  var aReceber  = Math.max(0, receita - recebido);
+  var mColor    = margem>=20?'pos':margem>=10?'warn':'neg';
+
+  var kpis = [
+    {lbl:'Receita Total',    val:fmt(receita),                            cls:'neu'},
+    {lbl:'Custo Total',      val:fmt(custo),                              cls:custo>receita?'neg':'warn'},
+    {lbl:'Resultado Líquido',val:fmt(resultado),                          cls:resultado>=0?'pos':'neg'},
+    {lbl:'Margem',           val:margem.toFixed(1)+'%',                   cls:mColor},
+    {lbl:'Recebido',         val:fmt(recebido),                           cls:'pos'},
+    {lbl:'A Receber',        val:fmt(aReceber), cls:aReceber>0?'warn':'pos'},
+  ];
+
+  var grid = document.createElement('div');
+  grid.className = 'stats-row';
+  grid.style.cssText = 'margin-bottom:0';
+
+  kpis.forEach(function(k){
+    var card = document.createElement('div');
+    card.className = 'stat-consolidado';
+    var pct = receita>0?Math.min(100,Math.abs(parseFloat(k.val)||receita)/receita*100).toFixed(0):0;
+
+    // bar logic per kpi
+    var barColor = 'var(--gd)';
+    var barWidth = 0;
+    if (k.lbl==='Custo Total')       { barColor='var(--rd)'; barWidth=receita>0?Math.min(100,custo/receita*100).toFixed(0):0; }
+    else if (k.lbl==='Resultado Líquido') { barColor=resultado>=0?'var(--gn)':'var(--rd)'; barWidth=Math.min(100,Math.abs(margem)).toFixed(0); }
+    else if (k.lbl==='Margem')       { barColor=margem>=20?'var(--gn)':margem>=10?'var(--yw)':'var(--rd)'; barWidth=Math.max(0,Math.min(100,margem)).toFixed(0); }
+    else if (k.lbl==='Recebido')     { barColor='var(--gn)'; barWidth=receita>0?Math.min(100,recebido/receita*100).toFixed(0):0; }
+    else if (k.lbl==='A Receber')    { barColor='var(--yw)'; barWidth=receita>0?Math.min(100,aReceber/receita*100).toFixed(0):0; }
+    else if (k.lbl==='Receita Total'){ barColor='var(--gd)'; barWidth=100; }
+
+    card.innerHTML =
+      '<div class="lbl">'+k.lbl+'</div>'+
+      '<div class="val '+k.cls+'">'+k.val+'</div>'+
+      '<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:'+barWidth+'%;background:'+barColor+'"></div></div>';
+    grid.appendChild(card);
+  });
+
+  section.appendChild(grid);
+  wrap.appendChild(section);
+}
+
 function renderDash() {
   var all = DB.load();
   var appr = all.filter(function(b){ return b.status === 'approved'; });
@@ -1864,6 +1958,7 @@ function renderDash() {
     });
   }
 
+  renderConsolidado(appr);
   renderRecentList(all);
   renderDashProfit(appr);
 }
@@ -1887,7 +1982,10 @@ function renderRecentList(all) {
 function renderDashProfit(approvedBudgets) {
   buildPeriodFilter();
 
-  var approved = approvedBudgets || DB.load().filter(function(b){ return b.status==='approved'; });
+  var odb0 = ODB.load();
+  var allApproved = approvedBudgets || DB.load().filter(function(b){ return b.status==='approved'; });
+  // Distribuição e caixa: apenas obras concluídas
+  var approved = allApproved.filter(function(b){ return (odb0[b.id]&&odb0[b.id].status)==='done'; });
   var finAll   = FIN.load();
   var periodLabel = {all:'Todo o período', thismonth:'Este mês', lastmonth:'Mês anterior', thisyear:'Este ano', custom:'Período personalizado'}[_dashPeriod]||'';
 
@@ -3073,6 +3171,7 @@ function buildDistribuicaoPanel(bid, receita, custo) {
   secTitle.innerHTML =
     '<div>'+
       '<div class="dist-section-title">💵 Distribuição de Resultado</div>'+
+      '<div style="font-size:11px;color:rgba(0,212,255,.35);margin-top:2px">Baseado nas obras concluídas</div>'+
       '<div style="font-size:11px;color:rgba(0,212,255,.4);margin-top:2px">Ajuste os percentuais conforme necessário para esta obra</div>'+
     '</div>'+
     '<button class="dist-reset-btn" id="dist-reset-'+bid+'">Restaurar padrão</button>';
@@ -5397,7 +5496,10 @@ function getSaldoContaObra(bid, contaId) {
   },0);
 }
 function getSaldoContaGlobal(contaId) {
-  var budgets=DB.load().filter(function(b){return b.status==='approved';});
+  var odb2=ODB.load();
+  var budgets=DB.load().filter(function(b){
+    return b.status==='approved' && (odb2[b.id]&&odb2[b.id].status)==='done';
+  });
   return budgets.reduce(function(s,b){return s+getSaldoContaObra(b.id,contaId);},0);
 }
 
@@ -5654,7 +5756,12 @@ function renderCaixa(){
 
     var obraGrid=document.createElement('div');
     obraGrid.style.cssText='display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-bottom:22px';
-    budgets.forEach(function(b){
+    var odb3=ODB.load();
+    var budgetsDone=budgets.filter(function(b){return (odb3[b.id]&&odb3[b.id].status)==='done';});
+    var budgetsAndamento=budgets.filter(function(b){return !((odb3[b.id]&&odb3[b.id].status)==='done');});
+    // Show concluded obras first, then in-progress
+    var budgetsOrdered=budgetsDone.concat(budgetsAndamento);
+    budgetsOrdered.forEach(function(b){
       var total=d.contas.reduce(function(s,c){return s+getSaldoContaObra(b.id,c.id);},0);
       var contasComSaldo=d.contas.filter(function(c){return Math.abs(getSaldoContaObra(b.id,c.id))>0.01;});
       var card=document.createElement('div');
@@ -5666,10 +5773,11 @@ function renderCaixa(){
           '<span class="caixa-obra-line-val" style="color:'+(s>=0?'var(--gn)':'var(--rd)')+'">'+fmt(s)+'</span>'+
         '</div>';
       }).join('');
+      var isDone=(odb3[b.id]&&odb3[b.id].status)==='done';
       card.innerHTML=
         '<div class="caixa-obra-card-hd">'+
           '<div class="caixa-obra-card-info">'+
-            '<div class="num">'+esc(b.num||'—')+'</div>'+
+            '<div class="num">'+esc(b.num||'—')+(isDone?' <span style="font-size:9px;color:var(--gn);background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.2);border-radius:8px;padding:1px 6px">✅ concluída</span>':'')+'</div>'+
             '<div class="nome">'+esc(b.client||'Sem nome')+'</div>'+
           '</div>'+
           '<div class="caixa-obra-card-total" style="color:'+(total>=0?'var(--gn)':'var(--rd)')+'">'+fmt(total)+'</div>'+
