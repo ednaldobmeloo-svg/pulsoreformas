@@ -1001,6 +1001,32 @@ select.fi option{background:#06121e}
 .stat-consolidado .val.warn{color:var(--yw)}
 .stat-consolidado .sub{font-size:11px;color:rgba(0,212,255,.35);margin-top:4px}
 
+
+/* ── LANÇAMENTO RÁPIDO ──────────────────────────────────────────── */
+.qc-textarea{width:100%;min-height:90px;background:rgba(0,10,30,.7);border:1px solid rgba(0,212,255,.2);
+  border-radius:10px;color:var(--cr);font-family:'Barlow',sans-serif;font-size:14px;padding:12px 14px;
+  outline:none;resize:vertical;box-sizing:border-box;transition:border-color .15s;line-height:1.5}
+.qc-textarea:focus{border-color:var(--gd);box-shadow:0 0 0 3px rgba(0,212,255,.08)}
+.qc-textarea::placeholder{color:rgba(180,220,255,.2)}
+.qc-preview{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+.qc-item{display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;
+  background:rgba(0,8,24,.55);border:1px solid rgba(0,212,255,.1);border-radius:9px;padding:10px 12px}
+.qc-item-cat{font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;white-space:nowrap}
+.qc-item-desc{font-size:13px;color:var(--cr);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qc-item-val{font-size:15px;font-weight:800;color:var(--rd);white-space:nowrap}
+.qc-item-del{background:transparent;border:none;color:rgba(255,68,102,.4);cursor:pointer;font-size:14px;
+  padding:2px 4px;transition:color .15s}
+.qc-item-del:hover{color:var(--rd)}
+.qc-hint{font-size:11px;color:rgba(0,212,255,.35);margin-top:2px}
+.qc-total{font-size:13px;font-weight:700;color:var(--gd);text-align:right;padding:6px 0}
+.qc-loading{display:flex;align-items:center;gap:10px;color:rgba(0,212,255,.5);font-size:13px;padding:12px 0}
+.qc-spinner{width:18px;height:18px;border:2px solid rgba(0,212,255,.2);border-top-color:var(--gd);
+  border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+.qc-date-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.qc-date-row label{font-size:11px;color:rgba(0,212,255,.5);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap}
+.qc-cat-edit{font-size:11px;padding:3px 7px;border-radius:6px;border:1px solid rgba(0,212,255,.15);
+  background:rgba(0,8,24,.6);color:var(--cr);font-family:'Barlow',sans-serif;cursor:pointer}
+
 </style>
 </head>
 <body>
@@ -2483,6 +2509,14 @@ function buildObraCard(b, obra) {
     : '<div class="no-costs" style="padding:20px 0">Nenhum custo lançado ainda.</div>';
 
   panelCosts.innerHTML = '<div class="obra-cost-log">'+logsHTML+'</div>';
+
+  // Quick-launch button
+  var quickBtn = document.createElement('button');
+  quickBtn.className = 'obra-add-cost-btn';
+  quickBtn.style.cssText = 'background:rgba(0,212,255,.08);border-color:rgba(0,212,255,.3);margin-bottom:8px';
+  quickBtn.innerHTML = '⚡ Lançamento Rápido (colar do WhatsApp)';
+  quickBtn.addEventListener('click', function(){ openQuickCost(b.id, b); });
+  panelCosts.appendChild(quickBtn);
 
   // Add cost button — opens modal
   var addCostBtn = document.createElement('button');
@@ -6479,6 +6513,307 @@ function migrarAditRecebimentos() {
   return total;
 }
 
+
+// ═══════════════════════════════════════════════════════════
+// LANÇAMENTO RÁPIDO
+// ═══════════════════════════════════════════════════════════
+var _qcBid = null, _qcB = null, _qcItems = [];
+
+function openQuickCost(bid, b) {
+  if (!isAdmin()) { toast('Apenas administradores podem lançar custos.','err'); return; }
+  _qcBid = bid; _qcB = b; _qcItems = [];
+  var inner = el('ov-quickcost-inner');
+  if (!inner) return;
+
+  var today = new Date().toLocaleDateString('pt-BR');
+  var caixaD = getCaixaData();
+  var contas = (caixaD.contas && caixaD.contas.length) ? caixaD.contas : DEFAULT_CONTAS;
+
+  inner.innerHTML =
+    '<h2>⚡ Lançamento Rápido</h2>'+
+
+    // ── Tabs: Texto | Foto ──
+    '<div style="display:flex;gap:0;margin-bottom:16px;border-radius:9px;overflow:hidden;border:1px solid var(--bd)">'+
+      '<button id="qc-tab-text" onclick="qcSwitchTab(\'text\')" style="flex:1;padding:9px 0;font-size:13px;font-weight:700;cursor:pointer;background:var(--gdm);color:var(--gd);border:none;font-family:Barlow,sans-serif">'+
+        '💬 Texto / WhatsApp</button>'+
+      '<button id="qc-tab-img" onclick="qcSwitchTab(\'img\')" style="flex:1;padding:9px 0;font-size:13px;font-weight:700;cursor:pointer;background:transparent;color:rgba(180,220,255,.4);border:none;font-family:Barlow,sans-serif">'+
+        '📷 Foto / Comprovante</button>'+
+    '</div>'+
+
+    // ── Date + Conta row ──
+    '<div class="qc-date-row">'+
+      '<label>Data</label>'+
+      '<input class="fi" id="qc-date" value="'+today+'" style="width:120px;font-size:13px;padding:6px 10px">'+
+      '<label style="margin-left:8px">Conta</label>'+
+      '<select class="fi" id="qc-conta" style="font-size:13px;padding:6px 10px;width:auto">'+
+        contas.map(function(c){
+          return '<option value="'+c.id+'"'+(c.padrao?' selected':'')+'>'+c.icon+' '+c.nome+'</option>';
+        }).join('')+
+      '</select>'+
+    '</div>'+
+
+    // ── Text tab ──
+    '<div id="qc-panel-text">'+
+      '<textarea class="qc-textarea" id="qc-text" placeholder="Cole a mensagem do WhatsApp aqui&#10;Ex: pedreiro R$250, ajudante 180, ônibus 2x R$5, almoço R$35..."></textarea>'+
+      '<div class="qc-hint">Qualquer formato funciona — a IA identifica os itens. Ctrl+Enter para interpretar.</div>'+
+    '</div>'+
+
+    // ── Image tab ──
+    '<div id="qc-panel-img" style="display:none">'+
+      '<input type="file" id="qc-file" accept="image/*" style="display:none">'+
+      '<div id="qc-drop-zone" style="border:2px dashed rgba(0,212,255,.25);border-radius:12px;padding:28px 20px;text-align:center;cursor:pointer;transition:all .15s;background:rgba(0,8,24,.4)" onclick="el(&quot;qc-file&quot;).click()" ondragover="event.preventDefault();this.style.borderColor=&quot;var(--gd)&quot;" ondragleave="this.style.borderColor=&quot;rgba(0,212,255,.25)&quot;" ondrop="qcHandleDrop(event)">'+
+        '<div style="font-size:28px;margin-bottom:8px">📷</div>'+
+        '<div style="font-size:13px;font-weight:700;color:rgba(180,220,255,.7)">Toque para selecionar foto</div>'+
+        '<div style="font-size:11px;color:rgba(0,212,255,.35);margin-top:4px">ou arraste a imagem aqui · JPG, PNG, WEBP</div>'+
+      '</div>'+
+      '<div id="qc-img-preview" style="display:none;margin-top:10px;text-align:center">'+
+        '<img id="qc-img-thumb" style="max-height:160px;max-width:100%;border-radius:8px;border:1px solid rgba(0,212,255,.15)">'+
+        '<div style="font-size:11px;color:rgba(0,212,255,.4);margin-top:6px" id="qc-img-name"></div>'+
+        '<button onclick="qcClearImg()" style="font-size:11px;background:transparent;border:none;color:rgba(255,68,102,.5);cursor:pointer;margin-top:4px">✕ Remover</button>'+
+      '</div>'+
+    '</div>'+
+
+    '<div id="qc-loading" class="qc-loading" style="display:none">'+
+      '<div class="qc-spinner"></div><span id="qc-loading-msg">Interpretando os custos...</span>'+
+    '</div>'+
+    '<div id="qc-preview-wrap"></div>'+
+    '<div class="mf" style="margin-top:16px">'+
+      '<button class="btn btn-p" id="qc-parse-btn">🔍 Interpretar</button>'+
+      '<button class="btn btn-gn" id="qc-confirm-btn" style="display:none">✅ Confirmar todos</button>'+
+      '<button class="btn btn-g" id="qc-cancel-btn">Cancelar</button>'+
+    '</div>';
+
+  el('ov-quickcost').classList.add('open');
+  _qcImgBase64 = null;
+
+  setTimeout(function(){
+    el('qc-parse-btn').addEventListener('click', runQuickParse);
+    el('qc-cancel-btn').addEventListener('click', function(){ closeOv('ov-quickcost'); });
+    el('qc-text').focus();
+    el('qc-text').addEventListener('keydown', function(e){
+      if ((e.ctrlKey||e.metaKey) && e.key==='Enter') { e.preventDefault(); runQuickParse(); }
+    });
+    el('qc-file').addEventListener('change', function(){
+      if (this.files && this.files[0]) qcLoadImage(this.files[0]);
+    });
+  }, 0);
+}
+
+var _qcImgBase64 = null;
+var _qcTab = 'text';
+
+function qcSwitchTab(tab) {
+  _qcTab = tab;
+  el('qc-panel-text').style.display = tab==='text' ? '' : 'none';
+  el('qc-panel-img').style.display  = tab==='img'  ? '' : 'none';
+  el('qc-tab-text').style.background = tab==='text' ? 'var(--gdm)' : 'transparent';
+  el('qc-tab-text').style.color = tab==='text' ? 'var(--gd)' : 'rgba(180,220,255,.4)';
+  el('qc-tab-img').style.background = tab==='img' ? 'var(--gdm)' : 'transparent';
+  el('qc-tab-img').style.color = tab==='img' ? 'var(--gd)' : 'rgba(180,220,255,.4)';
+}
+
+function qcHandleDrop(e) {
+  e.preventDefault();
+  el('qc-drop-zone').style.borderColor = 'rgba(0,212,255,.25)';
+  var file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) qcLoadImage(file);
+}
+
+function qcLoadImage(file) {
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var dataUrl = e.target.result;
+    _qcImgBase64 = dataUrl.split(',')[1];
+    var thumb = el('qc-img-thumb');
+    var nameEl = el('qc-img-name');
+    var preview = el('qc-img-preview');
+    var dropZone = el('qc-drop-zone');
+    if (thumb) thumb.src = dataUrl;
+    if (nameEl) nameEl.textContent = file.name + ' (' + (file.size/1024).toFixed(0) + ' KB)';
+    if (preview) preview.style.display = '';
+    if (dropZone) dropZone.style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function qcClearImg() {
+  _qcImgBase64 = null;
+  var preview = el('qc-img-preview');
+  var dropZone = el('qc-drop-zone');
+  var fileInp = el('qc-file');
+  if (preview) preview.style.display = 'none';
+  if (dropZone) dropZone.style.display = '';
+  if (fileInp) fileInp.value = '';
+}
+
+function runQuickParse() {
+  var isImg = (_qcTab === 'img');
+  var text = (el('qc-text') ? el('qc-text').value||'' : '').trim();
+
+  if (isImg && !_qcImgBase64) { toast('Selecione uma foto primeiro.','err'); return; }
+  if (!isImg && !text) { toast('Cole o texto do WhatsApp primeiro.','err'); return; }
+
+  el('qc-loading').style.display = 'flex';
+  el('qc-loading-msg').textContent = isImg ? 'Lendo o comprovante...' : 'Interpretando os custos...';
+  el('qc-parse-btn').disabled = true;
+  el('qc-preview-wrap').innerHTML = '';
+  el('qc-confirm-btn').style.display = 'none';
+
+  var cats = CATS.map(function(c){ return c.id+'='+c.name; }).join(', ');
+
+  if (isImg) {
+    // Image mode — send base64 to AI vision
+    var sysPrompt =
+      'Você é um assistente de obras de construção civil no Brasil. '+
+      'Analise a imagem de comprovante, nota fiscal ou recibo e extraia TODOS os itens de custo. '+
+      'Categorias: '+cats+'. '+
+      'Responda SOMENTE com JSON válido sem markdown: {"items":[{"cat":"labor","desc":"Pedreiro","val":250}]}';
+
+    fetch('/api/ai', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 400,
+        system: sysPrompt,
+        messages:[{
+          role:'user',
+          content:[
+            {type:'image', source:{type:'base64', media_type:'image/jpeg', data:_qcImgBase64}},
+            {type:'text',  text:'Extraia os itens de custo desta imagem e retorne o JSON.'}
+          ]
+        }]
+      })
+    })
+    .then(function(r){ return r.text(); })
+    .then(function(raw){ qcHandleAIResponse(raw); })
+    .catch(function(){ el('qc-loading').style.display='none'; el('qc-parse-btn').disabled=false; toast('Erro de conexão.','err'); });
+    return;
+  }
+
+  // Text mode
+  var prompt =
+    'Você é um assistente de obras de construção civil no Brasil.\n'+
+    'O usuário colou uma mensagem de WhatsApp com custos de uma obra.\n'+
+    'Extraia TODOS os itens de custo encontrados.\n\n'+
+    'Categorias disponíveis: '+cats+'\n\n'+
+    'Regras:\n'+
+    '- Mão de obra: pedreiro, servente, ajudante, mestre, pintor, eletricista, encanador, etc.\n'+
+    '- Transporte: ônibus, uber, mototaxi, combustível, frete, etc.\n'+
+    '- Alimentação: almoço, lanche, café, marmita, refeição, etc.\n'+
+    '- Material/Equipamentos: cimento, areia, tijolo, tinta, ferramenta, aluguel de equipamento, etc.\n'+
+    '- Comissão: comissão, bonificação.\n'+
+    '- Outros: qualquer coisa que não se encaixa acima.\n\n'+
+    'Responda SOMENTE com JSON válido, sem markdown, no formato:\n'+
+    '{"items":[{"cat":"labor","desc":"Pedreiro","val":250},{"cat":"transport","desc":"Ônibus (2x)","val":10}]}\n\n'+
+    'Texto do WhatsApp:\n'+text;
+
+  fetch('/api/ai', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({model:'claude-haiku-4-5-20251001', prompt: prompt, max_tokens:400})
+  })
+  .then(function(r){ return r.text(); })
+  .then(function(raw){ qcHandleAIResponse(raw); })
+  .catch(function(){
+    el('qc-loading').style.display = 'none';
+    el('qc-parse-btn').disabled = false;
+    toast('Erro de conexão com a IA.','err');
+  });
+}
+
+function qcHandleAIResponse(raw) {
+  el('qc-loading').style.display = 'none';
+  el('qc-parse-btn').disabled = false;
+  try {
+    var clean = raw.replace(/```json|```/g,'').trim();
+    // Handle nested Anthropic response format {content:[{text:...}]}
+    var obj = JSON.parse(clean);
+    if (obj.content && obj.content[0] && obj.content[0].text) {
+      clean = obj.content[0].text.replace(/```json|```/g,'').trim();
+      obj = JSON.parse(clean);
+    }
+    _qcItems = (obj.items||[]).map(function(it){
+      return { cat: it.cat||'outros', desc: it.desc||'', val: parseFloat(it.val||0) };
+    }).filter(function(it){ return it.val > 0; });
+    if (!_qcItems.length) { toast('Nenhum custo identificado na imagem. Tente outra foto.','err'); return; }
+    renderQCPreview();
+  } catch(e) {
+    toast('Erro ao interpretar. Tente reformular o texto ou use outra foto.','err');
+  }
+}
+
+function renderQCPreview() {
+  var wrap = el('qc-preview-wrap');
+  if (!_qcItems.length) {
+    wrap.innerHTML = '<div style="color:rgba(255,68,102,.6);font-size:13px;padding:8px 0">Nenhum custo identificado. Tente reformular.</div>';
+    return;
+  }
+
+  var total = _qcItems.reduce(function(s,it){ return s+it.val; }, 0);
+  var html = '<div class="qc-preview">';
+  _qcItems.forEach(function(it, idx){
+    var cat = CATS.find(function(c){ return c.id===it.cat; }) || {icon:'💸',name:'Outros',color:'rgba(180,220,255,.5)'};
+    var catOpts = CATS.map(function(c){
+      return '<option value="'+c.id+'"'+(c.id===it.cat?' selected':'')+'>'+c.icon+' '+c.name+'</option>';
+    }).join('');
+    html +=
+      '<div class="qc-item" id="qci-'+idx+'">'+
+        '<select class="qc-cat-edit" data-idx="'+idx+'" onchange="qcEditCat(this)">'+catOpts+'</select>'+
+        '<input style="background:transparent;border:none;color:var(--cr);font-size:13px;font-family:Barlow,sans-serif;flex:1;min-width:0;outline:none" '+
+          'value="'+esc(it.desc)+'" data-idx="'+idx+'" oninput="qcEditDesc(this)">'+
+        '<input style="background:transparent;border:none;color:var(--rd);font-size:15px;font-weight:800;font-family:\'Barlow Condensed\',sans-serif;width:80px;text-align:right;outline:none" '+
+          'value="'+it.val+'" type="number" data-idx="'+idx+'" oninput="qcEditVal(this)">'+
+        '<button class="qc-item-del" onclick="qcRemove('+idx+')">✕</button>'+
+      '</div>';
+  });
+  html += '</div>';
+  html += '<div class="qc-total">Total: '+fmt(total)+'</div>';
+  wrap.innerHTML = html;
+  el('qc-confirm-btn').style.display = '';
+  el('qc-confirm-btn').onclick = confirmQuickCost;
+}
+
+function qcEditCat(sel) { _qcItems[parseInt(sel.dataset.idx)].cat = sel.value; }
+function qcEditDesc(inp) { _qcItems[parseInt(inp.dataset.idx)].desc = inp.value; }
+function qcEditVal(inp) {
+  _qcItems[parseInt(inp.dataset.idx)].val = parseFloat(inp.value)||0;
+  var total = _qcItems.reduce(function(s,it){ return s+it.val; }, 0);
+  var tw = el('qc-preview-wrap').querySelector('.qc-total');
+  if (tw) tw.textContent = 'Total: '+fmt(total);
+}
+function qcRemove(idx) {
+  _qcItems.splice(idx, 1);
+  renderQCPreview();
+}
+
+function confirmQuickCost() {
+  var date  = (el('qc-date').value||'').trim();
+  var conta = el('qc-conta') ? el('qc-conta').value : CONTA_PADRAO;
+  if (!_qcItems.length) { toast('Nenhum item para lançar.','err'); return; }
+
+  var saved = 0;
+  _qcItems.forEach(function(it){
+    if (!it.val || it.val <= 0) return;
+    saveFinEntry(_qcBid, {
+      id:   uid(),
+      cat:  it.cat || 'outros',
+      desc: it.desc || '',
+      val:  it.val,
+      date: date,
+      conta: conta
+    });
+    saved++;
+  });
+
+  closeOv('ov-quickcost');
+  toast('✅ '+saved+' custo'+(saved>1?'s':'')+' lançado'+(saved>1?'s':'')+' com sucesso!');
+
+  // Refresh the costs panel
+  if (el('view-obras') && el('view-obras').classList.contains('active')) renderObras();
+  if (el('view-dash')  && el('view-dash').classList.contains('active'))  renderDash();
+}
+
 // ── BACKUP / RESTORE ────────────────────────────────────────────
 function exportAllData(){
   var data={exportedAt:new Date().toISOString(),pulso_v3:JSON.stringify(_mem.budgets),pulso_obras:JSON.stringify(_mem.obras),pulso_finance:JSON.stringify(_mem.finance),pulso_aditivos:JSON.stringify(_mem.aditivos)};
@@ -6855,6 +7190,10 @@ setTimeout(function(){
 <div class="ov" id="ov-adit-rec" onclick="if(event.target===this)closeOv('ov-adit-rec')"><div class="modal sm" id="ov-adit-rec-inner"></div></div>
 
 <div class="ov" id="ov-adit-cost" onclick="if(event.target===this)closeOv('ov-adit-cost')"><div class="modal sm" id="ov-adit-cost-inner"></div></div>
+
+<div class="ov" id="ov-quickcost" onclick="if(event.target===this)closeOv('ov-quickcost')">
+  <div class="modal" id="ov-quickcost-inner" style="max-width:560px"></div>
+</div>
 
 <div class="ov" id="ov-dist-pag"><div class="modal sm" id="ov-dist-pag-inner"></div></div>
 
