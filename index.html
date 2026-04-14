@@ -8175,10 +8175,29 @@ function openPatModal(id) {
       el('pat-nf-loading').style.display = 'none';
       el('pat-nf-read-btn').disabled = false;
       try {
-        var clean = raw.replace(/```json|```/g,'').trim();
-        var obj = JSON.parse(clean);
-        if (obj.content && obj.content[0]) { clean=obj.content[0].text.replace(/```json|```/g,'').trim(); obj=JSON.parse(clean); }
-        if (obj.resposta) { clean=obj.resposta.replace(/```json|```/g,'').trim(); obj=JSON.parse(clean); }
+        // Robust parsing — handle all proxy response formats
+        var obj = {};
+        try { obj = JSON.parse(raw); } catch(e) {}
+
+        // Unwrap nested formats
+        if (obj.content && Array.isArray(obj.content)) {
+          var textBlock = obj.content.find(function(b){ return b.type==='text'; });
+          if (textBlock && textBlock.text) {
+            try { obj = JSON.parse(textBlock.text.replace(/```json|```/g,'').trim()); } catch(e){}
+          }
+        } else if (obj.resposta) {
+          try { obj = JSON.parse(obj.resposta.replace(/```json|```/g,'').trim()); } catch(e){}
+        }
+
+        // If obj still has no nome, try parsing raw directly as JSON
+        if (!obj.nome && !obj.valor) {
+          try {
+            var m = raw.match(/\{[\s\S]*\}/);
+            if (m) obj = JSON.parse(m[0]);
+          } catch(e){}
+        }
+
+        console.log('[NF] Dados extraídos:', obj);
 
         // Show extracted fields for review
         var fields = el('pat-nf-fields');
