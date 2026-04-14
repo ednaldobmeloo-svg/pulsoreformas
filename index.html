@@ -1078,6 +1078,40 @@ select.fi option{background:#06121e}
 .contrato-file-card .cfc-sub{font-size:11px;color:rgba(0,212,255,.4);margin-top:2px}
 .contrato-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
 
+
+/* ── PATRIMÔNIO ─────────────────────────────────────────────────── */
+.pat-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.pat-kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:22px}
+.pat-kpi{background:var(--glass);border:1px solid var(--bd);border-radius:var(--r1);padding:14px 16px}
+.pat-kpi-lbl{font-size:10px;color:rgba(0,212,255,.45);text-transform:uppercase;letter-spacing:.06em;font-weight:700;margin-bottom:4px}
+.pat-kpi-val{font-size:20px;font-weight:800;font-family:'Barlow Condensed',sans-serif}
+.pat-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+.pat-filter-btn{padding:5px 12px;border-radius:20px;border:1px solid var(--bd);background:transparent;color:rgba(180,220,255,.5);font-size:11px;font-weight:700;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .15s}
+.pat-filter-btn.active,.pat-filter-btn:hover{border-color:var(--gd);color:var(--gd);background:rgba(0,212,255,.06)}
+.pat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.pat-card{background:var(--glass);border:1px solid var(--bd);border-radius:var(--r2);overflow:hidden;transition:border-color .15s}
+.pat-card:hover{border-color:var(--bd2)}
+.pat-card-hd{padding:14px 16px;background:rgba(0,212,255,.03);border-bottom:1px solid rgba(0,212,255,.07)}
+.pat-card-cat{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;display:inline-block;margin-bottom:6px}
+.pat-card-cat.ferramenta{background:rgba(0,212,255,.1);color:var(--gd)}
+.pat-card-cat.equipamento{background:rgba(0,255,136,.1);color:var(--gn)}
+.pat-card-cat.veiculo{background:rgba(255,209,102,.1);color:var(--yw)}
+.pat-card-cat.movel{background:rgba(200,169,110,.1);color:rgba(200,169,110,1)}
+.pat-card-cat.outro{background:rgba(180,220,255,.08);color:rgba(180,220,255,.5)}
+.pat-card-nome{font-size:14px;font-weight:700;color:var(--wh);margin-bottom:4px}
+.pat-card-local{font-size:11px;color:rgba(0,212,255,.45)}
+.pat-card-bd{padding:12px 16px}
+.pat-card-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;margin-bottom:6px}
+.pat-card-row .lbl{color:rgba(0,212,255,.4)}
+.pat-card-row .val{font-weight:700;color:var(--cr)}
+.pat-card-footer{display:flex;gap:6px;padding:10px 16px;border-top:1px solid rgba(0,212,255,.06)}
+.pat-parcela-bar{margin-top:6px}
+.pat-parcela-label{display:flex;justify-content:space-between;font-size:10px;color:rgba(0,212,255,.4);margin-bottom:3px}
+.pat-status-pill{font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;display:inline-block}
+.pat-status-pill.quitado{background:rgba(0,255,136,.1);color:var(--gn);border:1px solid rgba(0,255,136,.2)}
+.pat-status-pill.parcelado{background:rgba(255,209,102,.1);color:var(--yw);border:1px solid rgba(255,209,102,.2)}
+.pat-status-pill.avista{background:rgba(0,212,255,.1);color:var(--gd);border:1px solid rgba(0,212,255,.2)}
+
 </style>
 </head>
 <body>
@@ -1117,6 +1151,7 @@ select.fi option{background:#06121e}
     <button class="nb" id="nb-aditivos" onclick="goTo('aditivos')"><span class="ni">📝</span> Aditivos<span class="bc" id="badge-aditivos">0</span></button>
     <button class="nb" id="nb-caixa" onclick="goTo('caixa')"><span class="ni">🏦</span> Caixa & Contas</button>
     <button class="nb" id="nb-finance" onclick="goTo('finance')"><span class="ni">💰</span> Controle Financeiro</button>
+    <button class="nb" id="nb-patrimonio" onclick="goTo('patrimonio')"><span class="ni">🔧</span> Patrimônio</button>
     <div class="nav-lbl">Ações</div>
     <button class="nb" onclick="newBudget()"><span class="ni">➕</span> Novo Orçamento</button>
     <button class="nb" onclick="openProjectModal()" style="background:rgba(0,212,255,.06);border-color:rgba(0,212,255,.2)"><span class="ni">📐</span> Orçamento por Projeto</button>
@@ -1211,6 +1246,7 @@ select.fi option{background:#06121e}
       <div id="aditivos-content"></div>
     </div>
     <div class="view" id="view-caixa"><div id="caixa-content"></div></div>
+    <div class="view" id="view-patrimonio"><div id="patrimonio-content"></div></div>
     <div class="view" id="view-finance">
       <!-- Finance header row -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
@@ -1380,7 +1416,7 @@ var ADMIN_EMAILS = ['pulsoreformas@gmail.com', 'ednaldobmeloo@gmail.com'];
 var _fbApp = null, _fbAuth = null, _fbDb = null, _fbUser = null;
 var _isAdmin = false;
 var _saveDebounce = {};
-var _mem = { budgets:[], obras:{}, finance:{}, aditivos:[], caixa:{contas:[], movs:[]} };
+var _mem = { budgets:[], obras:{}, finance:{}, aditivos:[], caixa:{contas:[], movs:[]}, patrimonio:[] };
 
 function fbConfigured(){ return FIREBASE_CONFIG.apiKey !== 'YOUR_API_KEY'; }
 function isAdmin(){ return _isAdmin; }
@@ -1559,6 +1595,7 @@ function goTo(view) {
   if (view === 'aditivos') renderAditivos();
   if (view === 'finance') renderFinance();
   if (view === 'caixa') renderCaixa();
+  if (view === 'patrimonio') renderPatrimonio();
 }
 
 // ═══════════════════════════════════════
@@ -3709,6 +3746,7 @@ function saveAditivo() {
 // ═══════════════════════════════════════
 var FIN = { load(){ return _mem.finance; }, save(d){ _mem.finance=d; fbSave('finance',d); } };
 var CAIXA = { load(){ return _mem.caixa; }, save(d){ _mem.caixa=d; fbSave('caixa',d); } };
+var PATDB = { load(){ return _mem.patrimonio||[]; }, save(d){ _mem.patrimonio=d; fbSave('patrimonio',d); } };
 // finance data structure: { [budgetId]: { entries: [{id,cat,desc,val,date}] } }
 
 var CATS = [
@@ -7763,6 +7801,615 @@ function exportContratoPDF(bid, b, contrato) {
   toast('📄 Contrato PDF gerado!');
 }
 
+
+// ═══════════════════════════════════════════════════════════
+// PATRIMÔNIO
+// ═══════════════════════════════════════════════════════════
+var PAT_CATS = [
+  {id:'ferramenta', icon:'🔨', label:'Ferramenta'},
+  {id:'equipamento',icon:'⚙️', label:'Equipamento'},
+  {id:'veiculo',    icon:'🚛', label:'Veículo'},
+  {id:'movel',      icon:'🪑', label:'Móvel/Escritório'},
+  {id:'outro',      icon:'📦', label:'Outro'},
+];
+var PAT_PAGTO = [
+  {id:'avista',     label:'À vista'},
+  {id:'parcelado',  label:'Parcelado (cartão)'},
+];
+var _patFiltro = 'todos';
+
+function renderPatrimonio() {
+  var wrap = el('patrimonio-content');
+  if (!wrap) return;
+  var items = PATDB.load();
+
+  // KPIs
+  var totalVal   = items.reduce(function(s,p){ return s+parseFloat(p.valor||0); },0);
+  var totalPago  = items.reduce(function(s,p){
+    if (p.pagto==='avista') return s+parseFloat(p.valor||0);
+    var pagas = (p.parcelas||[]).filter(function(x){return x.pago;}).length;
+    var vlParc = parseFloat(p.valor||0) / (parseInt(p.nParcelas)||1);
+    return s + pagas*vlParc;
+  },0);
+  var totalPend  = items.filter(function(p){ return p.pagto==='parcelado'; })
+    .reduce(function(s,p){
+      var pendentes = (p.parcelas||[]).filter(function(x){return !x.pago;}).length;
+      var vlParc = parseFloat(p.valor||0)/(parseInt(p.nParcelas)||1);
+      return s+pendentes*vlParc;
+    },0);
+  var qParcelas = items.filter(function(p){return p.pagto==='parcelado' && !patQuitado(p);}).length;
+
+  wrap.innerHTML = '';
+
+  // Header
+  var hdr = document.createElement('div');
+  hdr.className = 'pat-header';
+  hdr.innerHTML =
+    '<div><div style="font-size:22px;font-weight:800;color:var(--wh)">🔧 Patrimônio</div>'+
+    '<div style="font-size:12px;color:rgba(0,212,255,.4)">Equipamentos e ferramentas da empresa</div></div>';
+  var addBtn = document.createElement('button');
+  addBtn.className = 'btn btn-p';
+  addBtn.innerHTML = '＋ Novo Equipamento';
+  addBtn.addEventListener('click', function(){ openPatModal(); });
+  hdr.appendChild(addBtn);
+  wrap.appendChild(hdr);
+
+  // KPIs
+  var kpiWrap = document.createElement('div');
+  kpiWrap.className = 'pat-kpis';
+  [
+    {l:'Total Patrimônio',    v:fmt(totalVal),    c:'var(--gd)'},
+    {l:'Total Pago',          v:fmt(totalPago),   c:'var(--gn)'},
+    {l:'Parcelas Pendentes',  v:fmt(totalPend),   c:totalPend>0?'var(--yw)':'var(--gn)'},
+    {l:'Em Parcelamento',     v:qParcelas+' item'+(qParcelas!==1?'s':''), c:'var(--yw)'},
+    {l:'Total de Itens',      v:items.length,     c:'var(--gd)'},
+  ].forEach(function(k){
+    kpiWrap.innerHTML += '<div class="pat-kpi"><div class="pat-kpi-lbl">'+k.l+'</div>'+
+      '<div class="pat-kpi-val" style="color:'+k.c+'">'+k.v+'</div></div>';
+  });
+  wrap.appendChild(kpiWrap);
+
+  // Filters
+  var filterWrap = document.createElement('div');
+  filterWrap.className = 'pat-filters';
+  var filtros = [{id:'todos',label:'Todos'}].concat(PAT_CATS.map(function(c){return {id:c.id,label:c.icon+' '+c.label};}));
+  filtros.push({id:'parcelado',label:'⚠️ Com parcelas'});
+  filtros.forEach(function(f){
+    var btn = document.createElement('button');
+    btn.className = 'pat-filter-btn'+(f.id===_patFiltro?' active':'');
+    btn.textContent = f.label;
+    btn.addEventListener('click', function(){_patFiltro=f.id;renderPatrimonio();});
+    filterWrap.appendChild(btn);
+  });
+  wrap.appendChild(filterWrap);
+
+  // Grid
+  var grid = document.createElement('div');
+  grid.className = 'pat-grid';
+
+  var filtered = items.filter(function(p){
+    if (_patFiltro==='todos') return true;
+    if (_patFiltro==='parcelado') return p.pagto==='parcelado' && !patQuitado(p);
+    return p.categoria === _patFiltro;
+  });
+
+  if (!filtered.length) {
+    var empty = document.createElement('div');
+    empty.style.cssText='color:rgba(180,220,255,.2);font-size:13px;padding:40px 0;text-align:center;grid-column:1/-1';
+    empty.innerHTML='<div style="font-size:36px;margin-bottom:10px">🔧</div><div>Nenhum equipamento cadastrado.</div>';
+    grid.appendChild(empty);
+  } else {
+    filtered.forEach(function(p){ grid.appendChild(buildPatCard(p)); });
+  }
+
+  wrap.appendChild(grid);
+}
+
+function patQuitado(p) {
+  if (p.pagto==='avista') return true;
+  return (p.parcelas||[]).every(function(x){return x.pago;});
+}
+
+function buildPatCard(p) {
+  var cat = PAT_CATS.find(function(c){return c.id===p.categoria;})||{icon:'📦',label:'Outro',id:'outro'};
+  var quitado = patQuitado(p);
+  var nParc = parseInt(p.nParcelas)||1;
+  var pagas = (p.parcelas||[]).filter(function(x){return x.pago;}).length;
+  var vlParc = parseFloat(p.valor||0)/nParc;
+  var totalPago = p.pagto==='avista' ? parseFloat(p.valor||0) : pagas*vlParc;
+  var pendentes = p.pagto==='parcelado' ? nParc-pagas : 0;
+
+  // Location label
+  var locLabel = '—';
+  if (p.local === 'escritorio') locLabel = '🏢 Escritório';
+  else if (p.local === 'deposito') locLabel = '📦 Depósito';
+  else if (p.local && p.local.startsWith('obra:')) {
+    var obraId = p.local.replace('obra:','');
+    var obra = DB.load().find(function(b){return b.id===obraId;});
+    locLabel = '🏗️ '+(obra?obra.client||obra.num||'Obra':obraId);
+  } else if (p.local) locLabel = p.local;
+
+  var card = document.createElement('div');
+  card.className = 'pat-card';
+  card.innerHTML =
+    '<div class="pat-card-hd">'+
+      '<span class="pat-card-cat '+cat.id+'">'+cat.icon+' '+cat.label+'</span>'+
+      (p.pagto==='avista'
+        ? '<span class="pat-status-pill avista" style="float:right">À Vista</span>'
+        : '<span class="pat-status-pill '+(quitado?'quitado':'parcelado')+'" style="float:right">'+(quitado?'✅ Quitado':'⏳ '+pendentes+'x pendente')+'</span>')+
+      '<div class="pat-card-nome">'+esc(p.nome||'Sem nome')+'</div>'+
+      '<div class="pat-card-local">📍 '+locLabel+'</div>'+
+    '</div>'+
+    '<div class="pat-card-bd">'+
+      '<div class="pat-card-row"><span class="lbl">Valor total</span><span class="val" style="color:var(--gd)">'+fmt(p.valor||0)+'</span></div>'+
+      '<div class="pat-card-row"><span class="lbl">Compra</span><span class="val">'+esc(p.dataCompra||'—')+'</span></div>'+
+      (p.pagto==='parcelado'
+        ? '<div class="pat-card-row"><span class="lbl">Parcelas</span><span class="val">'+pagas+'/'+nParc+' · '+fmt(vlParc)+'/mês</span></div>'+
+          '<div class="pat-card-row"><span class="lbl">Pago até agora</span><span class="val" style="color:var(--gn)">'+fmt(totalPago)+'</span></div>'+
+          (pendentes>0?'<div class="pat-card-row"><span class="lbl">A pagar</span><span class="val" style="color:var(--yw)">'+fmt(pendentes*vlParc)+'</span></div>':'')
+        : '<div class="pat-card-row"><span class="lbl">Pago</span><span class="val" style="color:var(--gn)">À vista</span></div>')+
+      (p.pagto==='parcelado'
+        ? '<div class="pat-parcela-bar">'+
+            '<div class="pat-parcela-label"><span>Quitação</span><span>'+Math.round(pagas/nParc*100)+'%</span></div>'+
+            '<div class="obc-bar"><div class="obc-bar-fill" style="width:'+Math.round(pagas/nParc*100)+'%;background:'+(quitado?'var(--gn)':'var(--yw)')+'"></div></div>'+
+          '</div>'
+        : '')+
+    '</div>';
+
+  // Footer actions
+  var footer = document.createElement('div');
+  footer.className = 'pat-card-footer';
+
+  var editBtn = document.createElement('button');
+  editBtn.className = 'btn btn-g btn-xs';
+  editBtn.textContent = '✏️ Editar';
+  editBtn.addEventListener('click', function(){ openPatModal(p.id); });
+  footer.appendChild(editBtn);
+
+  if (p.pagto==='parcelado' && !quitado) {
+    var parcBtn = document.createElement('button');
+    parcBtn.className = 'btn btn-p btn-xs';
+    parcBtn.textContent = '💳 Parcelas';
+    parcBtn.addEventListener('click', function(){ openParcelasModal(p.id); });
+    footer.appendChild(parcBtn);
+  }
+
+  var delBtn = document.createElement('button');
+  delBtn.className = 'btn btn-r btn-xs';
+  delBtn.textContent = '🗑️';
+  delBtn.addEventListener('click', function(){
+    if (!confirm('Excluir '+esc(p.nome||'este item')+'?')) return;
+    PATDB.save(PATDB.load().filter(function(x){return x.id!==p.id;}));
+    renderPatrimonio();
+  });
+  footer.appendChild(delBtn);
+  card.appendChild(footer);
+  return card;
+}
+
+// ── Modal: Novo / Editar ──────────────────────────────────────────
+function openPatModal(id) {
+  var existing = id ? PATDB.load().find(function(p){return p.id===id;}) : null;
+  var p = existing || {};
+  var inner = el('ov-patrimonio-inner');
+  if (!inner) return;
+
+  var obras = DB.load().filter(function(b){return b.status==='approved';});
+  var caixaD = getCaixaData();
+  var contas = (caixaD.contas&&caixaD.contas.length)?caixaD.contas:DEFAULT_CONTAS;
+  var today = new Date().toLocaleDateString('pt-BR');
+
+  // Only show NF import tab for new items
+  var showNFTab = !id;
+
+  inner.innerHTML =
+    '<h2>'+(id?'✏️ Editar':'＋ Novo')+' Equipamento</h2>'+
+
+    (showNFTab
+      ? '<div style="display:flex;gap:0;margin-bottom:16px;border-radius:9px;overflow:hidden;border:1px solid var(--bd)">'+
+          '<button id="pat-tab-manual" onclick="patSwitchTab(&quot;manual&quot;)" style="flex:1;padding:9px 0;font-size:13px;font-weight:700;cursor:pointer;background:var(--gdm);color:var(--gd);border:none;font-family:Barlow,sans-serif">✏️ Preencher manualmente</button>'+
+          '<button id="pat-tab-nf" onclick="patSwitchTab(&quot;nf&quot;)" style="flex:1;padding:9px 0;font-size:13px;font-weight:700;cursor:pointer;background:transparent;color:rgba(180,220,255,.4);border:none;font-family:Barlow,sans-serif">📄 Importar por NF</button>'+
+        '</div>'
+      : '')+
+
+    // ── NF Import panel ──
+    (showNFTab
+      ? '<div id="pat-panel-nf" style="display:none">'+
+          '<div id="pat-nf-drop" style="border:2px dashed rgba(0,212,255,.2);border-radius:12px;padding:28px 20px;text-align:center;cursor:pointer;background:rgba(0,8,24,.4);transition:all .15s" onclick="el(&quot;pat-nf-inp&quot;).click()">'+
+            '<div style="font-size:32px;margin-bottom:8px">📄</div>'+
+            '<div style="font-size:13px;font-weight:700;color:rgba(180,220,255,.7)">Clique para enviar a Nota Fiscal</div>'+
+            '<div style="font-size:11px;color:rgba(0,212,255,.35);margin-top:4px">PDF ou foto da NF · Máx 5MB</div>'+
+          '</div>'+
+          '<input type="file" id="pat-nf-inp" accept="image/*,.pdf" style="display:none">'+
+          '<div id="pat-nf-preview" style="display:none;margin-top:10px">'+
+            '<div id="pat-nf-file-info" style="display:flex;align-items:center;gap:10px;background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.15);border-radius:8px;padding:10px 14px;margin-bottom:12px">'+
+              '<span id="pat-nf-icon" style="font-size:20px">📄</span>'+
+              '<div style="flex:1"><div id="pat-nf-fname" style="font-size:13px;font-weight:700;color:var(--wh)"></div>'+
+              '<div id="pat-nf-fsize" style="font-size:10px;color:rgba(0,212,255,.4)"></div></div>'+
+              '<button onclick="patClearNF()" style="background:transparent;border:none;color:rgba(255,68,102,.4);cursor:pointer;font-size:16px">✕</button>'+
+            '</div>'+
+            '<button class="btn btn-p" style="width:100%" id="pat-nf-read-btn">🔍 Ler e extrair dados da NF</button>'+
+          '</div>'+
+          '<div id="pat-nf-loading" style="display:none" class="qc-loading">'+
+            '<div class="qc-spinner"></div> Lendo a nota fiscal...'+
+          '</div>'+
+          '<div id="pat-nf-result" style="display:none;margin-top:12px;background:rgba(0,255,136,.04);border:1px solid rgba(0,255,136,.15);border-radius:10px;padding:14px">'+
+            '<div style="font-size:11px;font-weight:700;color:var(--gn);margin-bottom:10px">✅ Dados extraídos — revise antes de salvar:</div>'+
+            '<div id="pat-nf-fields" style="display:flex;flex-direction:column;gap:8px"></div>'+
+            '<button class="btn btn-gn" style="width:100%;margin-top:12px" id="pat-nf-apply-btn">✅ Usar esses dados</button>'+
+          '</div>'+
+        '</div>'
+      : '')+
+
+    // ── Manual panel ──
+    '<div id="pat-panel-manual">'+
+    '<div style="display:flex;flex-direction:column;gap:12px">'+
+      '<div class="field"><label>Nome do equipamento *</label>'+
+        '<input class="fi" id="pat-nome" value="'+esc(p.nome||'')+'" placeholder="Ex: Furadeira de Impacto Bosch, Betoneira 400L..."></div>'+
+      '<div class="fg fg2">'+
+        '<div class="field"><label>Categoria</label>'+
+          '<select class="fi" id="pat-cat">'+
+            PAT_CATS.map(function(c){return'<option value="'+c.id+'"'+(p.categoria===c.id?' selected':'')+'>'+c.icon+' '+c.label+'</option>';}).join('')+
+          '</select></div>'+
+        '<div class="field"><label>Data de compra</label>'+
+          '<input class="fi" id="pat-data" value="'+esc(p.dataCompra||today)+'"></div>'+
+      '</div>'+
+      '<div class="fg fg2">'+
+        '<div class="field"><label>Valor total (R$)</label>'+
+          '<input class="fi" id="pat-valor" type="number" min="0" step="any" value="'+esc(p.valor||'')+'" placeholder="0,00"></div>'+
+        '<div class="field"><label>Forma de pagamento</label>'+
+          '<select class="fi" id="pat-pagto" onchange="patToggleParcelas()">'+
+            PAT_PAGTO.map(function(x){return'<option value="'+x.id+'"'+(p.pagto===x.id?' selected':'')+'>'+x.label+'</option>';}).join('')+
+          '</select></div>'+
+      '</div>'+
+      '<div id="pat-parcelas-wrap" style="'+(p.pagto==='parcelado'?'':'display:none')+'">'+
+        '<div class="fg fg2">'+
+          '<div class="field"><label>Nº de parcelas</label>'+
+            '<input class="fi" id="pat-nparc" type="number" min="1" max="60" value="'+esc(p.nParcelas||12)+'" placeholder="12"></div>'+
+          '<div class="field"><label>Conta do cartão</label>'+
+            '<select class="fi" id="pat-conta-parc">'+
+              contas.map(function(c){return'<option value="'+c.id+'"'+(p.contaParc===c.id?' selected':'')+'>'+c.icon+' '+c.nome+'</option>';}).join('')+
+            '</select></div>'+
+        '</div>'+
+      '</div>'+
+      '<div id="pat-avista-wrap" style="'+(p.pagto==='parcelado'?'display:none':'')+'">'+
+        '<div class="field"><label>Conta de pagamento</label>'+
+          '<select class="fi" id="pat-conta">'+
+            contas.map(function(c){return'<option value="'+c.id+'"'+(p.conta===c.id?' selected':'')+'>'+c.icon+' '+c.nome+'</option>';}).join('')+
+          '</select></div>'+
+      '</div>'+
+      '<div class="field"><label>Localização</label>'+
+        '<select class="fi" id="pat-local">'+
+          '<option value="escritorio"'+(p.local==='escritorio'?' selected':'')+'>🏢 Escritório</option>'+
+          '<option value="deposito"'+(p.local==='deposito'?' selected':'')+'>📦 Depósito</option>'+
+          obras.map(function(b){var ov='obra:'+b.id;return'<option value="'+ov+'"'+(p.local===ov?' selected':'')+'>🏗️ '+esc(b.client||b.num||'Obra')+'</option>';}).join('')+
+        '</select></div>'+
+    '</div>'+
+    '</div>'+ // close pat-panel-manual
+    '<div class="mf"><button class="btn btn-gn" id="pat-save">💾 Salvar</button><button class="btn btn-g" id="pat-cancel">Cancelar</button></div>';
+
+  el('ov-patrimonio').classList.add('open');
+
+  var _patNFBase64 = null, _patNFMime = null;
+
+  setTimeout(function(){
+    el('pat-save').addEventListener('click', function(){ savePatrimonio(id); });
+    el('pat-cancel').addEventListener('click', function(){ closeOv('ov-patrimonio'); });
+    el('pat-nome').focus();
+
+    if (!id) {
+      // Wire NF file input
+      var nfInp = el('pat-nf-inp');
+      if (nfInp) nfInp.addEventListener('change', function(){
+        if (this.files && this.files[0]) patLoadNF(this.files[0]);
+      });
+      var nfDrop = el('pat-nf-drop');
+      if (nfDrop) {
+        nfDrop.addEventListener('dragover', function(e){e.preventDefault();this.style.borderColor='var(--gd)';});
+        nfDrop.addEventListener('dragleave', function(){this.style.borderColor='rgba(0,212,255,.2)';});
+        nfDrop.addEventListener('drop', function(e){
+          e.preventDefault(); this.style.borderColor='rgba(0,212,255,.2)';
+          var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];
+          if(f) patLoadNF(f);
+        });
+      }
+    }
+  },0);
+
+  function patLoadNF(file) {
+    if (file.size > 5*1024*1024) { toast('Arquivo muito grande. Máx 5MB.','err'); return; }
+    var reader = new FileReader();
+    reader.onload = function(e){
+      _patNFBase64 = e.target.result.split(',')[1];
+      _patNFMime   = file.type;
+      el('pat-nf-drop').style.display = 'none';
+      el('pat-nf-preview').style.display = '';
+      el('pat-nf-icon').textContent = file.type==='application/pdf' ? '📄' : '🖼️';
+      el('pat-nf-fname').textContent = file.name;
+      el('pat-nf-fsize').textContent = (file.size/1024).toFixed(0)+' KB';
+      el('pat-nf-result').style.display = 'none';
+      el('pat-nf-read-btn').addEventListener('click', patReadNF);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function patClearNF() {
+    _patNFBase64 = null; _patNFMime = null;
+    el('pat-nf-drop').style.display = '';
+    el('pat-nf-preview').style.display = 'none';
+    el('pat-nf-result').style.display = 'none';
+    el('pat-nf-inp').value = '';
+  }
+
+  function patReadNF() {
+    if (!_patNFBase64) return;
+    el('pat-nf-loading').style.display = 'flex';
+    el('pat-nf-read-btn').disabled = true;
+    el('pat-nf-result').style.display = 'none';
+
+    var catList = PAT_CATS.map(function(c){return c.id+'='+c.label;}).join(', ');
+    var sysPrompt =
+      'Você é um assistente de gestão de patrimônio para uma empresa de construção civil no Brasil. '+
+      'Analise a nota fiscal ou comprovante de compra e extraia as informações do equipamento/ferramenta adquirido. '+
+      'Categorias disponíveis: '+catList+'. '+
+      'Responda SOMENTE com JSON válido sem markdown: '+
+      '{"nome":"nome do produto","valor":1234.56,"dataCompra":"DD/MM/AAAA","categoria":"ferramenta","fornecedor":"nome da loja"}';
+
+    var mime = _patNFMime === 'application/pdf' ? 'application/pdf' : (_patNFMime||'image/jpeg');
+    fetch('/api/ai', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-haiku-4-5-20251001',
+        max_tokens:300,
+        system: sysPrompt,
+        messages:[{role:'user', content:[
+          {type: mime==='application/pdf'?'document':'image',
+           source:{type:'base64', media_type:mime, data:_patNFBase64}},
+          {type:'text', text:'Extraia os dados desta nota fiscal para cadastro de patrimônio.'}
+        ]}]
+      })
+    })
+    .then(function(r){return r.text();})
+    .then(function(raw){
+      el('pat-nf-loading').style.display = 'none';
+      el('pat-nf-read-btn').disabled = false;
+      try {
+        var clean = raw.replace(/```json|```/g,'').trim();
+        var obj = JSON.parse(clean);
+        if (obj.content && obj.content[0]) { clean=obj.content[0].text.replace(/```json|```/g,'').trim(); obj=JSON.parse(clean); }
+        if (obj.resposta) { clean=obj.resposta.replace(/```json|```/g,'').trim(); obj=JSON.parse(clean); }
+
+        // Show extracted fields for review
+        var fields = el('pat-nf-fields');
+        var nfData = {
+          nome:       obj.nome       || '',
+          valor:      obj.valor      || 0,
+          dataCompra: obj.dataCompra || new Date().toLocaleDateString('pt-BR'),
+          categoria:  obj.categoria  || 'outro',
+          fornecedor: obj.fornecedor || ''
+        };
+
+        fields.innerHTML = [
+          {l:'Nome/Produto', k:'nome',       t:'text'},
+          {l:'Valor (R$)',   k:'valor',      t:'number'},
+          {l:'Data compra',  k:'dataCompra', t:'text'},
+          {l:'Categoria',    k:'cat_select', t:'select'},
+          {l:'Fornecedor',   k:'fornecedor', t:'text'},
+        ].map(function(f){
+          if (f.t==='select') {
+            return '<div class="field"><label>'+f.l+'</label>'+
+              '<select class="fi" id="nf-'+f.k+'" style="font-size:13px">'+
+                PAT_CATS.map(function(c){return'<option value="'+c.id+'"'+(nfData.categoria===c.id?' selected':'')+'>'+c.icon+' '+c.label+'</option>';}).join('')+
+              '</select></div>';
+          }
+          return '<div class="field"><label>'+f.l+'</label>'+
+            '<input class="fi" id="nf-'+f.k+'" value="'+esc(String(nfData[f.k]||''))+'" type="'+f.t+'" style="font-size:13px"></div>';
+        }).join('');
+
+        el('pat-nf-result').style.display = '';
+
+        el('pat-nf-apply-btn').onclick = function(){
+          // Transfer data to manual form and switch tab
+          el('pat-nome').value  = (el('nf-nome').value||'').trim();
+          el('pat-valor').value = el('nf-valor').value||'';
+          el('pat-data').value  = el('nf-dataCompra').value||'';
+          el('pat-cat').value   = el('nf-cat_select').value||'outro';
+          patSwitchTab('manual');
+          toast('Dados preenchidos! Revise e salve.');
+        };
+      } catch(e) {
+        toast('Não foi possível ler os dados da NF. Tente uma imagem mais nítida.','err');
+      }
+    })
+    .catch(function(){
+      el('pat-nf-loading').style.display='none';
+      el('pat-nf-read-btn').disabled=false;
+      toast('Erro de conexão com a IA.','err');
+    });
+  }
+}
+
+function patSwitchTab(tab) {
+  var manual = el('pat-panel-manual');
+  var nf     = el('pat-panel-nf');
+  var tMan   = el('pat-tab-manual');
+  var tNF    = el('pat-tab-nf');
+  if (!manual) return;
+  if (tab==='nf') {
+    if(nf) nf.style.display='';
+    manual.style.display='none';
+    el('pat-save').style.display='none';
+    if(tMan){tMan.style.background='transparent';tMan.style.color='rgba(180,220,255,.4)';}
+    if(tNF) {tNF.style.background='var(--gdm)';tNF.style.color='var(--gd)';}
+  } else {
+    if(nf) nf.style.display='none';
+    manual.style.display='';
+    el('pat-save').style.display='';
+    if(tMan){tMan.style.background='var(--gdm)';tMan.style.color='var(--gd)';}
+    if(tNF) {tNF.style.background='transparent';tNF.style.color='rgba(180,220,255,.4)';}
+  }
+}
+
+function patToggleParcelas() {
+  var v = el('pat-pagto').value;
+  el('pat-parcelas-wrap').style.display = v==='parcelado' ? '' : 'none';
+  el('pat-avista-wrap').style.display   = v==='parcelado' ? 'none' : '';
+}
+
+function savePatrimonio(editId) {
+  var nome    = (el('pat-nome').value||'').trim();
+  var cat     = el('pat-cat').value;
+  var data    = el('pat-data').value;
+  var valor   = parseFloat(el('pat-valor').value)||0;
+  var pagto   = el('pat-pagto').value;
+  var local   = el('pat-local').value;
+
+  if (!nome) { toast('Digite o nome do equipamento','err'); return; }
+  if (valor<=0) { toast('Digite o valor','err'); return; }
+
+  var all = PATDB.load();
+
+  if (editId) {
+    // Edit existing — just update fields, don't touch parcelas or caixa
+    var idx = all.findIndex(function(p){return p.id===editId;});
+    if (idx>=0) {
+      all[idx].nome = nome; all[idx].categoria = cat;
+      all[idx].dataCompra = data; all[idx].local = local;
+      PATDB.save(all);
+      closeOv('ov-patrimonio');
+      toast('Equipamento atualizado!');
+      renderPatrimonio();
+    }
+    return;
+  }
+
+  // New item
+  var entry = { id:uid(), nome:nome, categoria:cat, dataCompra:data, valor:valor, pagto:pagto, local:local, criadoEm:Date.now() };
+
+  if (pagto==='parcelado') {
+    var nParc    = parseInt(el('pat-nparc').value)||12;
+    var contaP   = el('pat-conta-parc').value||CONTA_PADRAO;
+    entry.nParcelas  = nParc;
+    entry.contaParc  = contaP;
+    // Generate parcela objects — none paid yet
+    entry.parcelas = [];
+    for (var i=0;i<nParc;i++) {
+      entry.parcelas.push({num:i+1, pago:false, dataPag:null, movId:null});
+    }
+    // Register first parcela payment in caixa as a saída
+    var vlParc = valor/nParc;
+    var movId = uid();
+    entry.parcelas[0].pago = true;
+    entry.parcelas[0].dataPag = data;
+    entry.parcelas[0].movId = movId;
+    addMovGlobalCaixa({
+      id:'pat_'+movId, tipo:'saida', conta:contaP,
+      desc:'🔧 '+nome+' — Parcela 1/'+nParc,
+      val:vlParc, date:data, createdAt:Date.now(), autoGerado:true
+    });
+    toast('1ª parcela ('+fmt(vlParc)+') debitada do caixa.');
+  } else {
+    var contaAV = el('pat-conta').value||CONTA_PADRAO;
+    entry.conta = contaAV;
+    var movId2 = uid();
+    entry.movId = movId2;
+    addMovGlobalCaixa({
+      id:'pat_'+movId2, tipo:'saida', conta:contaAV,
+      desc:'🔧 '+nome+' — Compra à vista',
+      val:valor, date:data, createdAt:Date.now(), autoGerado:true
+    });
+  }
+
+  all.push(entry);
+  PATDB.save(all);
+  closeOv('ov-patrimonio');
+  toast('✅ '+nome+' cadastrado!');
+  renderPatrimonio();
+}
+
+// ── Modal: Gestão de Parcelas ─────────────────────────────────────
+function openParcelasModal(id) {
+  var all = PATDB.load();
+  var p = all.find(function(x){return x.id===id;});
+  if (!p) return;
+  var inner = el('ov-pat-parcela-inner');
+  if (!inner) return;
+
+  var nParc  = parseInt(p.nParcelas)||1;
+  var vlParc = parseFloat(p.valor||0)/nParc;
+  var caixaD = getCaixaData();
+  var contas = (caixaD.contas&&caixaD.contas.length)?caixaD.contas:DEFAULT_CONTAS;
+  var today  = new Date().toLocaleDateString('pt-BR');
+
+  var pagas = (p.parcelas||[]).filter(function(x){return x.pago;}).length;
+
+  inner.innerHTML =
+    '<h2>💳 Parcelas — '+esc(p.nome||'')+'</h2>'+
+    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px">'+
+      '<div style="background:rgba(0,8,24,.5);border:1px solid var(--bd);border-radius:8px;padding:8px 12px;text-align:center">'+
+        '<div style="font-size:10px;color:rgba(0,212,255,.4)">Total</div>'+
+        '<div style="font-size:14px;font-weight:800;color:var(--gd)">'+fmt(p.valor||0)+'</div>'+
+      '</div>'+
+      '<div style="background:rgba(0,8,24,.5);border:1px solid var(--bd);border-radius:8px;padding:8px 12px;text-align:center">'+
+        '<div style="font-size:10px;color:rgba(0,212,255,.4)">Parcela</div>'+
+        '<div style="font-size:14px;font-weight:800;color:var(--gd)">'+fmt(vlParc)+'</div>'+
+      '</div>'+
+      '<div style="background:rgba(0,8,24,.5);border:1px solid var(--bd);border-radius:8px;padding:8px 12px;text-align:center">'+
+        '<div style="font-size:10px;color:rgba(0,212,255,.4)">Pagas</div>'+
+        '<div style="font-size:14px;font-weight:800;color:var(--gn)">'+pagas+'/'+nParc+'</div>'+
+      '</div>'+
+    '</div>'+
+    '<div style="max-height:320px;overflow-y:auto;display:flex;flex-direction:column;gap:6px" id="pat-parc-list"></div>'+
+    '<div class="mf"><button class="btn btn-g" onclick="closeOv(\'ov-pat-parcela\')">Fechar</button></div>';
+
+  el('ov-pat-parcela').classList.add('open');
+
+  function renderParcList() {
+    var list = el('pat-parc-list');
+    var curr = PATDB.load().find(function(x){return x.id===id;});
+    if (!list||!curr) return;
+    list.innerHTML = '';
+    (curr.parcelas||[]).forEach(function(parc, i){
+      var row = document.createElement('div');
+      row.style.cssText='display:flex;align-items:center;gap:10px;background:rgba(0,8,24,.4);border:1px solid rgba(0,212,255,'+(parc.pago?'.2':'.07')+');border-radius:8px;padding:8px 12px';
+      row.innerHTML=
+        '<div style="font-size:11px;font-weight:700;color:rgba(0,212,255,.5);width:22px;text-align:center">'+parc.num+'</div>'+
+        '<div style="flex:1">'+
+          '<div style="font-size:12px;font-weight:700;color:var(--gd)">'+fmt(vlParc)+'</div>'+
+          (parc.pago?'<div style="font-size:10px;color:rgba(0,255,136,.5)">Pago em '+esc(parc.dataPag||'—')+'</div>':
+            '<div style="font-size:10px;color:rgba(255,209,102,.5)">Pendente</div>')+
+        '</div>'+
+        (parc.pago
+          ? '<span style="font-size:10px;font-weight:700;color:var(--gn);background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.2);border-radius:8px;padding:2px 8px">✅ Paga</span>'
+          : '<button class="btn btn-gn btn-xs" data-pidx="'+i+'">Registrar pagamento</button>');
+      if (!parc.pago) {
+        row.querySelector('[data-pidx]').addEventListener('click', function(){
+          // Register payment in caixa
+          var allPat = PATDB.load();
+          var pp = allPat.find(function(x){return x.id===id;});
+          if (!pp) return;
+          var movId = uid();
+          pp.parcelas[i].pago    = true;
+          pp.parcelas[i].dataPag = today;
+          pp.parcelas[i].movId   = movId;
+          PATDB.save(allPat);
+          addMovGlobalCaixa({
+            id:'pat_'+movId, tipo:'saida', conta:pp.contaParc||CONTA_PADRAO,
+            desc:'🔧 '+esc(pp.nome||'')+' — Parcela '+(i+1)+'/'+nParc,
+            val:vlParc, date:today, createdAt:Date.now(), autoGerado:true
+          });
+          toast('Parcela '+(i+1)+' registrada! '+fmt(vlParc)+' debitado do caixa.');
+          renderParcList();
+          renderPatrimonio();
+        });
+      }
+      list.appendChild(row);
+    });
+  }
+  renderParcList();
+}
+
 // ── BACKUP / RESTORE ────────────────────────────────────────────
 function exportAllData(){
   var data={exportedAt:new Date().toISOString(),pulso_v3:JSON.stringify(_mem.budgets),pulso_obras:JSON.stringify(_mem.obras),pulso_finance:JSON.stringify(_mem.finance),pulso_aditivos:JSON.stringify(_mem.aditivos)};
@@ -8189,6 +8836,13 @@ setTimeout(function(){
 
 <div class="ov" id="ov-project" onclick="if(event.target===this)closeOv('ov-project')">
   <div class="modal" id="ov-project-inner" style="max-width:580px"></div>
+</div>
+
+<div class="ov" id="ov-patrimonio" onclick="if(event.target===this)closeOv('ov-patrimonio')">
+  <div class="modal sm" id="ov-patrimonio-inner"></div>
+</div>
+<div class="ov" id="ov-pat-parcela" onclick="if(event.target===this)closeOv('ov-pat-parcela')">
+  <div class="modal sm" id="ov-pat-parcela-inner"></div>
 </div>
 
 <div class="ov" id="ov-quickcost" onclick="if(event.target===this)closeOv('ov-quickcost')">
