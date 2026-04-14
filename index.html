@@ -8175,61 +8175,82 @@ function openPatModal(id) {
       el('pat-nf-loading').style.display = 'none';
       el('pat-nf-read-btn').disabled = false;
       try {
-        // Robust parsing — handle all proxy response formats
-        var obj = {};
-        try { obj = JSON.parse(raw); } catch(e) {}
-
-        // Unwrap nested formats
-        if (obj.content && Array.isArray(obj.content)) {
-          var textBlock = obj.content.find(function(b){ return b.type==='text'; });
-          if (textBlock && textBlock.text) {
-            try { obj = JSON.parse(textBlock.text.replace(/```json|```/g,'').trim()); } catch(e){}
+        // 1. Extract text from proxy wrapper
+        var texto = raw;
+        try {
+          var wrap = JSON.parse(raw);
+          if (wrap.content && Array.isArray(wrap.content)) {
+            var tb = wrap.content.find(function(b){ return b.type==='text'; });
+            if (tb && tb.text) texto = tb.text;
+          } else if (wrap.resposta) {
+            texto = wrap.resposta;
           }
-        } else if (obj.resposta) {
-          try { obj = JSON.parse(obj.resposta.replace(/```json|```/g,'').trim()); } catch(e){}
+        } catch(e){}
+
+        // 2. Clean and find JSON
+        texto = texto.replace(/```json|```/g,'').trim();
+        var jsonMatch = texto.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
+        var parsed = null;
+        if (jsonMatch) {
+          try { parsed = JSON.parse(jsonMatch[0]); } catch(e) {
+            try { parsed = JSON.parse(jsonMatch[0].replace(/\n/g,' ')); } catch(e2){}
+          }
         }
 
-        // If obj still has no nome, try parsing raw directly as JSON
-        if (!obj.nome && !obj.valor) {
-          try {
-            var m = raw.match(/\{[\s\S]*\}/);
-            if (m) obj = JSON.parse(m[0]);
-          } catch(e){}
-        }
+        console.log('[NF] Parsed:', parsed);
+        if (!parsed) { toast('Não foi possível extrair dados da NF. Tente imagem mais nítida.','err'); return; }
 
-        console.log('[NF] Dados extraídos:', obj);
+        // 3. Normalize to array of items
+        var itens = [];
+        if (Array.isArray(parsed)) { itens = parsed; }
+        else if (parsed.itens && Array.isArray(parsed.itens)) { itens = parsed.itens; }
+        else if (parsed.nome || parsed.valor) { itens = [parsed]; }
+        if (!itens.length) { toast('Nenhum item identificado.','err'); return; }
 
-        // Show extracted fields for review
+        var _nfItens = itens, _nfIdx = 0;
         var fields = el('pat-nf-fields');
-        var nfData = {
-          nome:       obj.nome       || '',
-          valor:      obj.valor      || 0,
-          dataCompra: obj.dataCompra || new Date().toLocaleDateString('pt-BR'),
-          categoria:  obj.categoria  || 'outro',
-          fornecedor: obj.fornecedor || ''
-        };
 
-        fields.innerHTML = [
-          {l:'Nome/Produto', k:'nome',       t:'text'},
-          {l:'Valor (R$)',   k:'valor',      t:'number'},
-          {l:'Data compra',  k:'dataCompra', t:'text'},
-          {l:'Categoria',    k:'cat_select', t:'select'},
-          {l:'Fornecedor',   k:'fornecedor', t:'text'},
-        ].map(function(f){
-          if (f.t==='select') {
+        function renderNFItem(idx) {
+          var obj = _nfItens[idx] || {};
+          fields.innerHTML = [
+            {l:'Nome/Produto', k:'nome',       v:obj.nome||'',       t:'text'},
+            {l:'Valor (R$)',   k:'valor',      v:obj.valor||0,       t:'number'},
+            {l:'Data compra',  k:'dataCompra', v:obj.dataCompra||new Date().toLocaleDateString('pt-BR'), t:'text'},
+            {l:'Fornecedor',   k:'fornecedor', v:obj.fornecedor||'', t:'text'},
+          ].map(function(f){
             return '<div class="field"><label>'+f.l+'</label>'+
-              '<select class="fi" id="nf-'+f.k+'" style="font-size:13px">'+
-                PAT_CATS.map(function(c){return'<option value="'+c.id+'"'+(nfData.categoria===c.id?' selected':'')+'>'+c.icon+' '+c.label+'</option>';}).join('')+
-              '</select></div>';
+              '<input class="fi" id="nf-'+f.k+'" value="'+esc(String(f.v))+'" type="'+f.t+'" style="font-size:13px"></div>';
+          }).join('') +
+          '<div class="field"><label>Categoria</label>'+
+            '<select class="fi" id="nf-cat_select" style="font-size:13px">'+
+              PAT_CATS.map(function(c){return'<option value="'+c.id+'"'+(obj.categoria===c.id?' selected':'')+'>'+c.icon+' '+c.label+'</option>';}).join('')+
+            '</select></div>';
+
+          // Nav for multiple items
+          var old = el('pat-nf-nav');
+          if (old) old.remove();
+          if (_nfItens.length > 1) {
+            var nav = document.createElement('div');
+            nav.id = 'pat-nf-nav';
+            nav.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-size:12px;color:rgba(0,212,255,.5)';
+            nav.innerHTML =
+              '<span>Item '+(idx+1)+' de '+_nfItens.length+'</span>'+
+              '<div style="display:flex;gap:6px">'+
+                (idx>0?'<button class="btn btn-g btn-xs" id="nf-prev">← Anterior</button>':'')+
+                (idx<_nfItens.length-1?'<button class="btn btn-g btn-xs" id="nf-next">Próximo →</button>':'')+
+              '</div>';
+            fields.parentNode.insertBefore(nav, fields);
+            setTimeout(function(){
+              var prev=el('nf-prev'); var next=el('nf-next');
+              if (prev) prev.onclick = function(){ _nfIdx--; renderNFItem(_nfIdx); };
+              if (next) next.onclick = function(){ _nfIdx++; renderNFItem(_nfIdx); };
+            },0);
           }
-          return '<div class="field"><label>'+f.l+'</label>'+
-            '<input class="fi" id="nf-'+f.k+'" value="'+esc(String(nfData[f.k]||''))+'" type="'+f.t+'" style="font-size:13px"></div>';
-        }).join('');
+        }
 
+        renderNFItem(0);
         el('pat-nf-result').style.display = '';
-
         el('pat-nf-apply-btn').onclick = function(){
-          // Transfer data to manual form and switch tab
           el('pat-nome').value  = (el('nf-nome').value||'').trim();
           el('pat-valor').value = el('nf-valor').value||'';
           el('pat-data').value  = el('nf-dataCompra').value||'';
@@ -8237,8 +8258,9 @@ function openPatModal(id) {
           patSwitchTab('manual');
           toast('Dados preenchidos! Revise e salve.');
         };
-      } catch(e) {
-        toast('Não foi possível ler os dados da NF. Tente uma imagem mais nítida.','err');
+      } catch(err) {
+        toast('Erro ao processar resposta: '+err.message,'err');
+        console.error('[NF] Error:', err);
       }
     })
     .catch(function(){
