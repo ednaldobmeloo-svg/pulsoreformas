@@ -5070,7 +5070,7 @@ function exportPDF() {
     if (secSub <= 0) return; // skip empty sections
 
     var items = (s.items||[]).filter(function(it){
-      return it.desc && (parseFloat(it.qty||0)>0 || parseFloat(it.price||0)>0);
+      return it.desc && it.desc.trim() !== '';
     });
     var hasManual = s.manualTotal !== undefined && s.manualTotal !== '' &&
                     s.manualTotal !== null && parseFloat(s.manualTotal) > 0;
