@@ -8496,213 +8496,296 @@ function openParcelasModal(id) {
 // ═══════════════════════════════════════════════════════════
 function buildRelatorioPanel(panel, bid, b, entries, insts, instStatus, receita, custo) {
   var obra = ODB.load()[bid] || {};
-
-  // ── Calculations ──
   var hoje = new Date();
 
-  // 1. % Etapas concluídas
+  // ── CALCULATIONS ──────────────────────────────────────────────
+  // Aditivos
+  var adits         = ADIT.load().filter(function(a){ return a.budgetId===bid; });
+  var aditsAprov    = adits.filter(function(a){ return a.status==='approved'; });
+  var aditReceita   = aditsAprov.reduce(function(s,a){ return s+parseFloat(a.total||0); },0);
+  var aditCusto     = getAditCustoTotal(bid);
+  var aditCustos    = getAditCustos(bid);  // array of cost entries
+
+  // Totals (already include aditivos via params)
+  var receitaTotal  = receita; // already = contrato + aditivos
+  var custoTotal    = custo;   // already = obra + aditivos
+
+  // % Etapas concluídas (seções)
   var workSecs  = (b.sections||[]).filter(function(s){ return calcSub(s)>0; });
   var secStatus = obra.secStatus || {};
   var secDone   = workSecs.filter(function(s){ return secStatus[s.id]==='done'; }).length;
   var pctEtapas = workSecs.length ? Math.round(secDone/workSecs.length*100) : 0;
 
-  // 2. % Orçamento gasto (custo / receita)
-  var pctOrcamento = receita>0 ? Math.min(100, Math.round(custo/receita*100)) : 0;
+  // % Orçamento + aditivos gasto
+  var pctOrcamento = receitaTotal>0 ? Math.min(100, Math.round(custoTotal/receitaTotal*100)) : 0;
 
-  // 3. % Recebido (financeiro realizado)
+  // % Recebido (financeiro)
   var totalRecebido = getRecebimentos(bid).reduce(function(s,r){return s+parseFloat(r.val||0);},0)
                     + getAditRecTotal(bid);
-  var pctRecebido   = receita>0 ? Math.min(100, Math.round(totalRecebido/receita*100)) : 0;
+  var pctRecebido   = receitaTotal>0 ? Math.min(100, Math.round(totalRecebido/receitaTotal*100)) : 0;
 
-  // 4. % Prazo corrido
+  // % Prazo corrido
   var prazoEmDias = parseInt(obra.prazoEmDias)||0;
-  var pctPrazo    = 0, diasCorridos = 0, diasRestantes = 0, dataTermino = null;
-  var startDate   = obra.startDate ? parseDateBR(obra.startDate) : null;
-
-  if (startDate && prazoEmDias>0) {
-    diasCorridos  = Math.max(0, Math.round((hoje - startDate) / (1000*60*60*24)));
-    diasRestantes = Math.max(0, prazoEmDias - diasCorridos);
+  var pctPrazo=0, diasCorridos=0, diasRestantes=0, dataTermino=null;
+  var startDate = obra.startDate ? parseDateBR(obra.startDate) : null;
+  if (startDate && !isNaN(startDate) && prazoEmDias>0) {
+    diasCorridos  = Math.max(0, Math.round((hoje-startDate)/(1000*60*60*24)));
+    diasRestantes = Math.max(0, prazoEmDias-diasCorridos);
     pctPrazo      = Math.min(100, Math.round(diasCorridos/prazoEmDias*100));
-    dataTermino   = new Date(startDate.getTime() + prazoEmDias*24*60*60*1000);
+    dataTermino   = new Date(startDate.getTime()+prazoEmDias*24*60*60*1000);
   }
 
-  // 5. Saldo financeiro
-  var resultado     = receita - custo;
-  var margem        = receita>0 ? (resultado/receita*100) : 0;
-  var aReceber      = Math.max(0, receita - totalRecebido);
+  // Financials
+  var resultado = receitaTotal - custoTotal;
+  var margem    = receitaTotal>0 ? (resultado/receitaTotal*100) : 0;
+  var aReceber  = Math.max(0, receitaTotal - totalRecebido);
 
-  // ── Status indicators ──
-  function statusClass(good, warn) {
-    if (good) return 'ok';
-    if (warn) return 'warn';
-    return 'danger';
-  }
+  // Derived status
+  var diffEtapasPrazo = pctPrazo>0 ? pctEtapas-pctPrazo : 0;
+  var diffOrcPrazo    = pctPrazo>0 ? pctOrcamento-pctPrazo : 0;
+  var atrasada = pctPrazo>100 || (pctPrazo>0 && diffEtapasPrazo < -15);
 
-  // Is obra ahead, on track, or behind?
-  var diffEtapasPrazo  = pctPrazo > 0 ? pctEtapas - pctPrazo : 0;  // positive = ahead
-  var diffOrcPrazo     = pctPrazo > 0 ? pctOrcamento - pctPrazo : 0; // positive = overspending vs time
-
-  panel.innerHTML = '';
-
-  // ── Header + Print button ──
-  var hdr = document.createElement('div');
-  hdr.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:18px';
-  hdr.innerHTML =
-    '<div>'+
-      '<div style="font-size:16px;font-weight:800;color:var(--wh)">📊 Relatório de Acompanhamento</div>'+
-      '<div style="font-size:11px;color:rgba(0,212,255,.4);margin-top:2px">Gerado em '+hoje.toLocaleDateString('pt-BR')+'</div>'+
-    '</div>';
-  var pdfBtn = document.createElement('button');
-  pdfBtn.className = 'btn btn-p btn-sm';
-  pdfBtn.innerHTML = '📄 Exportar PDF';
-  pdfBtn.addEventListener('click', function(){ exportRelPDF(bid, b, obra, {
-    pctEtapas, pctOrcamento, pctRecebido, pctPrazo,
-    diasCorridos, diasRestantes, prazoEmDias, dataTermino,
-    receita, custo, resultado, margem, totalRecebido, aReceber,
-    workSecs, secStatus, insts, instStatus
-  }); });
-  hdr.appendChild(pdfBtn);
-  panel.appendChild(hdr);
-
-  // ── Alerts ──
-  var alerts = [];
+  // Alerts
+  var alerts=[];
   if (prazoEmDias>0 && pctPrazo>0) {
-    if (diffEtapasPrazo < -15)
-      alerts.push({cls:'danger', icon:'🚨', msg:'Obra atrasada: '+Math.abs(diffEtapasPrazo).toFixed(0)+'% abaixo do esperado no prazo. Requer ação imediata.'});
-    else if (diffEtapasPrazo < -5)
-      alerts.push({cls:'warn', icon:'⚠️', msg:'Progresso levemente abaixo do prazo. Monitore de perto.'});
-    else if (diffEtapasPrazo >= 0)
-      alerts.push({cls:'ok', icon:'✅', msg:'Progresso dentro ou à frente do prazo. Obra no caminho certo.'});
-
-    if (diffOrcPrazo > 15)
-      alerts.push({cls:'danger', icon:'🚨', msg:'Custo consumiu '+pctOrcamento+'% do orçamento com apenas '+pctPrazo+'% do prazo decorrido. Risco de estouro.'});
-    else if (diffOrcPrazo > 5)
-      alerts.push({cls:'warn', icon:'⚠️', msg:'Consumo de orçamento ligeiramente acima do esperado para o prazo.'});
+    if (diffEtapasPrazo < -15) alerts.push({t:'danger', icon:'🚨', msg:'Obra atrasada: '+Math.abs(diffEtapasPrazo).toFixed(0)+'% abaixo do esperado. Ação imediata necessária.'});
+    else if (diffEtapasPrazo < -5) alerts.push({t:'warn', icon:'⚠️', msg:'Progresso levemente abaixo do prazo. Monitore de perto.'});
+    else alerts.push({t:'ok', icon:'✅', msg:'Obra no prazo. Progresso dentro do esperado.'});
+    if (diffOrcPrazo > 15) alerts.push({t:'danger', icon:'🚨', msg:'Custo consumiu '+pctOrcamento+'% com apenas '+pctPrazo+'% do prazo. Risco de estouro.'});
+    else if (diffOrcPrazo > 5) alerts.push({t:'warn', icon:'⚠️', msg:'Consumo de orçamento acima do esperado para o prazo.'});
   }
-  if (pctOrcamento >= 90 && pctEtapas < 80)
-    alerts.push({cls:'danger', icon:'🚨', msg:'Orçamento quase esgotado ('+pctOrcamento+'%) mas apenas '+pctEtapas+'% das etapas concluídas.'});
-  if (aReceber > 0)
-    alerts.push({cls:'warn', icon:'💰', msg:'Há '+fmt(aReceber)+' a receber do cliente ('+pctRecebido+'% da receita já recebida).'});
+  if (pctOrcamento>=90 && pctEtapas<80) alerts.push({t:'danger', icon:'🚨', msg:'Orçamento quase esgotado ('+pctOrcamento+'%) mas apenas '+pctEtapas+'% das etapas concluídas.'});
+  if (aditReceita>0) alerts.push({t:'warn', icon:'📋', msg:aditsAprov.length+' aditivo(s) aprovado(s) — '+fmt(aditReceita)+' já incluídos na receita e custo.'});
+  if (aReceber>0) alerts.push({t:'warn', icon:'💰', msg:fmt(aReceber)+' a receber do cliente ('+pctRecebido+'% já recebido).'});
 
-  if (alerts.length) {
-    var alertWrap = document.createElement('div');
-    alertWrap.style.marginBottom = '18px';
+  // ── BUILD UI ──────────────────────────────────────────────────
+  panel.innerHTML = '';
+  panel.style.cssText = 'background:transparent';
+
+  // Top bar
+  var topBar = document.createElement('div');
+  topBar.style.cssText='display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px';
+  topBar.innerHTML=
+    '<div>'+
+      '<div style="font-size:11px;color:rgba(0,212,255,.4);text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-bottom:4px">📊 Relatório de Acompanhamento</div>'+
+      '<div style="font-size:20px;font-weight:800;color:var(--wh)">'+esc(b.client||b.num||'Obra')+'</div>'+
+      '<div style="font-size:11px;color:rgba(0,212,255,.45);margin-top:2px">'+esc(b.obra||'')+(b.local?' · 📍'+esc(b.local):'')+'</div>'+
+    '</div>'+
+    '<div style="display:flex;gap:8px;align-items:center">'+
+      '<div style="font-size:10px;color:rgba(0,212,255,.3);text-align:right">Gerado em<br>'+hoje.toLocaleDateString('pt-BR')+'</div>'+
+    '</div>';
+  var pdfBtn=document.createElement('button');
+  pdfBtn.className='btn btn-p btn-sm';
+  pdfBtn.innerHTML='📄 Exportar PDF';
+  pdfBtn.addEventListener('click',function(){exportRelPDF(bid,b,obra,{
+    pctEtapas,pctOrcamento,pctRecebido,pctPrazo,
+    diasCorridos,diasRestantes,prazoEmDias,dataTermino,
+    receitaTotal,custoTotal,resultado,margem,totalRecebido,aReceber,
+    workSecs,secStatus,insts,instStatus,
+    aditReceita,aditCusto,aditsAprov
+  });});
+  topBar.querySelector('div:last-child').appendChild(pdfBtn);
+  panel.appendChild(topBar);
+
+  // Alerts
+  if(alerts.length){
+    var alertBox=document.createElement('div');
+    alertBox.style.cssText='display:flex;flex-direction:column;gap:6px;margin-bottom:18px';
     alerts.forEach(function(a){
-      alertWrap.innerHTML += '<div class="rel-alert '+a.cls+'"><span class="rel-alert-icon">'+a.icon+'</span><span>'+a.msg+'</span></div>';
+      alertBox.innerHTML+='<div class="rel-alert '+a.t+'"><span class="rel-alert-icon">'+a.icon+'</span><span>'+a.msg+'</span></div>';
     });
-    panel.appendChild(alertWrap);
+    panel.appendChild(alertBox);
   }
 
-  // ── 3 main gauges ──
-  var gaugeWrap = document.createElement('div');
-  gaugeWrap.className = 'rel-gauge-wrap';
+  // ── MAIN GAUGES ───────────────────────────────────────────────
+  var gaugesLabel=document.createElement('div');
+  gaugesLabel.style.cssText='font-size:10px;color:rgba(0,212,255,.35);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:10px';
+  gaugesLabel.textContent='Indicadores Principais';
+  panel.appendChild(gaugesLabel);
 
-  function gauge(title, pct, sub, color, compare) {
-    var cls = statusClass(pct >= (compare||pct)-5, pct >= (compare||pct)-15);
-    return '<div class="rel-gauge">'+
-      '<div class="rel-gauge-title">'+title+'</div>'+
-      '<div class="rel-gauge-big" style="color:'+color+'">'+pct+'<span style="font-size:18px">%</span></div>'+
-      '<div class="rel-gauge-bar"><div class="rel-gauge-fill" style="width:'+pct+'%;background:'+color+'"></div></div>'+
-      '<div class="rel-gauge-meta">'+sub+'</div>'+
-    '</div>';
-  }
+  var gaugeGrid=document.createElement('div');
+  gaugeGrid.style.cssText='display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:20px';
 
-  gaugeWrap.innerHTML =
-    gauge('% Etapas Concluídas', pctEtapas,
-      secDone+'/'+workSecs.length+' seções concluídas',
-      pctEtapas>=(pctPrazo-5)?'var(--gn)':'var(--rd)') +
-    gauge('% Orçamento Gasto', pctOrcamento,
-      fmt(custo)+' de '+fmt(receita),
-      pctOrcamento<=pctEtapas+10?'var(--gd)':'var(--rd)') +
-    (prazoEmDias>0
-      ? gauge('% Prazo Decorrido', pctPrazo,
-          diasCorridos+' de '+prazoEmDias+' dias',
-          'rgba(200,169,110,1)')
-      : '<div class="rel-gauge" style="display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px">'+
-          '<div style="font-size:11px;color:rgba(0,212,255,.3)">Prazo não definido</div>'+
-          '<div style="font-size:11px;color:rgba(0,212,255,.4)">Defina em ℹ️ Informações</div>'+
-        '</div>');
-  panel.appendChild(gaugeWrap);
-
-  // ── KPIs financeiros ──
-  var kpiTitle = document.createElement('div');
-  kpiTitle.className = 'rel-section-title';
-  kpiTitle.textContent = 'Resumo Financeiro';
-  panel.appendChild(kpiTitle);
-
-  var kpiGrid = document.createElement('div');
-  kpiGrid.className = 'rel-kpi-grid';
-  [
-    {l:'Receita Total',    v:fmt(receita),          c:'var(--gd)', cls:'neu'},
-    {l:'Custo Acumulado',  v:fmt(custo),            c:'var(--rd)', cls: pctOrcamento>90?'danger':pctOrcamento>70?'warn':'ok'},
-    {l:'Resultado',        v:fmt(resultado),        c:resultado>=0?'var(--gn)':'var(--rd)', cls:resultado>=0?'ok':'danger'},
-    {l:'Margem',           v:margem.toFixed(1)+'%', c:margem>=20?'var(--gn)':margem>=10?'var(--yw)':'var(--rd)', cls:margem>=20?'ok':margem>=10?'warn':'danger'},
-    {l:'Recebido',         v:fmt(totalRecebido),    c:'var(--gn)', cls:'ok'},
-    {l:'A Receber',        v:fmt(aReceber),         c:aReceber>0?'var(--yw)':'var(--gn)', cls:aReceber>0?'warn':'ok'},
-  ].forEach(function(k){
-    kpiGrid.innerHTML += '<div class="rel-kpi '+k.cls+'">'+
-      '<div class="rel-kpi-lbl">'+k.l+'</div>'+
-      '<div class="rel-kpi-val" style="color:'+k.c+'">'+k.v+'</div>'+
-    '</div>';
-  });
-  panel.appendChild(kpiGrid);
-
-  // ── Prazo detail ──
-  if (prazoEmDias>0 && startDate) {
-    var prazoTitle = document.createElement('div');
-    prazoTitle.className = 'rel-section-title';
-    prazoTitle.textContent = 'Cronograma';
-    panel.appendChild(prazoTitle);
-
-    var prazoGrid = document.createElement('div');
-    prazoGrid.className = 'rel-kpi-grid';
-    var atrasado = pctPrazo>100;
-    [
-      {l:'Início',            v:obra.startDate||'—',                    c:'var(--gd)', cls:'neu'},
-      {l:'Previsão Término',  v:dataTermino?dataTermino.toLocaleDateString('pt-BR'):'—', c:'var(--gd)', cls:'neu'},
-      {l:'Dias Corridos',     v:diasCorridos+' dias',                   c:'var(--cr)', cls:'neu'},
-      {l:'Dias Restantes',    v:atrasado?'ATRASADO':(diasRestantes+' dias'), c:atrasado?'var(--rd)':diasRestantes<7?'var(--yw)':'var(--gn)', cls:atrasado?'danger':diasRestantes<7?'warn':'ok'},
-    ].forEach(function(k){
-      prazoGrid.innerHTML += '<div class="rel-kpi '+k.cls+'">'+
-        '<div class="rel-kpi-lbl">'+k.l+'</div>'+
-        '<div class="rel-kpi-val" style="color:'+k.c+';font-size:18px">'+k.v+'</div>'+
+  function gaugeCard(title, pct, sub, mainColor, compareWith) {
+    var delta = compareWith!==undefined ? pct-compareWith : null;
+    var deltaHtml='';
+    if(delta!==null && compareWith>0){
+      var sign=delta>=0?'+':'';
+      var dc=delta>5?'var(--gn)':delta>-5?'var(--yw)':'var(--rd)';
+      deltaHtml='<div style="font-size:10px;color:'+dc+';margin-top:2px">'+sign+delta.toFixed(0)+'% vs prazo</div>';
+    }
+    // Arc SVG
+    var r=36, cx=44, cy=44, circumference=2*Math.PI*r;
+    var strokeDash=circumference*(pct/100);
+    var card=document.createElement('div');
+    card.style.cssText='background:rgba(0,8,24,.6);border:1px solid rgba(0,212,255,.1);border-radius:14px;padding:16px;position:relative;overflow:hidden';
+    card.innerHTML=
+      '<div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,'+mainColor+',transparent)"></div>'+
+      '<div style="font-size:10px;color:rgba(0,212,255,.4);text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-bottom:12px">'+title+'</div>'+
+      '<div style="display:flex;align-items:center;gap:14px">'+
+        '<div style="position:relative;flex-shrink:0">'+
+          '<svg width="88" height="88" viewBox="0 0 88 88">'+
+            '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="rgba(0,212,255,.08)" stroke-width="7"/>'+
+            '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+mainColor+'" stroke-width="7" '+
+              'stroke-dasharray="'+strokeDash.toFixed(1)+' '+circumference+'" stroke-dashoffset="'+circumference*0.25+'" stroke-linecap="round" opacity="0.9"/>'+
+            '<text x="'+cx+'" y="'+(cy+5)+'" text-anchor="middle" font-family="Barlow Condensed" font-weight="800" font-size="18" fill="'+mainColor+'">'+pct+'%</text>'+
+          '</svg>'+
+        '</div>'+
+        '<div>'+
+          '<div style="font-size:28px;font-weight:800;font-family:\'Barlow Condensed\',sans-serif;color:'+mainColor+';line-height:1">'+pct+'<span style="font-size:16px">%</span></div>'+
+          '<div style="font-size:11px;color:rgba(0,212,255,.4);margin-top:4px;line-height:1.4">'+sub+'</div>'+
+          deltaHtml+
+        '</div>'+
       '</div>';
-    });
-    panel.appendChild(prazoGrid);
+    return card;
   }
 
-  // ── Etapas detail ──
-  if (workSecs.length) {
-    var etapaTitle = document.createElement('div');
-    etapaTitle.className = 'rel-section-title';
-    etapaTitle.textContent = 'Status das Seções / Etapas';
-    panel.appendChild(etapaTitle);
+  gaugeGrid.appendChild(gaugeCard('Etapas Concluídas', pctEtapas,
+    secDone+'/'+workSecs.length+' seções',
+    pctEtapas>=(pctPrazo-5)?'rgba(0,255,136,1)':'rgba(255,68,102,1)', pctPrazo));
 
-    var etapaList = document.createElement('div');
-    workSecs.forEach(function(s){
-      var done = secStatus[s.id]==='done';
-      var sub = calcSub(s);
-      var pctSub = receita>0 ? (sub/receita*100).toFixed(1) : 0;
-      etapaList.innerHTML +=
-        '<div class="rel-etapa-row">'+
-          '<span class="rel-etapa-name">'+(done?'✅':'⏳')+' '+esc(s.name||'Seção')+'</span>'+
-          '<span style="font-size:11px;color:rgba(0,212,255,.35)">'+fmt(sub)+' ('+pctSub+'%)</span>'+
-          '<span class="rel-etapa-pct" style="color:'+(done?'var(--gn)':'rgba(180,220,255,.4)');'">'+(done?'Concluída':'Pendente')+'</span>'+
+  gaugeGrid.appendChild(gaugeCard('Orçamento Gasto', pctOrcamento,
+    fmt(custoTotal)+' de '+fmt(receitaTotal),
+    pctOrcamento<=pctEtapas+10?'rgba(0,212,255,1)':'rgba(255,68,102,1)', pctEtapas));
+
+  gaugeGrid.appendChild(gaugeCard('Receita Recebida', pctRecebido,
+    fmt(totalRecebido)+' recebido',
+    'rgba(0,255,136,.85)', undefined));
+
+  if(prazoEmDias>0){
+    gaugeGrid.appendChild(gaugeCard('Prazo Decorrido', pctPrazo,
+      diasCorridos+' de '+prazoEmDias+' dias',
+      'rgba(200,169,110,1)', undefined));
+  }
+  panel.appendChild(gaugeGrid);
+
+  // ── FINANCIAL STRIP ───────────────────────────────────────────
+  var finLabel=document.createElement('div');
+  finLabel.style.cssText='font-size:10px;color:rgba(0,212,255,.35);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:10px';
+  finLabel.textContent='Resumo Financeiro';
+  panel.appendChild(finLabel);
+
+  var finStrip=document.createElement('div');
+  finStrip.style.cssText='display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:20px';
+  [
+    {l:'Receita Total',   v:fmt(receitaTotal),  c:'var(--gd)'},
+    {l:'Custo Total',     v:fmt(custoTotal),    c:pctOrcamento>90?'var(--rd)':pctOrcamento>70?'var(--yw)':'var(--cr)'},
+    {l:'Resultado',       v:fmt(resultado),     c:resultado>=0?'var(--gn)':'var(--rd)'},
+    {l:'Margem',          v:margem.toFixed(1)+'%', c:margem>=20?'var(--gn)':margem>=10?'var(--yw)':'var(--rd)'},
+    {l:'Recebido',        v:fmt(totalRecebido), c:'var(--gn)'},
+    {l:'A Receber',       v:fmt(aReceber),      c:aReceber>0?'var(--yw)':'var(--gn)'},
+  ].forEach(function(k){
+    finStrip.innerHTML+=
+      '<div style="background:rgba(0,8,24,.55);border:1px solid rgba(0,212,255,.08);border-radius:10px;padding:10px 12px">'+
+        '<div style="font-size:9px;color:rgba(0,212,255,.4);text-transform:uppercase;letter-spacing:.06em;font-weight:700;margin-bottom:4px">'+k.l+'</div>'+
+        '<div style="font-size:16px;font-weight:800;font-family:\'Barlow Condensed\',sans-serif;color:'+k.c+'">'+k.v+'</div>'+
+      '</div>';
+  });
+  panel.appendChild(finStrip);
+
+  // ── ADITIVOS STRIP ────────────────────────────────────────────
+  if(adits.length){
+    var aditLabel=document.createElement('div');
+    aditLabel.style.cssText='font-size:10px;color:rgba(200,169,110,.6);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:10px';
+    aditLabel.textContent='Aditivos';
+    panel.appendChild(aditLabel);
+
+    var aditStrip=document.createElement('div');
+    aditStrip.style.cssText='display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:20px';
+    [
+      {l:'Aditivos Aprovados', v:fmt(aditReceita),                   c:'rgba(200,169,110,1)'},
+      {l:'Custo Aditivos',     v:fmt(aditCusto),                     c:'var(--rd)'},
+      {l:'Resultado Aditivos', v:fmt(aditReceita-aditCusto),          c:(aditReceita-aditCusto)>=0?'var(--gn)':'var(--rd)'},
+      {l:'Qtd. Aditivos',      v:aditsAprov.length+'/'+adits.length, c:'rgba(200,169,110,1)'},
+    ].forEach(function(k){
+      aditStrip.innerHTML+=
+        '<div style="background:rgba(200,169,110,.04);border:1px solid rgba(200,169,110,.12);border-radius:10px;padding:10px 12px">'+
+          '<div style="font-size:9px;color:rgba(200,169,110,.5);text-transform:uppercase;letter-spacing:.06em;font-weight:700;margin-bottom:4px">'+k.l+'</div>'+
+          '<div style="font-size:16px;font-weight:800;font-family:\'Barlow Condensed\',sans-serif;color:'+k.c+'">'+k.v+'</div>'+
         '</div>';
     });
-    panel.appendChild(etapaList);
+    panel.appendChild(aditStrip);
+  }
+
+  // ── TIMELINE BAR ─────────────────────────────────────────────
+  if(prazoEmDias>0 && startDate){
+    var tlLabel=document.createElement('div');
+    tlLabel.style.cssText='font-size:10px;color:rgba(0,212,255,.35);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:10px';
+    tlLabel.textContent='Cronograma';
+    panel.appendChild(tlLabel);
+
+    var tlCard=document.createElement('div');
+    tlCard.style.cssText='background:rgba(0,8,24,.6);border:1px solid rgba(0,212,255,.1);border-radius:12px;padding:16px;margin-bottom:20px';
+
+    // Timeline bar
+    var prazoPct=Math.min(100,pctPrazo);
+    var etapaPct=Math.min(100,pctEtapas);
+    tlCard.innerHTML=
+      '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:14px">'+
+        '<div><div style="font-size:9px;color:rgba(0,212,255,.4);margin-bottom:3px">Início</div><div style="font-size:13px;font-weight:700;color:var(--wh)">'+esc(obra.startDate||'—')+'</div></div>'+
+        '<div><div style="font-size:9px;color:rgba(0,212,255,.4);margin-bottom:3px">Prazo</div><div style="font-size:13px;font-weight:700;color:var(--wh)">'+prazoEmDias+' dias</div></div>'+
+        '<div><div style="font-size:9px;color:rgba(0,212,255,.4);margin-bottom:3px">Dias corridos</div><div style="font-size:13px;font-weight:700;color:'+( diasCorridos>prazoEmDias?'var(--rd)':'var(--yw)')+'">'+diasCorridos+' dias</div></div>'+
+        '<div><div style="font-size:9px;color:rgba(0,212,255,.4);margin-bottom:3px">Término previsto</div><div style="font-size:13px;font-weight:700;color:var(--gd)">'+(dataTermino?dataTermino.toLocaleDateString('pt-BR'):'—')+'</div></div>'+
+      '</div>'+
+      // Dual progress bars
+      '<div style="margin-bottom:10px">'+
+        '<div style="display:flex;justify-content:space-between;font-size:10px;color:rgba(0,212,255,.4);margin-bottom:5px"><span>⏱ Prazo decorrido</span><span style="color:rgba(200,169,110,.8)">'+prazoPct+'%</span></div>'+
+        '<div style="background:rgba(200,169,110,.08);border-radius:20px;height:8px;overflow:hidden">'+
+          '<div style="height:100%;width:'+prazoPct+'%;background:linear-gradient(90deg,rgba(200,169,110,.6),rgba(200,169,110,1));border-radius:20px"></div>'+
+        '</div>'+
+      '</div>'+
+      '<div>'+
+        '<div style="display:flex;justify-content:space-between;font-size:10px;color:rgba(0,212,255,.4);margin-bottom:5px"><span>🏗️ Etapas concluídas</span><span style="color:'+(etapaPct>=prazoPct?'var(--gn)':'var(--rd)')+'">'+etapaPct+'%</span></div>'+
+        '<div style="background:rgba(0,255,136,.08);border-radius:20px;height:8px;overflow:hidden">'+
+          '<div style="height:100%;width:'+etapaPct+'%;background:linear-gradient(90deg,rgba(0,255,136,.5),rgba(0,255,136,1));border-radius:20px"></div>'+
+        '</div>'+
+      '</div>'+
+      (diasRestantes<7&&!atrasada?'<div style="margin-top:10px;font-size:11px;color:var(--yw)">⚠️ Apenas '+diasRestantes+' dias restantes!</div>':'')+
+      (pctPrazo>=100&&pctEtapas<100?'<div style="margin-top:10px;font-size:11px;color:var(--rd)">🚨 Prazo encerrado com '+pctEtapas+'% das etapas concluídas.</div>':'');
+    panel.appendChild(tlCard);
+  }
+
+  // ── ETAPAS GRID ───────────────────────────────────────────────
+  if(workSecs.length){
+    var secLabel=document.createElement('div');
+    secLabel.style.cssText='font-size:10px;color:rgba(0,212,255,.35);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:10px';
+    secLabel.textContent='Status das Seções';
+    panel.appendChild(secLabel);
+
+    var secGrid=document.createElement('div');
+    secGrid.style.cssText='display:flex;flex-direction:column;gap:6px;margin-bottom:16px';
+    workSecs.forEach(function(s){
+      var done=secStatus[s.id]==='done';
+      var sub=calcSub(s);
+      var pctSec=receitaTotal>0?(sub/receitaTotal*100).toFixed(1):0;
+      var fillW=Math.min(100,parseFloat(pctSec));
+      secGrid.innerHTML+=
+        '<div style="background:rgba(0,8,24,.5);border:1px solid rgba(0,212,255,'+(done?'.15':'.07')+');border-radius:9px;padding:10px 14px;position:relative;overflow:hidden">'+
+          '<div style="position:absolute;top:0;left:0;bottom:0;width:'+fillW+'%;background:rgba('+(done?'0,255,136':'0,212,255')+',.04);border-radius:9px 0 0 9px;transition:width .4s"></div>'+
+          '<div style="position:relative;display:flex;align-items:center;justify-content:space-between">'+
+            '<div style="display:flex;align-items:center;gap:8px">'+
+              '<span style="font-size:14px">'+(done?'✅':'⏳')+'</span>'+
+              '<div>'+
+                '<div style="font-size:12px;font-weight:700;color:var(--cr)">'+esc(s.name||'Seção')+'</div>'+
+                '<div style="font-size:10px;color:rgba(0,212,255,.35);margin-top:2px">'+fmt(sub)+' · '+pctSec+'% do total</div>'+
+              '</div>'+
+            '</div>'+
+            '<span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;background:rgba('+(done?'0,255,136':'180,220,255')+',.08);color:'+(done?'var(--gn)':'rgba(180,220,255,.4)')+';">'+(done?'Concluída':'Pendente')+'</span>'+
+          '</div>'+
+        '</div>';
+    });
+    panel.appendChild(secGrid);
   }
 }
 
-// ── Export PDF ────────────────────────────────────────────────────
 function exportRelPDF(bid, b, obra, data) {
   var jsPDF = window.jspdf.jsPDF;
   var doc = new jsPDF({unit:'mm', format:'a4'});
   var W=210, ML=16, MR=16, y=0;
   var CW=W-ML-MR;
-  var hoje = new Date();
+  var hoje=new Date();
 
-  function checkPage(h){ if(y+h>272){doc.addPage();y=20;} }
+  function checkPage(h){if(y+h>272){doc.addPage();y=20;}}
   function secHdr(title){
     checkPage(12);
     doc.setFillColor(28,43,74); doc.rect(ML,y,CW,8,'F');
@@ -8716,137 +8799,145 @@ function exportRelPDF(bid, b, obra, data) {
   doc.setFillColor(28,43,74); doc.rect(0,0,W,40,'F');
   try{doc.addImage(_LOGO,'PNG',ML,5,28,28);}catch(e){}
   doc.setTextColor(240,236,228); doc.setFont('helvetica','bold'); doc.setFontSize(13);
-  doc.text('RELATÓRIO DE ACOMPANHAMENTO DE OBRA', W/2,15,{align:'center'});
+  doc.text('RELATÓRIO DE ACOMPANHAMENTO DE OBRA',W/2,15,{align:'center'});
   doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
-  doc.text('PULSO REFORMAS · Construção Civil e Reformas', W/2,22,{align:'center'});
+  doc.text('PULSO REFORMAS · Construção Civil e Reformas',W/2,22,{align:'center'});
   doc.setFillColor(200,169,110); doc.rect(0,40,W,2,'F');
   doc.setFillColor(17,29,51); doc.rect(0,42,W,11,'F');
   doc.setTextColor(200,169,110); doc.setFont('helvetica','bold'); doc.setFontSize(9);
-  doc.text('OBRA: '+esc(b.num||'—')+' · '+esc(b.client||''), ML,50);
+  doc.text('OBRA: '+esc(b.num||'—')+' · '+esc(b.client||''),ML,50);
   doc.setTextColor(200,200,200); doc.setFont('helvetica','normal');
-  doc.text('Gerado em: '+hoje.toLocaleDateString('pt-BR'), W-MR,50,{align:'right'});
+  doc.text('Gerado em: '+hoje.toLocaleDateString('pt-BR'),W-MR,50,{align:'right'});
   y=60;
 
-  // Obra info row
+  // Info row
   doc.setTextColor(40,55,75); doc.setFontSize(9);
-  doc.setFont('helvetica','bold'); doc.text('Serviço:', ML,y);
-  doc.setFont('helvetica','normal'); doc.text(esc(b.obra||'—'), ML+22,y);
-  doc.setFont('helvetica','bold'); doc.text('Local:', ML+90,y);
-  doc.setFont('helvetica','normal'); doc.text(esc(b.local||'—'), ML+103,y);
-  y+=8;
-  if (obra.startDate) {
-    doc.setFont('helvetica','bold'); doc.text('Início:', ML,y);
-    doc.setFont('helvetica','normal'); doc.text(esc(obra.startDate), ML+22,y);
-  }
-  if (data.prazoEmDias>0) {
-    doc.setFont('helvetica','bold'); doc.text('Prazo:', ML+60,y);
-    doc.setFont('helvetica','normal'); doc.text(data.prazoEmDias+' dias úteis', ML+78,y);
-    if (data.dataTermino) {
-      doc.setFont('helvetica','bold'); doc.text('Prev. Término:', ML+115,y);
-      doc.setFont('helvetica','normal'); doc.text(data.dataTermino.toLocaleDateString('pt-BR'), ML+148,y);
-    }
-  }
+  doc.setFont('helvetica','bold'); doc.text('Serviço:',ML,y);
+  doc.setFont('helvetica','normal'); doc.text(esc(b.obra||'—'),ML+20,y);
+  doc.setFont('helvetica','bold'); doc.text('Local:',ML+90,y);
+  doc.setFont('helvetica','normal'); doc.text(esc(b.local||'—'),ML+102,y);
+  y+=7;
+  if(obra.startDate){ doc.setFont('helvetica','bold'); doc.text('Início:',ML,y); doc.setFont('helvetica','normal'); doc.text(esc(obra.startDate),ML+20,y); }
+  if(data.prazoEmDias>0){ doc.setFont('helvetica','bold'); doc.text('Prazo:',ML+60,y); doc.setFont('helvetica','normal'); doc.text(data.prazoEmDias+' dias úteis',ML+75,y); }
+  if(data.dataTermino){ doc.setFont('helvetica','bold'); doc.text('Término:',ML+115,y); doc.setFont('helvetica','normal'); doc.text(data.dataTermino.toLocaleDateString('pt-BR'),ML+132,y); }
   y+=12;
 
-  // ── Gauges as table ──
+  // Gauges as 4-col bar
   secHdr('INDICADORES PRINCIPAIS');
-  var cols = [
-    ['% Etapas Concluídas', data.pctEtapas+'%', data.pctEtapas>=(data.pctPrazo-5)?[0,180,100]:[220,60,60]],
-    ['% Orçamento Gasto',   data.pctOrcamento+'%', data.pctOrcamento<=data.pctEtapas+10?[0,150,220]:[220,60,60]],
-    ['% Prazo Decorrido',   data.prazoEmDias>0?(data.pctPrazo+'%'):'—', [200,169,110]],
-    ['% Receita Recebida',  data.pctRecebido+'%', [0,180,100]],
+  var gauges=[
+    ['% Etapas',     data.pctEtapas,     [0,200,120]],
+    ['% Orç. Gasto', data.pctOrcamento,  data.pctOrcamento<=data.pctEtapas+10?[0,150,220]:[220,60,60]],
+    ['% Recebido',   data.pctRecebido,   [0,200,120]],
+    ['% Prazo',      data.prazoEmDias>0?data.pctPrazo:0,[200,169,110]],
   ];
-  var colW = CW/cols.length;
-  cols.forEach(function(col, i){
-    var x = ML + i*colW;
-    doc.setFillColor(240,244,250); doc.roundedRect(x+1,y,colW-2,22,1,1,'F');
+  var gW=CW/4;
+  gauges.forEach(function(g,i){
+    var x=ML+i*gW;
+    doc.setFillColor(240,244,250); doc.roundedRect(x+1,y,gW-2,20,1,1,'F');
     doc.setTextColor(80,100,135); doc.setFont('helvetica','normal'); doc.setFontSize(7.5);
-    doc.text(col[0], x+colW/2,y+7, {align:'center'});
-    doc.setFont('helvetica','bold'); doc.setFontSize(18);
-    doc.setTextColor(col[2][0],col[2][1],col[2][2]);
-    doc.text(col[1], x+colW/2,y+18, {align:'center'});
+    doc.text(g[0],x+gW/2,y+7,{align:'center'});
+    doc.setFont('helvetica','bold'); doc.setFontSize(16);
+    doc.setTextColor(g[2][0],g[2][1],g[2][2]);
+    doc.text((data.prazoEmDias>0||g[0]!=='% Prazo')?(g[1]+'%'):'—',x+gW/2,y+17,{align:'center'});
   });
-  y+=28;
-
-  // Progress bars for each gauge
-  cols.forEach(function(col, i){
-    var pct = parseInt(col[1])||0;
-    var x = ML + i*colW;
-    doc.setFillColor(230,235,245); doc.roundedRect(x+2,y,colW-4,3,1,1,'F');
-    doc.setFillColor(col[2][0],col[2][1],col[2][2]);
-    doc.roundedRect(x+2,y,Math.max(0,(colW-4)*pct/100),3,1,1,'F');
+  y+=24;
+  gauges.forEach(function(g,i){
+    var x=ML+i*gW; var pct=Math.min(100,g[1]);
+    doc.setFillColor(230,235,245); doc.roundedRect(x+2,y,gW-4,3,1,1,'F');
+    doc.setFillColor(g[2][0],g[2][1],g[2][2]);
+    if(pct>0) doc.roundedRect(x+2,y,Math.max(1,(gW-4)*pct/100),3,1,1,'F');
   });
   y+=10;
 
-  // ── Financial summary ──
+  // Financial
   secHdr('RESUMO FINANCEIRO');
-  var finRows = [
-    ['Receita Total',   fmt(data.receita),       [28,43,74],    [200,169,110]],
-    ['Custo Acumulado', fmt(data.custo),          [255,242,242], [200,60,60]],
-    ['Resultado',       fmt(data.resultado),      data.resultado>=0?[242,255,248]:[255,242,242], data.resultado>=0?[0,160,90]:[200,60,60]],
-    ['Margem',          data.margem.toFixed(1)+'%', [242,248,255],[28,43,160]],
-    ['Recebido',        fmt(data.totalRecebido),  [242,255,248], [0,160,90]],
-    ['A Receber',       fmt(data.aReceber),       [255,252,235], [180,140,0]],
+  var finRows=[
+    ['Receita Total (contrato + aditivos)', fmt(data.receitaTotal), [200,169,110]],
+    ['Custo Total (obra + aditivos)',       fmt(data.custoTotal),   [200,60,60]],
+    ['Resultado Líquido',                  fmt(data.resultado),    data.resultado>=0?[0,160,90]:[200,60,60]],
+    ['Margem',                             data.margem.toFixed(1)+'%', data.margem>=20?[0,160,90]:data.margem>=10?[180,140,0]:[200,60,60]],
+    ['Total Recebido',                     fmt(data.totalRecebido),[0,160,90]],
+    ['A Receber',                          fmt(data.aReceber),     data.aReceber>0?[180,140,0]:[0,160,90]],
   ];
-  finRows.forEach(function(row,i){
+  finRows.forEach(function(r,i){
     checkPage(8);
     if(i%2===0){doc.setFillColor(248,249,252);}else{doc.setFillColor(255,255,255);}
     doc.rect(ML,y,CW,7,'F');
-    doc.setFont('helvetica','bold'); doc.setFontSize(8.5);
-    doc.setTextColor(80,100,135); doc.text(row[0], ML+3,y+5);
-    doc.setFont('helvetica','bold'); doc.setFontSize(10);
-    doc.setTextColor(row[3][0],row[3][1],row[3][2]);
-    doc.text(row[1], W-MR-3,y+5,{align:'right'});
+    doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(60,80,110);
+    doc.text(r[0],ML+3,y+5);
+    doc.setFont('helvetica','bold'); doc.setTextColor(r[2][0],r[2][1],r[2][2]);
+    doc.text(r[1],W-MR-3,y+5,{align:'right'});
     y+=7;
   });
-  y+=6;
+  y+=5;
 
-  // ── Cronograma ──
-  if (data.prazoEmDias>0 && obra.startDate) {
+  // Aditivos
+  if(data.aditsAprov && data.aditsAprov.length){
+    secHdr('ADITIVOS');
+    var aRows=[
+      ['Receita de aditivos aprovados', fmt(data.aditReceita),[200,169,110]],
+      ['Custo lançado nos aditivos',    fmt(data.aditCusto),  [200,60,60]],
+      ['Resultado dos aditivos',        fmt(data.aditReceita-data.aditCusto),(data.aditReceita-data.aditCusto)>=0?[0,160,90]:[200,60,60]],
+    ];
+    aRows.forEach(function(r,i){
+      checkPage(8);
+      if(i%2===0){doc.setFillColor(252,250,245);}else{doc.setFillColor(255,255,255);}
+      doc.rect(ML,y,CW,7,'F');
+      doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(60,80,110);
+      doc.text(r[0],ML+3,y+5);
+      doc.setFont('helvetica','bold'); doc.setTextColor(r[2][0],r[2][1],r[2][2]);
+      doc.text(r[1],W-MR-3,y+5,{align:'right'});
+      y+=7;
+    });
+    y+=5;
+  }
+
+  // Cronograma
+  if(data.prazoEmDias>0 && obra.startDate){
     secHdr('CRONOGRAMA');
-    var crons = [
-      ['Data de Início', esc(obra.startDate)],
-      ['Prazo Total', data.prazoEmDias+' dias úteis'],
-      ['Dias Corridos', data.diasCorridos+' dias'],
-      ['Dias Restantes', data.diasCorridos>data.prazoEmDias?'ATRASADO':(data.diasRestantes+' dias')],
+    var cRows=[
+      ['Data de Início',      esc(obra.startDate)],
+      ['Prazo Total',         data.prazoEmDias+' dias úteis'],
+      ['Dias Corridos',       data.diasCorridos+' dias'],
+      ['Dias Restantes',      data.diasCorridos>data.prazoEmDias?'ATRASADO':(data.diasRestantes+' dias')],
       ['Previsão de Término', data.dataTermino?data.dataTermino.toLocaleDateString('pt-BR'):'—'],
     ];
-    crons.forEach(function(c,i){
+    cRows.forEach(function(c,i){
       checkPage(7);
       if(i%2===0){doc.setFillColor(248,249,252);}else{doc.setFillColor(255,255,255);}
       doc.rect(ML,y,CW,6.5,'F');
       doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(80,100,135);
-      doc.text(c[0]+':', ML+3,y+4.5);
+      doc.text(c[0]+':',ML+3,y+4.5);
       doc.setFont('helvetica','normal'); doc.setTextColor(40,55,75);
-      doc.text(c[1], ML+60,y+4.5);
+      doc.text(c[1],ML+60,y+4.5);
       y+=6.5;
     });
     y+=5;
   }
 
-  // ── Etapas ──
-  if (data.workSecs && data.workSecs.length) {
-    secHdr('STATUS DAS ETAPAS / SEÇÕES');
+  // Etapas
+  if(data.workSecs && data.workSecs.length){
+    secHdr('STATUS DAS SEÇÕES / ETAPAS');
     doc.setFillColor(237,241,248); doc.rect(ML,y,CW,6.5,'F');
     doc.setTextColor(80,100,140); doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
-    doc.text('SEÇÃO', ML+3,y+4.5);
-    doc.text('VALOR', ML+CW*0.55,y+4.5,{align:'center'});
-    doc.text('% DO TOTAL', ML+CW*0.75,y+4.5,{align:'center'});
-    doc.text('STATUS', W-MR-3,y+4.5,{align:'right'});
+    doc.text('SEÇÃO',ML+3,y+4.5);
+    doc.text('VALOR',ML+CW*0.55,y+4.5,{align:'center'});
+    doc.text('% TOTAL',ML+CW*0.75,y+4.5,{align:'center'});
+    doc.text('STATUS',W-MR-3,y+4.5,{align:'right'});
     y+=7;
     data.workSecs.forEach(function(s,i){
       checkPage(7);
-      var done = data.secStatus[s.id]==='done';
-      var sub = calcSub(s);
+      var done=data.secStatus[s.id]==='done';
+      var sub=calcSub(s);
       if(i%2===0){doc.setFillColor(252,253,255);}else{doc.setFillColor(255,255,255);}
       doc.rect(ML,y,CW,7,'F');
       doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(40,55,75);
-      doc.text((done?'✓ ':'○ ')+esc(s.name||'Seção'), ML+3,y+5);
-      doc.text(fmt(sub), ML+CW*0.55,y+5,{align:'center'});
-      doc.text((data.receita>0?(sub/data.receita*100).toFixed(1):0)+'%', ML+CW*0.75,y+5,{align:'center'});
+      doc.text((done?'✓ ':'○ ')+esc(s.name||'Seção'),ML+3,y+5);
+      doc.text(fmt(sub),ML+CW*0.55,y+5,{align:'center'});
+      doc.text((data.receitaTotal>0?(sub/data.receitaTotal*100).toFixed(1):0)+'%',ML+CW*0.75,y+5,{align:'center'});
       doc.setFont('helvetica','bold');
-      if(done){doc.setTextColor(0,160,90);}else{doc.setTextColor(150,165,185);}
-      doc.text(done?'Concluída':'Pendente', W-MR-3,y+5,{align:'right'});
+      doc.setTextColor(done?0:150, done?160:165, done?90:185);
+      doc.text(done?'Concluída':'Pendente',W-MR-3,y+5,{align:'right'});
       y+=7;
     });
     y+=5;
@@ -8859,13 +8950,14 @@ function exportRelPDF(bid, b, obra, data) {
     doc.setFillColor(28,43,74); doc.rect(0,287,W,10,'F');
     doc.setFillColor(200,169,110); doc.rect(0,287,W,1,'F');
     doc.setTextColor(150,170,200); doc.setFont('helvetica','normal'); doc.setFontSize(7);
-    doc.text('PULSO REFORMAS · Relatório: '+esc(b.num||'—')+' · '+esc(b.client||''), W/2,292.5,{align:'center'});
-    doc.text('Pág. '+pi+'/'+pages, W-MR,292.5,{align:'right'});
+    doc.text('PULSO REFORMAS · Relatório: '+esc(b.num||'—')+' · '+esc(b.client||''),W/2,292.5,{align:'center'});
+    doc.text('Pág. '+pi+'/'+pages,W-MR,292.5,{align:'right'});
   }
 
   doc.save('Relatorio-'+esc(b.num||'SN')+'-'+hoje.toLocaleDateString('pt-BR').replace(/\//g,'-')+'.pdf');
   toast('📄 Relatório exportado!');
 }
+
 
 // ── BACKUP / RESTORE ────────────────────────────────────────────
 function exportAllData(){
