@@ -1159,6 +1159,27 @@ select.fi option{background:#06121e}
 .rel-etapa-name{color:var(--cr)}
 .rel-etapa-pct{font-weight:700;color:var(--gd);text-align:right}
 
+
+/* ── CONSOLIDATED KPIs ──────────────────────────────── */
+.consolidado-section{margin-bottom:18px}
+.consolidado-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.consolidado-title{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:rgba(0,255,136,.7);text-transform:uppercase;letter-spacing:.08em}
+.consolidado-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.2);color:var(--gn)}
+.stat-consolidado{background:rgba(0,8,24,.55);border:1px solid rgba(0,255,136,.15);border-radius:var(--r1);padding:18px 20px;position:relative;overflow:hidden}
+.stat-consolidado::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gn),transparent)}
+.stat-consolidado .lbl{font-size:11px;color:rgba(0,212,255,.5);text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-bottom:6px}
+.stat-consolidado .val{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;line-height:1.1}
+.stat-consolidado .val.pos{color:var(--gn)}
+.stat-consolidado .val.neg{color:var(--rd)}
+.stat-consolidado .val.neu{color:var(--gd)}
+.stat-consolidado .val.warn{color:var(--yw)}
+/* ── RELATÓRIO ───────────────────────────────────────── */
+.rel-alert{display:flex;align-items:flex-start;gap:10px;padding:12px 16px;border-radius:10px;margin-bottom:8px;font-size:12px}
+.rel-alert.ok{background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.15);color:rgba(0,255,136,.8)}
+.rel-alert.warn{background:rgba(255,209,102,.06);border:1px solid rgba(255,209,102,.15);color:rgba(255,209,102,.8)}
+.rel-alert.danger{background:rgba(255,68,102,.06);border:1px solid rgba(255,68,102,.15);color:rgba(255,68,102,.8)}
+.rel-alert-icon{font-size:16px;flex-shrink:0}
+
 </style>
 </head>
 <body>
@@ -1958,7 +1979,17 @@ function renderDash() {
         '<div style="font-size:10px;color:rgba(0,212,255,.4)">Margem<br><span style="font-size:12px;font-weight:700;color:' + (aditMargem>=20?'var(--gn)':aditMargem>=0?'var(--yw)':'var(--rd)') + '">' + aditMargem.toFixed(1) + '%</span></div>' +
       '</div>' +
       '<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:' + (aditValAprov>0?Math.min(100,aditCustoTotal/aditValAprov*100).toFixed(0):0) + '%;background:rgba(200,169,110,.7)"></div></div>' +
-    '</div>';
+    '</div>' +
+    (function(){
+      var tRec=appr.reduce(function(s,b){return s+getRecebimentos(b.id).reduce(function(r,e){return r+parseFloat(e.val||0);},0)+getAditRecTotal(b.id);},0);
+      var aRec=Math.max(0,aVal-tRec);
+      var pct=aVal>0?Math.min(100,tRec/aVal*100).toFixed(0):0;
+      return '<div class="stat"><div class="lbl">A Receber</div>'+
+        '<div class="val '+(aRec>0?'warn':'pos')+'" style="font-size:18px;margin-top:4px">'+fmt(aRec)+'</div>'+
+        '<div style="font-size:10px;color:rgba(0,212,255,.35);margin-top:4px">'+fmt(tRec)+' recebido de '+fmt(aVal)+'</div>'+
+        '<div class="prog-bar" style="margin-top:8px"><div class="prog-fill" style="width:'+pct+'%;background:var(--gn)"></div></div>'+
+      '</div>';
+    })();
 
   if (typeof Chart === 'undefined') { renderRecentList(all); return; }
   Chart.defaults.color = 'rgba(240,236,228,0.45)';
@@ -4104,7 +4135,7 @@ function buildCard(b) {
       '<div class="bi-acts">' +
         '<button class="btn btn-g btn-xs" data-act="edit" data-id="' + b.id + '">✏️ Editar</button>' +
         '<button class="btn btn-g btn-xs" data-act="status" data-id="' + b.id + '">🔄 Status</button>' +
-        '<button class="btn btn-g btn-xs" data-act="dup" data-id="' + b.id + '" title="Duplicar">⧉ Duplicar</button>' +
+        '<button class="btn btn-g btn-xs" data-act="dup" data-id="' + b.id + '">⧉ Duplicar</button>' +
         '<button class="btn btn-r btn-xs" data-act="del" data-id="' + b.id + '">🗑️</button>' +
       '</div>' +
     '</div>';
