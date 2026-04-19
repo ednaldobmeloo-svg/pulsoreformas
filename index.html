@@ -986,20 +986,37 @@ select.fi option{background:#06121e}
 .adit-section-divider{font-size:10px;font-weight:700;color:rgba(0,212,255,.4);text-transform:uppercase;letter-spacing:.06em;margin:10px 0 6px;padding-top:10px;border-top:1px solid rgba(0,212,255,.06)}
 
 
-/* ── CONSOLIDATED KPIs ──────────────────────────────── */
-.consolidado-section{margin-bottom:18px}
-.consolidado-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.consolidado-title{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:rgba(0,255,136,.7);text-transform:uppercase;letter-spacing:.08em}
-.consolidado-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.2);color:var(--gn)}
-.stat-consolidado{background:rgba(0,8,24,.55);border:1px solid rgba(0,255,136,.15);border-radius:var(--r1);padding:18px 20px;position:relative;overflow:hidden}
-.stat-consolidado::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gn),transparent)}
-.stat-consolidado .lbl{font-size:11px;color:rgba(0,212,255,.5);text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-bottom:6px}
-.stat-consolidado .val{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;line-height:1.1}
-.stat-consolidado .val.pos{color:var(--gn);text-shadow:0 0 12px rgba(0,255,136,.3)}
-.stat-consolidado .val.neg{color:var(--rd)}
-.stat-consolidado .val.neu{color:var(--gd)}
-.stat-consolidado .val.warn{color:var(--yw)}
-.stat-consolidado .sub{font-size:11px;color:rgba(0,212,255,.35);margin-top:4px}
+/* ── ADITIVOS FINANCEIRO ────────────────────────────── */
+.adit-fin-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.adit-fin-card{background:rgba(0,8,24,.55);border:1px solid rgba(0,212,255,.1);border-radius:10px;padding:12px 14px}
+.adit-fin-lbl{font-size:10px;color:rgba(0,212,255,.4);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.adit-fin-val{font-size:18px;font-weight:800}
+.adit-item{background:rgba(0,8,24,.45);border:1px solid rgba(0,212,255,.08);border-radius:10px;margin-bottom:10px;overflow:hidden}
+.adit-item-hd{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:rgba(0,212,255,.03);border-bottom:1px solid rgba(0,212,255,.07)}
+.adit-item-num{font-size:10px;color:rgba(0,212,255,.4);font-weight:700;margin-bottom:2px}
+.adit-item-title{font-size:13px;font-weight:700;color:var(--wh)}
+.adit-item-status{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+.adit-item-status.approved{background:rgba(0,255,136,.1);color:var(--gn)}
+.adit-item-status.pending{background:rgba(255,209,102,.1);color:var(--yw)}
+.adit-item-status.rejected{background:rgba(255,68,102,.1);color:var(--rd)}
+.adit-item-right{text-align:right}
+.adit-item-orcado{font-size:16px;font-weight:800;color:var(--gd)}
+.adit-item-sub{font-size:10px;color:rgba(0,212,255,.3);margin-top:2px}
+.adit-item-body{padding:12px 14px}
+.adit-item-progress{margin-bottom:10px}
+.adit-item-progress-row{display:flex;justify-content:space-between;font-size:11px;color:rgba(0,212,255,.4);margin-bottom:4px}
+.adit-cost-list{display:flex;flex-direction:column;gap:0}
+.adit-cost-row{display:grid;grid-template-columns:auto 1fr auto auto auto;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid rgba(0,212,255,.05);font-size:12px}
+.adit-cost-row:last-child{border:none}
+.adit-cost-cat{font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px;background:rgba(0,212,255,.08);color:rgba(0,212,255,.6);white-space:nowrap}
+.adit-cost-desc{color:var(--cr);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.adit-cost-date{font-size:10px;color:rgba(0,212,255,.3);white-space:nowrap}
+.adit-cost-val{font-weight:700;color:var(--rd);white-space:nowrap}
+.adit-cost-del{padding:2px 5px;background:transparent;border:none;color:rgba(255,68,102,.4);cursor:pointer;font-size:11px;transition:color .15s}
+.adit-cost-del:hover{color:var(--rd)}
+.add-adit-cost-btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:7px 12px;background:rgba(255,68,102,.05);border:1px dashed rgba(255,68,102,.2);color:rgba(255,68,102,.6);border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .15s;width:100%;margin-top:8px}
+.add-adit-cost-btn:hover{border-color:var(--rd);color:var(--rd);background:rgba(255,68,102,.08)}
+.adit-no-items{font-size:12px;color:rgba(180,220,255,.2);font-style:italic;text-align:center;padding:12px 0}
 
 
 /* ── LANÇAMENTO RÁPIDO ──────────────────────────────────────────── */
@@ -1850,74 +1867,40 @@ var DIST_PARTNERS = [
 function renderConsolidado(appr) {
   var wrap = el('stats-consolidado');
   if (!wrap) return;
-
-  // Only obras with status 'done'
   var odb = ODB.load();
-  var concluidas = appr.filter(function(b){
-    return (odb[b.id] && odb[b.id].status === 'done');
-  });
-
+  var concluidas = appr.filter(function(b){ return (odb[b.id]&&odb[b.id].status)==='done'; });
   wrap.innerHTML = '';
   if (!concluidas.length) return;
-
   var section = document.createElement('div');
   section.className = 'consolidado-section';
-
-  // Header
   var hdr = document.createElement('div');
   hdr.className = 'consolidado-header';
-  hdr.innerHTML =
-    '<div class="consolidado-title">✅ Resultado Consolidado</div>'+
+  hdr.innerHTML='<div class="consolidado-title">✅ Resultado Consolidado</div>'+
     '<div class="consolidado-badge">'+concluidas.length+' obra'+(concluidas.length>1?'s':'')+' concluída'+(concluidas.length>1?'s':'')+'</div>';
   section.appendChild(hdr);
-
-  // Calculate KPIs for concluded obras only
-  var receita  = concluidas.reduce(function(s,b){ return s+calcTotal(b)+getAditReceitaAprovada(b.id); }, 0);
-  var custo    = concluidas.reduce(function(s,b){ return s+getCustoTotal(b.id); }, 0);
+  var receita  = concluidas.reduce(function(s,b){return s+calcTotal(b)+getAditReceitaAprovada(b.id);},0);
+  var custo    = concluidas.reduce(function(s,b){return s+getCustoTotal(b.id);},0);
   var recebido = concluidas.reduce(function(s,b){
-    return s + getRecebimentos(b.id).reduce(function(r,e){return r+parseFloat(e.val||0);},0)
-             + getAditRecTotal(b.id);
-  }, 0);
-  var resultado = receita - custo;
-  var margem    = receita > 0 ? (resultado/receita*100) : 0;
-  var aReceber  = Math.max(0, receita - recebido);
-  var mColor    = margem>=20?'pos':margem>=10?'warn':'neg';
-
-  var kpis = [
-    {lbl:'Receita Total',    val:fmt(receita),                            cls:'neu'},
-    {lbl:'Custo Total',      val:fmt(custo),                              cls:custo>receita?'neg':'warn'},
-    {lbl:'Resultado Líquido',val:fmt(resultado),                          cls:resultado>=0?'pos':'neg'},
-    {lbl:'Margem',           val:margem.toFixed(1)+'%',                   cls:mColor},
-    {lbl:'Recebido',         val:fmt(recebido),                           cls:'pos'},
-    {lbl:'A Receber',        val:fmt(aReceber), cls:aReceber>0?'warn':'pos'},
+    return s+getRecebimentos(b.id).reduce(function(r,e){return r+parseFloat(e.val||0);},0)+getAditRecTotal(b.id);
+  },0);
+  var resultado=receita-custo, margem=receita>0?(resultado/receita*100):0, aReceber=Math.max(0,receita-recebido);
+  var mColor=margem>=20?'pos':margem>=10?'warn':'neg';
+  var kpis=[
+    {lbl:'Receita Total',    val:fmt(receita),   cls:'neu'},
+    {lbl:'Custo Total',      val:fmt(custo),     cls:custo>receita?'neg':'warn'},
+    {lbl:'Resultado Líquido',val:fmt(resultado), cls:resultado>=0?'pos':'neg'},
+    {lbl:'Margem',           val:margem.toFixed(1)+'%', cls:mColor},
+    {lbl:'Recebido',         val:fmt(recebido),  cls:'pos'},
+    {lbl:'A Receber',        val:fmt(aReceber),  cls:aReceber>0?'warn':'pos'},
   ];
-
-  var grid = document.createElement('div');
-  grid.className = 'stats-row';
-  grid.style.cssText = 'margin-bottom:0';
-
+  var grid=document.createElement('div');
+  grid.className='stats-row'; grid.style.cssText='margin-bottom:0';
   kpis.forEach(function(k){
-    var card = document.createElement('div');
-    card.className = 'stat-consolidado';
-    var pct = receita>0?Math.min(100,Math.abs(parseFloat(k.val)||receita)/receita*100).toFixed(0):0;
-
-    // bar logic per kpi
-    var barColor = 'var(--gd)';
-    var barWidth = 0;
-    if (k.lbl==='Custo Total')       { barColor='var(--rd)'; barWidth=receita>0?Math.min(100,custo/receita*100).toFixed(0):0; }
-    else if (k.lbl==='Resultado Líquido') { barColor=resultado>=0?'var(--gn)':'var(--rd)'; barWidth=Math.min(100,Math.abs(margem)).toFixed(0); }
-    else if (k.lbl==='Margem')       { barColor=margem>=20?'var(--gn)':margem>=10?'var(--yw)':'var(--rd)'; barWidth=Math.max(0,Math.min(100,margem)).toFixed(0); }
-    else if (k.lbl==='Recebido')     { barColor='var(--gn)'; barWidth=receita>0?Math.min(100,recebido/receita*100).toFixed(0):0; }
-    else if (k.lbl==='A Receber')    { barColor='var(--yw)'; barWidth=receita>0?Math.min(100,aReceber/receita*100).toFixed(0):0; }
-    else if (k.lbl==='Receita Total'){ barColor='var(--gd)'; barWidth=100; }
-
-    card.innerHTML =
-      '<div class="lbl">'+k.lbl+'</div>'+
-      '<div class="val '+k.cls+'">'+k.val+'</div>'+
-      '<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:'+barWidth+'%;background:'+barColor+'"></div></div>';
+    var card=document.createElement('div');
+    card.className='stat-consolidado';
+    card.innerHTML='<div class="lbl">'+k.lbl+'</div><div class="val '+k.cls+'">'+k.val+'</div>';
     grid.appendChild(card);
   });
-
   section.appendChild(grid);
   wrap.appendChild(section);
 }
@@ -1959,22 +1942,10 @@ function renderDash() {
       '<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:100%;background:var(--gd)"></div></div></div>' +
     '<div class="stat"><div class="lbl">Receita Aprovada</div><div class="val gd" style="font-size:18px;margin-top:4px">' + fmt(aVal) + '</div>' +
       '<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:' + taxa + '%;background:var(--gd)"></div></div></div>' +
-    '<div class="stat"><div class="lbl">Custo Total (obras)</div><div class="val ' + (totalCusto>aVal?'neg':'warn') + '" style="font-size:18px;margin-top:4px">' + fmt(totalCusto) + '</div>' +
+    '<div class="stat"><div class="lbl">Custo Total (obras)</div><div class="val ' + (totalCusto>(aVal+aditRecTotal)?'neg':'warn') + '" style="font-size:18px;margin-top:4px">' + fmt(totalCusto) + '</div>' +
       '<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:' + (aVal>0?Math.min(100,totalCusto/aVal*100).toFixed(0):0) + '%;background:var(--rd)"></div></div></div>' +
     '<div class="stat"><div class="lbl">Resultado Líquido</div><div class="val ' + (resultado>=0?'pos':'neg') + '" style="font-size:18px;margin-top:4px">' + fmt(resultado) + '</div>' +
       '<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:' + Math.min(100,Math.abs(margemNum)).toFixed(0) + '%;background:' + (resultado>=0?'var(--gn)':'var(--rd)') + '"></div></div></div>' +
-    (function(){
-      var tRec=appr.reduce(function(s,b){
-        return s+getRecebimentos(b.id).reduce(function(r,e){return r+parseFloat(e.val||0);},0)+getAditRecTotal(b.id);
-      },0);
-      var aRec=Math.max(0,aVal-tRec);
-      var pct=aVal>0?Math.min(100,tRec/aVal*100).toFixed(0):0;
-      return '<div class="stat"><div class="lbl">A Receber</div>'+
-        '<div class="val '+(aRec>0?'warn':'pos')+'" style="font-size:18px;margin-top:4px">'+fmt(aRec)+'</div>'+
-        '<div style="font-size:10px;color:rgba(0,212,255,.35);margin-top:4px">'+fmt(tRec)+' recebido de '+fmt(aVal)+'</div>'+
-        '<div class="prog-bar" style="margin-top:8px"><div class="prog-fill" style="width:'+pct+'%;background:var(--gn)"></div></div>'+
-      '</div>';
-    })() +
     '<div class="stat"><div class="lbl">Margem Média</div><div class="val ' + (margemNum>=20?'pos':margemNum>=0?'yw':'neg') + '" style="font-size:26px">' + margem + '%</div>' +
       '<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:' + Math.max(0,Math.min(100,margemNum)).toFixed(0) + '%;background:' + (margemNum>=20?'var(--gn)':margemNum>=0?'var(--yw)':'var(--rd)') + '"></div></div></div>' +
     '<div class="stat" style="border-color:rgba(200,169,110,.25);background:rgba(200,169,110,.04)">' +
@@ -1987,37 +1958,7 @@ function renderDash() {
         '<div style="font-size:10px;color:rgba(0,212,255,.4)">Margem<br><span style="font-size:12px;font-weight:700;color:' + (aditMargem>=20?'var(--gn)':aditMargem>=0?'var(--yw)':'var(--rd)') + '">' + aditMargem.toFixed(1) + '%</span></div>' +
       '</div>' +
       '<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:' + (aditValAprov>0?Math.min(100,aditCustoTotal/aditValAprov*100).toFixed(0):0) + '%;background:rgba(200,169,110,.7)"></div></div>' +
-    '</div>' +
-    (function(){
-      var aAdits=ADIT.load();
-      var aAp=aAdits.filter(function(a){return a.status==='approved';});
-      var aPe=aAdits.filter(function(a){return a.status==='pending';});
-      var aVAp=aAp.reduce(function(s,a){return s+parseFloat(a.total||0);},0);
-      var aVPe=aPe.reduce(function(s,a){return s+parseFloat(a.total||0);},0);
-      var aCst=appr.reduce(function(s,b){return s+getAditCustoTotal(b.id);},0);
-      var aRec=appr.reduce(function(s,b){return s+getAditRecTotal(b.id);},0);
-      var aRes=aVAp-aCst; var aMg=aVAp>0?(aRes/aVAp*100):0;
-      var aClr=aMg>=20?'var(--gn)':aMg>=0?'var(--yw)':'var(--rd)';
-      if(!aVAp&&!aVPe) return '';
-      return '<div class="stat" style="border-color:rgba(200,169,110,.25);background:rgba(200,169,110,.04)">'+
-        '<div class="lbl" style="color:rgba(200,169,110,.7)">Aditivos</div>'+
-        '<div class="val gd" style="font-size:18px;margin-top:4px">'+fmt(aVAp)+'</div>'+
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:8px">'+
-          '<div style="font-size:10px;color:rgba(0,212,255,.4)">Recebido<br>'+
-            '<span style="font-size:12px;font-weight:700;color:var(--gn)">'+fmt(aRec)+'</span></div>'+
-          '<div style="font-size:10px;color:rgba(0,212,255,.4)">Custo<br>'+
-            '<span style="font-size:12px;font-weight:700;color:var(--rd)">'+fmt(aCst)+'</span></div>'+
-          '<div style="font-size:10px;color:rgba(0,212,255,.4)">Pendentes<br>'+
-            '<span style="font-size:12px;font-weight:700;color:var(--yw)">'+fmt(aVPe)+'</span></div>'+
-          '<div style="font-size:10px;color:rgba(0,212,255,.4)">Margem<br>'+
-            '<span style="font-size:12px;font-weight:700;color:'+aClr+'">'+aMg.toFixed(1)+'%</span></div>'+
-        '</div>'+
-        '<div class="prog-bar" style="margin-top:8px">'+
-          '<div class="prog-fill" style="width:'+Math.min(100,aVAp>0?aCst/aVAp*100:0).toFixed(0)+'%;background:rgba(200,169,110,.7)"></div>'+
-        '</div>'+
-      '</div>';
-    })()
-;
+    '</div>';
 
   if (typeof Chart === 'undefined') { renderRecentList(all); return; }
   Chart.defaults.color = 'rgba(240,236,228,0.45)';
@@ -2127,10 +2068,7 @@ function renderRecentList(all) {
 function renderDashProfit(approvedBudgets) {
   buildPeriodFilter();
 
-  var odb0 = ODB.load();
-  var allApproved = approvedBudgets || DB.load().filter(function(b){ return b.status==='approved'; });
-  // Distribuição e caixa: apenas obras concluídas
-  var approved = allApproved.filter(function(b){ return (odb0[b.id]&&odb0[b.id].status)==='done'; });
+  var approved = approvedBudgets || DB.load().filter(function(b){ return b.status==='approved'; });
   var finAll   = FIN.load();
   var periodLabel = {all:'Todo o período', thismonth:'Este mês', lastmonth:'Mês anterior', thisyear:'Este ano', custom:'Período personalizado'}[_dashPeriod]||'';
 
@@ -2340,6 +2278,7 @@ function updBadgeObras() {
 
 var _obraFilter = 'all';
 var _activeObraTab = {};
+var _minimizedObras = {};
 var _minimizedObras = {}; // bid -> true if minimized // budgetId → tab name
 
 function renderObras() {
@@ -2754,6 +2693,13 @@ function buildObraCard(b, obra) {
   buildAditivosObraPanel(panelAditivosObra, b.id, b);
   body.appendChild(panelAditivosObra);
 
+  // Panel: Aditivos da Obra
+  var panelAditivosObra = document.createElement('div');
+  panelAditivosObra.className = 'obc-panel' + (activeTab==='aditivos-obra'?' active':'');
+  panelAditivosObra.id = 'obc-panel-'+b.id+'-aditivos-obra';
+  buildAditivosObraPanel(panelAditivosObra, b.id, b);
+  body.appendChild(panelAditivosObra);
+
   // Panel: Contrato
   var panelContrato = document.createElement('div');
   panelContrato.className = 'obc-panel' + (activeTab==='contrato'?' active':'');
@@ -2862,8 +2808,14 @@ function renderObraCharts(bid, b, entries, insts, instStatus, receita, custo) {
   Chart.defaults.font.family = 'Barlow, sans-serif';
 
   // receita and custo already include aditivos (via getReceitaTotal/getCustoTotal in buildObraCard)
-  var margem   = receita > 0 ? ((receita-custo)/receita*100) : 0;
-  var custoPerc = receita > 0 ? Math.min(100, custo/receita*100) : 0;
+  // Include approved aditivos in receita total
+  var aditivos = ADIT.load().filter(function(a){ return a.budgetId===bid && a.status==='approved'; });
+  var receitaAditivos = aditivos.reduce(function(s,a){ return s+parseFloat(a.total||0); }, 0);
+  var custosAditivos  = getAditCustos(bid).reduce(function(s,e){ return s+parseFloat(e.val||0); }, 0);
+  var receitaTotal    = receita + receitaAditivos;
+  var custoTotal      = custo + custosAditivos;
+  var margem   = receitaTotal > 0 ? ((receitaTotal-custoTotal)/receitaTotal*100) : 0;
+  var custoPerc = receitaTotal > 0 ? Math.min(100, custoTotal/receitaTotal*100) : 0;
   var doneCount = insts.filter(function(i){ return (instStatus[i.id]||'wait')==='done'; }).length;
   var progPct   = insts.length ? (doneCount/insts.length*100) : 0;
   var resultado = receita - custo;
@@ -3145,6 +3097,13 @@ function renderObraCharts(bid, b, entries, insts, instStatus, receita, custo) {
   var ctxP = el('oc-profit-'+bid);
 
   // receita and custo already include aditivos (via getReceitaTotal/getCustoTotal)
+  // Include aditivos in receita for profit chart
+  var aditivos = ADIT.load().filter(function(a){ return a.budgetId===bid && a.status==='approved'; });
+  var receitaAditivos = aditivos.reduce(function(s,a){ return s+parseFloat(a.total||0); }, 0);
+  var custosAditivos  = getAditCustos(bid).reduce(function(s,e){ return s+parseFloat(e.val||0); }, 0);
+  receita = receita + receitaAditivos; // expand receita to include aditivos
+  custo   = custo   + custosAditivos;
+
   // Build recebimentos timeline
   var recs = getRecebimentos(bid).filter(function(r){ return r.date && r.val; })
     .sort(function(a,b){ return parseDateBR(a.date)-parseDateBR(b.date); });
@@ -3341,7 +3300,6 @@ function buildDistribuicaoPanel(bid, receita, custo) {
   secTitle.innerHTML =
     '<div>'+
       '<div class="dist-section-title">💵 Distribuição de Resultado</div>'+
-      '<div style="font-size:11px;color:rgba(0,212,255,.35);margin-top:2px">Baseado nas obras concluídas</div>'+
       '<div style="font-size:11px;color:rgba(0,212,255,.4);margin-top:2px">Ajuste os percentuais conforme necessário para esta obra</div>'+
     '</div>'+
     '<button class="dist-reset-btn" id="dist-reset-'+bid+'">Restaurar padrão</button>';
@@ -4095,25 +4053,15 @@ function duplicateBudget(id) {
   var all = DB.load();
   var orig = all.find(function(b){ return b.id === id; });
   if (!orig) return;
-
   var newNum = 'BVM-' + String(all.length + 1).padStart(4, '0');
-  var copy = JSON.parse(JSON.stringify(orig)); // deep clone
-
-  // Reset identity fields
-  copy.id        = uid();
-  copy.num       = newNum;
-  copy.status    = 'pending';
-  copy.createdAt = Date.now();
-  copy.date      = new Date().toLocaleDateString('pt-BR');
-
-  // Give new IDs to sections and items
+  var copy = JSON.parse(JSON.stringify(orig));
+  copy.id = uid(); copy.num = newNum; copy.status = 'pending';
+  copy.createdAt = Date.now(); copy.date = new Date().toLocaleDateString('pt-BR');
   (copy.sections || []).forEach(function(s) {
     s.id = uid();
     (s.items || []).forEach(function(it){ it.id = uid(); });
   });
-
-  all.push(copy);
-  DB.save(all);
+  all.push(copy); DB.save(all);
   toast('✅ Orçamento duplicado como ' + newNum);
   renderList('');
 }
@@ -4156,7 +4104,7 @@ function buildCard(b) {
       '<div class="bi-acts">' +
         '<button class="btn btn-g btn-xs" data-act="edit" data-id="' + b.id + '">✏️ Editar</button>' +
         '<button class="btn btn-g btn-xs" data-act="status" data-id="' + b.id + '">🔄 Status</button>' +
-        '<button class="btn btn-g btn-xs" data-act="dup" data-id="' + b.id + '" title="Duplicar orçamento">⧉ Duplicar</button>' +
+        '<button class="btn btn-g btn-xs" data-act="dup" data-id="' + b.id + '" title="Duplicar">⧉ Duplicar</button>' +
         '<button class="btn btn-r btn-xs" data-act="del" data-id="' + b.id + '">🗑️</button>' +
       '</div>' +
     '</div>';
@@ -5147,7 +5095,7 @@ function exportPDF() {
     if (secSub <= 0) return; // skip empty sections
 
     var items = (s.items||[]).filter(function(it){
-      return it.desc && it.desc.trim() !== '';
+      return it.desc && (parseFloat(it.qty||0)>0 || parseFloat(it.price||0)>0);
     });
     var hasManual = s.manualTotal !== undefined && s.manualTotal !== '' &&
                     s.manualTotal !== null && parseFloat(s.manualTotal) > 0;
@@ -5698,10 +5646,7 @@ function getSaldoContaObra(bid, contaId) {
   },0);
 }
 function getSaldoContaGlobal(contaId) {
-  var odb2=ODB.load();
-  var budgets=DB.load().filter(function(b){
-    return b.status==='approved' && (odb2[b.id]&&odb2[b.id].status)==='done';
-  });
+  var budgets=DB.load().filter(function(b){return b.status==='approved';});
   return budgets.reduce(function(s,b){return s+getSaldoContaObra(b.id,contaId);},0);
 }
 
@@ -5720,16 +5665,16 @@ function migrarCaixaObras() {
     // Recebimentos
     ((odb[b.id]&&odb[b.id].recebimentos)||[]).forEach(function(e){
       var oid='rec_'+e.id, gid='grec_'+e.id;
-      if(!ids[oid]){newMovs.push({id:oid,tipo:'entrada',conta:e.conta||CONTA_PADRAO,desc:e.desc||'Recebimento',val:parseFloat(e.val||0),date:e.date||'',createdAt:e.createdAt||Date.now(),autoGerado:true});totalRec++;}
-      if(!gids[gid]){newGMovs.push({id:gid,tipo:'entrada',conta:e.conta||CONTA_PADRAO,desc:(e.desc||'Recebimento')+' — '+(b.client||b.num||''),val:parseFloat(e.val||0),date:e.date||'',budgetId:b.id,createdAt:e.createdAt||Date.now(),autoGerado:true});}
+      if(!ids[oid]){newMovs.push({id:oid,tipo:'entrada',conta:CONTA_PADRAO,desc:e.desc||'Recebimento',val:parseFloat(e.val||0),date:e.date||'',createdAt:e.createdAt||Date.now(),autoGerado:true});totalRec++;}
+      if(!gids[gid]){newGMovs.push({id:gid,tipo:'entrada',conta:CONTA_PADRAO,desc:(e.desc||'Recebimento')+' — '+(b.client||b.num||''),val:parseFloat(e.val||0),date:e.date||'',budgetId:b.id,createdAt:e.createdAt||Date.now(),autoGerado:true});}
     });
     // Custos
     ((fin[b.id]&&fin[b.id].entries)||[]).forEach(function(e){
       var oid='fin_'+e.id, gid='gfin_'+e.id;
       var cat=CATS.find(function(c){return c.id===e.cat;})||{icon:'💸',name:'Custo'};
       var desc=cat.icon+' '+cat.name+': '+(e.desc||'');
-      if(!ids[oid]){newMovs.push({id:oid,tipo:'saida',conta:e.conta||CONTA_PADRAO,desc:desc,val:parseFloat(e.val||0),date:e.date||'',createdAt:e.createdAt||Date.now(),autoGerado:true});totalCost++;}
-      if(!gids[gid]){newGMovs.push({id:gid,tipo:'saida',conta:e.conta||CONTA_PADRAO,desc:desc+' — '+(b.client||b.num||''),val:parseFloat(e.val||0),date:e.date||'',budgetId:b.id,createdAt:e.createdAt||Date.now(),autoGerado:true});}
+      if(!ids[oid]){newMovs.push({id:oid,tipo:'saida',conta:CONTA_PADRAO,desc:desc,val:parseFloat(e.val||0),date:e.date||'',createdAt:e.createdAt||Date.now(),autoGerado:true});totalCost++;}
+      if(!gids[gid]){newGMovs.push({id:gid,tipo:'saida',conta:CONTA_PADRAO,desc:desc+' — '+(b.client||b.num||''),val:parseFloat(e.val||0),date:e.date||'',budgetId:b.id,createdAt:e.createdAt||Date.now(),autoGerado:true});}
     });
     // Dist pagamentos
     ((db2[b.id]&&db2[b.id].distPagamentos)||[]).forEach(function(e){
@@ -5958,12 +5903,7 @@ function renderCaixa(){
 
     var obraGrid=document.createElement('div');
     obraGrid.style.cssText='display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-bottom:22px';
-    var odb3=ODB.load();
-    var budgetsDone=budgets.filter(function(b){return (odb3[b.id]&&odb3[b.id].status)==='done';});
-    var budgetsAndamento=budgets.filter(function(b){return !((odb3[b.id]&&odb3[b.id].status)==='done');});
-    // Show concluded obras first, then in-progress
-    var budgetsOrdered=budgetsDone.concat(budgetsAndamento);
-    budgetsOrdered.forEach(function(b){
+    budgets.forEach(function(b){
       var total=d.contas.reduce(function(s,c){return s+getSaldoContaObra(b.id,c.id);},0);
       var contasComSaldo=d.contas.filter(function(c){return Math.abs(getSaldoContaObra(b.id,c.id))>0.01;});
       var card=document.createElement('div');
@@ -5975,26 +5915,13 @@ function renderCaixa(){
           '<span class="caixa-obra-line-val" style="color:'+(s>=0?'var(--gn)':'var(--rd)')+'">'+fmt(s)+'</span>'+
         '</div>';
       }).join('');
-      var isDone=(odb3[b.id]&&odb3[b.id].status)==='done';
-      var recTotal=getRecebimentos(b.id).reduce(function(s,e){return s+parseFloat(e.val||0);},0)+getAditRecTotal(b.id);
-      var receitaObra=calcTotal(b)+getAditReceitaAprovada(b.id);
-      var custoObra=getCustoTotal(b.id);
-      var resultadoObra=receitaObra-custoObra;
       card.innerHTML=
         '<div class="caixa-obra-card-hd">'+
           '<div class="caixa-obra-card-info">'+
-            '<div class="num">'+esc(b.num||'—')+(isDone?' <span style="font-size:9px;color:var(--gn);background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.2);border-radius:8px;padding:1px 6px">✅ concluída</span>':'')+'</div>'+
+            '<div class="num">'+esc(b.num||'—')+'</div>'+
             '<div class="nome">'+esc(b.client||'Sem nome')+'</div>'+
           '</div>'+
-          '<div style="text-align:right">'+
-            '<div class="caixa-obra-card-total" style="color:'+(total>=0?'var(--gn)':'var(--rd)')+'">'+fmt(total)+'</div>'+
-            '<div style="font-size:9px;color:rgba(0,212,255,.35);margin-top:2px">saldo no caixa</div>'+
-          '</div>'+
-        '</div>'+
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:8px 14px;background:rgba(0,0,0,.15);border-top:1px solid rgba(0,212,255,.06)">'+
-          '<div style="font-size:10px;color:rgba(0,212,255,.4)">Recebido<br><span style="font-size:12px;font-weight:700;color:var(--gn)">'+fmt(recTotal)+'</span></div>'+
-          '<div style="font-size:10px;color:rgba(0,212,255,.4)">Resultado<br><span style="font-size:12px;font-weight:700;color:'+(resultadoObra>=0?'var(--gn)':'var(--rd)')+'">'+fmt(resultadoObra)+'</span></div>'+
-          '<div style="font-size:10px;color:rgba(0,212,255,.4)">A Receber<br><span style="font-size:12px;font-weight:700;color:var(--yw)">'+fmt(Math.max(0,receitaObra-recTotal))+'</span></div>'+
+          '<div class="caixa-obra-card-total" style="color:'+(total>=0?'var(--gn)':'var(--rd)')+'">'+fmt(total)+'</div>'+
         '</div>'+
         (linesHtml||'<div style="font-size:11px;color:rgba(180,220,255,.2);font-style:italic;margin-top:4px">Sem movimentações</div>');
       obraGrid.appendChild(card);
@@ -6682,6 +6609,271 @@ function migrarAditRecebimentos() {
 }
 
 
+// ═══════════════════════════════════════
+// ADITIVOS — HELPERS FINANCEIROS GLOBAIS
+// Adicionam receita/custo/recebimentos dos aditivos ao resultado da obra
+// ═══════════════════════════════════════
+
+// Receita aprovada dos aditivos de uma obra
+function getAditReceitaAprovada(bid) {
+  return ADIT.load()
+    .filter(function(a){ return a.budgetId===bid && a.status==='approved'; })
+    .reduce(function(s,a){ return s + parseFloat(a.total||0); }, 0);
+}
+
+// Total de custos lançados nos aditivos de uma obra
+function getAditCustoTotal(bid) {
+  return getAditCustos(bid).reduce(function(s,e){ return s + parseFloat(e.val||0); }, 0);
+}
+
+// Total recebido nos aditivos de uma obra
+function getAditRecTotal(bid) {
+  return getAditRecebimentos(bid).reduce(function(s,r){ return s + parseFloat(r.val||0); }, 0);
+}
+
+// Receita total da obra (contrato + aditivos aprovados)
+function getReceitaTotal(b) {
+  return calcTotal(b) + getAditReceitaAprovada(b.id);
+}
+
+// Custo total da obra (lançamentos + custos de aditivos)
+function getCustoTotal(bid) {
+  var entries = getFinEntries(bid);
+  return finTotalCost(entries) + getAditCustoTotal(bid);
+}
+
+// Migração: adicionar aditivos recebimentos ao caixa
+function migrarAditRecebimentos() {
+  var budgets = DB.load().filter(function(b){ return b.status==='approved'; });
+  var total = 0;
+  budgets.forEach(function(b){
+    var recs = getAditRecebimentos(b.id);
+    var gd = getCaixaData();
+    var gids = {}; gd.movs.forEach(function(m){ gids[m.id]=true; });
+    var newGMovs = gd.movs.slice();
+    var obraMovs = getObraMovs(b.id);
+    var oIds = {}; obraMovs.forEach(function(m){ oIds[m.id]=true; });
+    var newObraMovs = obraMovs.slice();
+    recs.forEach(function(r){
+      var oid='aditrec_'+r.id, gid='gaditrec_'+r.id;
+      if(!oIds[oid]){
+        newObraMovs.push({id:oid,tipo:'entrada',conta:r.conta||CONTA_PADRAO,
+          desc:'[Aditivo] '+(r.desc||'Recebimento'),val:parseFloat(r.val||0),
+          date:r.date||'',createdAt:Date.now(),autoGerado:true});
+        total++;
+      }
+      if(!gids[gid]){
+        newGMovs.push({id:gid,tipo:'entrada',conta:r.conta||CONTA_PADRAO,
+          desc:'[Aditivo] '+(r.desc||'Recebimento')+' — '+(b.client||b.num||''),
+          val:parseFloat(r.val||0),date:r.date||'',budgetId:b.id,createdAt:Date.now(),autoGerado:true});
+      }
+    });
+    if(newObraMovs.length>obraMovs.length) setObraMovs(b.id,newObraMovs);
+    if(newGMovs.length>gd.movs.length){gd.movs=newGMovs;CAIXA.save(gd);}
+  });
+  return total;
+}
+
+
+// ═══════════════════════════════════════
+// ADITIVOS — CUSTOS FINANCEIROS
+// Stored in ODB: obras[bid].aditCustos = [{id,aditId,cat,desc,val,date,conta}]
+// ═══════════════════════════════════════
+function getAditCustos(bid) {
+  var db = ODB.load();
+  return (db[bid] && db[bid].aditCustos) ? db[bid].aditCustos : [];
+}
+function saveAditCusto(bid, entry) {
+  var db = ODB.load();
+  if (!db[bid]) db[bid] = {};
+  if (!db[bid].aditCustos) db[bid].aditCustos = [];
+  db[bid].aditCustos.push(entry);
+  ODB.save(db);
+  // Sync to obra caixa
+  var cat = CATS.find(function(c){return c.id===entry.cat;})||{icon:'💸',name:'Custo'};
+  var mov = {id:'aditfin_'+entry.id, tipo:'saida', conta:entry.conta||CONTA_PADRAO,
+    desc:'[Aditivo] '+cat.icon+' '+cat.name+': '+(entry.desc||''),
+    val:parseFloat(entry.val||0), date:entry.date||'', createdAt:Date.now(), autoGerado:true};
+  addMovObraCaixa(bid, mov);
+  var b = DB.load().find(function(x){return x.id===bid;});
+  addMovGlobalCaixa(Object.assign({},mov,{id:'gaditfin_'+entry.id,budgetId:bid,
+    desc:mov.desc+' — '+(b?b.client||b.num||'':'')}));
+}
+function deleteAditCusto(bid, entryId) {
+  var db = ODB.load();
+  if (!db[bid]||!db[bid].aditCustos) return;
+  db[bid].aditCustos = db[bid].aditCustos.filter(function(e){return e.id!==entryId;});
+  ODB.save(db);
+  removeMovObraCaixa(bid,'aditfin_'+entryId);
+  removeMovGlobalCaixa('gaditfin_'+entryId);
+}
+
+// Modal for aditivo cost launch
+var _aditCostBid=null, _aditCostAditId=null, _aditCostCb=null;
+function openAditCostModal(bid, aditId, cb) {
+  _aditCostBid=bid; _aditCostAditId=aditId; _aditCostCb=cb;
+  var inner=el('ov-adit-cost-inner'); if(!inner) return;
+  var caixaD=getCaixaData();
+  var contas=(caixaD.contas&&caixaD.contas.length)?caixaD.contas:DEFAULT_CONTAS;
+  inner.innerHTML=
+    '<h2>💸 Lançar Custo do Aditivo</h2>'+
+    '<div style="display:flex;flex-direction:column;gap:12px">'+
+      '<div class="field"><label>Categoria</label>'+
+        '<select class="fi" id="ac-cat">'+
+          CATS.map(function(c){return'<option value="'+c.id+'">'+c.icon+' '+c.name+'</option>';}).join('')+
+        '</select></div>'+
+      '<div class="field"><label>Descrição</label>'+
+        '<input class="fi" id="ac-desc" placeholder="Ex: Pedreiro diária, Material extra..."></div>'+
+      '<div class="field"><label>Conta de pagamento</label>'+
+        '<select class="fi" id="ac-conta">'+
+          contas.map(function(c){return'<option value="'+c.id+'"'+(c.padrao?' selected':'')+'>'+c.icon+' '+c.nome+(c.banco?' — '+c.banco:'')+'</option>';}).join('')+
+        '</select></div>'+
+      '<div class="fg fg2">'+
+        '<div class="field"><label>Valor (R$)</label><input class="fi" id="ac-val" type="number" min="0" step="any" placeholder="0,00"></div>'+
+        '<div class="field"><label>Data</label><input class="fi" id="ac-date" value="'+new Date().toLocaleDateString('pt-BR')+'"></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="mf"><button class="btn btn-p" id="ac-save">💾 Lançar</button><button class="btn btn-g" id="ac-cancel">Cancelar</button></div>';
+  el('ov-adit-cost').classList.add('open');
+  setTimeout(function(){
+    el('ac-save').addEventListener('click', function(){
+      var cat=el('ac-cat').value, desc=el('ac-desc').value.trim();
+      var val=parseFloat(el('ac-val').value), date=el('ac-date').value;
+      var conta=el('ac-conta').value||CONTA_PADRAO;
+      if(!val||val<=0){toast('Valor inválido','err');return;}
+      saveAditCusto(_aditCostBid,{id:uid(),aditId:_aditCostAditId,cat:cat,desc:desc,val:val,date:date,conta:conta});
+      closeOv('ov-adit-cost');
+      toast('Custo lançado! 💸');
+      if(_aditCostCb)_aditCostCb();
+      if(el('view-dash')&&el('view-dash').classList.contains('active'))renderDash();
+    });
+    el('ac-cancel').addEventListener('click',function(){closeOv('ov-adit-cost');});
+    el('ac-val').focus();
+  },0);
+}
+
+// ── Panel builder ─────────────────────────────────────────────
+function buildAditivosObraPanel(panel, bid, b) {
+  var aditivos = ADIT.load().filter(function(a){ return a.budgetId===bid; });
+  var allCustos = getAditCustos(bid);
+
+  function rebuild() {
+    panel.innerHTML='';
+    var aditivos2 = ADIT.load().filter(function(a){ return a.budgetId===bid; });
+    var allCustos2 = getAditCustos(bid);
+
+    if (!aditivos2.length) {
+      var empty=document.createElement('div'); empty.className='adit-no-items';
+      empty.innerHTML='Nenhum aditivo vinculado a esta obra.<br><span style="font-size:11px;color:rgba(0,212,255,.25)">Crie aditivos na aba 📝 Aditivos do menu.</span>';
+      panel.appendChild(empty);
+      return;
+    }
+
+    // Global KPIs
+    var recAprov  = aditivos2.filter(function(a){return a.status==='approved';}).reduce(function(s,a){return s+parseFloat(a.total||0);},0);
+    var recPend   = aditivos2.filter(function(a){return a.status==='pending';}).reduce(function(s,a){return s+parseFloat(a.total||0);},0);
+    var custoAdit = allCustos2.reduce(function(s,e){return s+parseFloat(e.val||0);},0);
+    var lucroAdit = recAprov - custoAdit;
+    var margemAdit= recAprov>0?(lucroAdit/recAprov*100):0;
+    var mColor    = margemAdit>=20?'var(--gn)':margemAdit>=0?'var(--yw)':'var(--rd)';
+
+    var kpisDiv=document.createElement('div'); kpisDiv.className='adit-fin-kpis';
+    [
+      {l:'Receita Aprovada',    v:fmt(recAprov),               c:'var(--gd)'},
+      {l:'Pendente Aprovação',  v:fmt(recPend),                c:'var(--yw)'},
+      {l:'Custos Lançados',     v:fmt(custoAdit),              c:'var(--rd)'},
+      {l:'Lucro Aditivos',      v:fmt(lucroAdit)+' ('+margemAdit.toFixed(1)+'%)', c:mColor},
+    ].forEach(function(k){
+      kpisDiv.innerHTML+='<div class="adit-fin-card">'+
+        '<div class="adit-fin-lbl">'+k.l+'</div>'+
+        '<div class="adit-fin-val" style="color:'+k.c+'">'+k.v+'</div>'+
+      '</div>';
+    });
+    panel.appendChild(kpisDiv);
+
+    // Per-aditivo cards
+    aditivos2.sort(function(a,b){return(b.createdAt||0)-(a.createdAt||0);}).forEach(function(adit){
+      var stInfo={approved:{cls:'approved',icon:'✅',label:'Aprovado'},pending:{cls:'pending',icon:'⏳',label:'Pendente'},rejected:{cls:'rejected',icon:'❌',label:'Recusado'}}[adit.status||'pending'];
+      var orcado=parseFloat(adit.total||0);
+      var custos=allCustos2.filter(function(e){return e.aditId===adit.id;});
+      var custoAd=custos.reduce(function(s,e){return s+parseFloat(e.val||0);},0);
+      var lucroAd=orcado-custoAd;
+      var pct=orcado>0?Math.min(100,custoAd/orcado*100):0;
+      var pColor=pct>90?'var(--rd)':pct>70?'var(--yw)':'var(--gn)';
+
+      var item=document.createElement('div'); item.className='adit-item';
+
+      // Header
+      var hd=document.createElement('div'); hd.className='adit-item-hd';
+      hd.innerHTML=
+        '<div>'+
+          '<div class="adit-item-num">ADT-'+String(adit.num||'?').padStart(4,'0')+'</div>'+
+          '<div class="adit-item-title">'+esc(adit.title||'Sem título')+'</div>'+
+          '<span class="adit-item-status '+stInfo.cls+'">'+stInfo.icon+' '+stInfo.label+'</span>'+
+        '</div>'+
+        '<div class="adit-item-right">'+
+          '<div class="adit-item-orcado">'+fmt(orcado)+'</div>'+
+          '<div class="adit-item-sub">orçado no aditivo</div>'+
+        '</div>';
+      item.appendChild(hd);
+
+      // Body
+      var bd=document.createElement('div'); bd.className='adit-item-body';
+
+      // Progress bar: custo vs orçado
+      var prog=document.createElement('div'); prog.className='adit-item-progress';
+      prog.innerHTML=
+        '<div class="adit-item-progress-row">'+
+          '<span>Custo: '+fmt(custoAd)+' · Lucro: <span style="color:'+(lucroAd>=0?'var(--gn)':'var(--rd)')+'">'+fmt(lucroAd)+'</span></span>'+
+          '<span style="color:'+pColor+'">'+pct.toFixed(1)+'% consumido</span>'+
+        '</div>'+
+        '<div class="obc-bar"><div class="obc-bar-fill" style="width:'+pct.toFixed(1)+'%;background:'+pColor+'"></div></div>';
+      bd.appendChild(prog);
+
+      // Cost list
+      if(custos.length){
+        var costList=document.createElement('div'); costList.className='adit-cost-list';
+        custos.slice().sort(function(a,b){return(b.date||'').localeCompare(a.date||'');}).forEach(function(e){
+          var cat=CATS.find(function(c){return c.id===e.cat;})||{icon:'💸',name:'Custo'};
+          var row=document.createElement('div'); row.className='adit-cost-row';
+          row.innerHTML=
+            '<span class="adit-cost-cat">'+cat.icon+' '+cat.name+'</span>'+
+            '<span class="adit-cost-desc">'+esc(e.desc||'—')+'</span>'+
+            '<span class="adit-cost-date">'+esc(e.date||'')+'</span>'+
+            '<span class="adit-cost-val">−'+fmt(e.val)+'</span>'+
+            (isAdmin()?'<button class="adit-cost-del" data-id="'+e.id+'">🗑️</button>':'<span></span>');
+          if(isAdmin()){
+            row.querySelector('.adit-cost-del').addEventListener('click',function(){
+              if(!confirm('Excluir este custo?'))return;
+              deleteAditCusto(bid,this.dataset.id);
+              rebuild();
+            });
+          }
+          costList.appendChild(row);
+        });
+        bd.appendChild(costList);
+      } else {
+        var noC=document.createElement('div'); noC.className='adit-no-items';
+        noC.textContent='Nenhum custo lançado neste aditivo.';
+        bd.appendChild(noC);
+      }
+
+      // Add cost button (admin only)
+      if(isAdmin()&&adit.status!=='rejected'){
+        var addBtn=document.createElement('button'); addBtn.className='add-adit-cost-btn';
+        addBtn.innerHTML='＋ Lançar custo neste aditivo';
+        addBtn.addEventListener('click',function(){openAditCostModal(bid,adit.id,rebuild);});
+        bd.appendChild(addBtn);
+      }
+
+      item.appendChild(bd);
+      panel.appendChild(item);
+    });
+  }
+  rebuild();
+}
+
+
 // ═══════════════════════════════════════════════════════════
 // LANÇAMENTO RÁPIDO
 // ═══════════════════════════════════════════════════════════
@@ -6699,19 +6891,12 @@ function openQuickCost(bid, b) {
 
   inner.innerHTML =
     '<h2>⚡ Lançamento Rápido</h2>'+
-
-    // ── Tabs: Texto | Foto ──
-    '<div style="display:flex;gap:0;margin-bottom:16px;border-radius:9px;overflow:hidden;border:1px solid var(--bd)">'+
-      '<button id="qc-tab-text" onclick="qcSwitchTab(\'text\')" style="flex:1;padding:9px 0;font-size:13px;font-weight:700;cursor:pointer;background:var(--gdm);color:var(--gd);border:none;font-family:Barlow,sans-serif">'+
-        '💬 Texto / WhatsApp</button>'+
-      '<button id="qc-tab-img" onclick="qcSwitchTab(\'img\')" style="flex:1;padding:9px 0;font-size:13px;font-weight:700;cursor:pointer;background:transparent;color:rgba(180,220,255,.4);border:none;font-family:Barlow,sans-serif">'+
-        '📷 Foto / Comprovante</button>'+
+    '<div style="font-size:12px;color:rgba(0,212,255,.45);margin-bottom:14px">'+
+      'Cole a mensagem do WhatsApp — a IA identifica os custos automaticamente'+
     '</div>'+
-
-    // ── Date + Conta row ──
     '<div class="qc-date-row">'+
-      '<label>Data</label>'+
-      '<input class="fi" id="qc-date" value="'+today+'" style="width:120px;font-size:13px;padding:6px 10px">'+
+      '<label>Data dos lançamentos</label>'+
+      '<input class="fi" id="qc-date" value="'+today+'" style="width:130px;font-size:13px;padding:6px 10px">'+
       '<label style="margin-left:8px">Conta</label>'+
       '<select class="fi" id="qc-conta" style="font-size:13px;padding:6px 10px;width:auto">'+
         contas.map(function(c){
@@ -6719,30 +6904,12 @@ function openQuickCost(bid, b) {
         }).join('')+
       '</select>'+
     '</div>'+
-
-    // ── Text tab ──
-    '<div id="qc-panel-text">'+
-      '<textarea class="qc-textarea" id="qc-text" placeholder="Cole a mensagem do WhatsApp aqui&#10;Ex: pedreiro R$250, ajudante 180, ônibus 2x R$5, almoço R$35..."></textarea>'+
-      '<div class="qc-hint">Qualquer formato funciona — a IA identifica os itens. Ctrl+Enter para interpretar.</div>'+
-    '</div>'+
-
-    // ── Image tab ──
-    '<div id="qc-panel-img" style="display:none">'+
-      '<input type="file" id="qc-file" accept="image/*" style="display:none">'+
-      '<div id="qc-drop-zone" style="border:2px dashed rgba(0,212,255,.25);border-radius:12px;padding:28px 20px;text-align:center;cursor:pointer;transition:all .15s;background:rgba(0,8,24,.4)" onclick="el(&quot;qc-file&quot;).click()" ondragover="event.preventDefault();this.style.borderColor=&quot;var(--gd)&quot;" ondragleave="this.style.borderColor=&quot;rgba(0,212,255,.25)&quot;" ondrop="qcHandleDrop(event)">'+
-        '<div style="font-size:28px;margin-bottom:8px">📷</div>'+
-        '<div style="font-size:13px;font-weight:700;color:rgba(180,220,255,.7)">Toque para selecionar foto</div>'+
-        '<div style="font-size:11px;color:rgba(0,212,255,.35);margin-top:4px">ou arraste a imagem aqui · JPG, PNG, WEBP</div>'+
-      '</div>'+
-      '<div id="qc-img-preview" style="display:none;margin-top:10px;text-align:center">'+
-        '<img id="qc-img-thumb" style="max-height:160px;max-width:100%;border-radius:8px;border:1px solid rgba(0,212,255,.15)">'+
-        '<div style="font-size:11px;color:rgba(0,212,255,.4);margin-top:6px" id="qc-img-name"></div>'+
-        '<button onclick="qcClearImg()" style="font-size:11px;background:transparent;border:none;color:rgba(255,68,102,.5);cursor:pointer;margin-top:4px">✕ Remover</button>'+
-      '</div>'+
-    '</div>'+
-
+    '<textarea class="qc-textarea" id="qc-text" placeholder="'+
+      'Ex: pedreiro R$250, ajudante 180, ônibus 2x R$5, almoço R$35, cimento 2 sacos R$60...'+
+    '"></textarea>'+
+    '<div class="qc-hint">Você pode usar qualquer formato — a IA vai identificar os itens.</div>'+
     '<div id="qc-loading" class="qc-loading" style="display:none">'+
-      '<div class="qc-spinner"></div><span id="qc-loading-msg">Interpretando os custos...</span>'+
+      '<div class="qc-spinner"></div> Interpretando os custos...'+
     '</div>'+
     '<div id="qc-preview-wrap"></div>'+
     '<div class="mf" style="margin-top:16px">'+
@@ -6752,114 +6919,28 @@ function openQuickCost(bid, b) {
     '</div>';
 
   el('ov-quickcost').classList.add('open');
-  _qcImgBase64 = null;
 
   setTimeout(function(){
     el('qc-parse-btn').addEventListener('click', runQuickParse);
     el('qc-cancel-btn').addEventListener('click', function(){ closeOv('ov-quickcost'); });
     el('qc-text').focus();
+    // Enter on textarea Ctrl+Enter triggers parse
     el('qc-text').addEventListener('keydown', function(e){
       if ((e.ctrlKey||e.metaKey) && e.key==='Enter') { e.preventDefault(); runQuickParse(); }
-    });
-    el('qc-file').addEventListener('change', function(){
-      if (this.files && this.files[0]) qcLoadImage(this.files[0]);
     });
   }, 0);
 }
 
-var _qcImgBase64 = null;
-var _qcTab = 'text';
-
-function qcSwitchTab(tab) {
-  _qcTab = tab;
-  el('qc-panel-text').style.display = tab==='text' ? '' : 'none';
-  el('qc-panel-img').style.display  = tab==='img'  ? '' : 'none';
-  el('qc-tab-text').style.background = tab==='text' ? 'var(--gdm)' : 'transparent';
-  el('qc-tab-text').style.color = tab==='text' ? 'var(--gd)' : 'rgba(180,220,255,.4)';
-  el('qc-tab-img').style.background = tab==='img' ? 'var(--gdm)' : 'transparent';
-  el('qc-tab-img').style.color = tab==='img' ? 'var(--gd)' : 'rgba(180,220,255,.4)';
-}
-
-function qcHandleDrop(e) {
-  e.preventDefault();
-  el('qc-drop-zone').style.borderColor = 'rgba(0,212,255,.25)';
-  var file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-  if (file && file.type.startsWith('image/')) qcLoadImage(file);
-}
-
-function qcLoadImage(file) {
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    var dataUrl = e.target.result;
-    _qcImgBase64 = dataUrl.split(',')[1];
-    var thumb = el('qc-img-thumb');
-    var nameEl = el('qc-img-name');
-    var preview = el('qc-img-preview');
-    var dropZone = el('qc-drop-zone');
-    if (thumb) thumb.src = dataUrl;
-    if (nameEl) nameEl.textContent = file.name + ' (' + (file.size/1024).toFixed(0) + ' KB)';
-    if (preview) preview.style.display = '';
-    if (dropZone) dropZone.style.display = 'none';
-  };
-  reader.readAsDataURL(file);
-}
-
-function qcClearImg() {
-  _qcImgBase64 = null;
-  var preview = el('qc-img-preview');
-  var dropZone = el('qc-drop-zone');
-  var fileInp = el('qc-file');
-  if (preview) preview.style.display = 'none';
-  if (dropZone) dropZone.style.display = '';
-  if (fileInp) fileInp.value = '';
-}
-
 function runQuickParse() {
-  var isImg = (_qcTab === 'img');
-  var text = (el('qc-text') ? el('qc-text').value||'' : '').trim();
-
-  if (isImg && !_qcImgBase64) { toast('Selecione uma foto primeiro.','err'); return; }
-  if (!isImg && !text) { toast('Cole o texto do WhatsApp primeiro.','err'); return; }
+  var text = (el('qc-text').value||'').trim();
+  if (!text) { toast('Cole o texto do WhatsApp primeiro.','err'); return; }
 
   el('qc-loading').style.display = 'flex';
-  el('qc-loading-msg').textContent = isImg ? 'Lendo o comprovante...' : 'Interpretando os custos...';
   el('qc-parse-btn').disabled = true;
   el('qc-preview-wrap').innerHTML = '';
   el('qc-confirm-btn').style.display = 'none';
 
   var cats = CATS.map(function(c){ return c.id+'='+c.name; }).join(', ');
-
-  if (isImg) {
-    // Image mode — send base64 to AI vision
-    var sysPrompt =
-      'Você é um assistente de obras de construção civil no Brasil. '+
-      'Analise a imagem de comprovante, nota fiscal ou recibo e extraia TODOS os itens de custo. '+
-      'Categorias: '+cats+'. '+
-      'Responda SOMENTE com JSON válido sem markdown: {"items":[{"cat":"labor","desc":"Pedreiro","val":250}]}';
-
-    fetch('/api/ai', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 400,
-        system: sysPrompt,
-        messages:[{
-          role:'user',
-          content:[
-            {type:'image', source:{type:'base64', media_type:'image/jpeg', data:_qcImgBase64}},
-            {type:'text',  text:'Extraia os itens de custo desta imagem e retorne o JSON.'}
-          ]
-        }]
-      })
-    })
-    .then(function(r){ return r.text(); })
-    .then(function(raw){ qcHandleAIResponse(raw); })
-    .catch(function(){ el('qc-loading').style.display='none'; el('qc-parse-btn').disabled=false; toast('Erro de conexão.','err'); });
-    return;
-  }
-
-  // Text mode
   var prompt =
     'Você é um assistente de obras de construção civil no Brasil.\n'+
     'O usuário colou uma mensagem de WhatsApp com custos de uma obra.\n'+
@@ -6879,36 +6960,28 @@ function runQuickParse() {
   fetch('/api/ai', {
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({model:'claude-haiku-4-5-20251001', prompt: prompt, max_tokens:400})
+    body: JSON.stringify({prompt: prompt})
   })
   .then(function(r){ return r.text(); })
-  .then(function(raw){ qcHandleAIResponse(raw); })
+  .then(function(raw){
+    el('qc-loading').style.display = 'none';
+    el('qc-parse-btn').disabled = false;
+    try {
+      var clean = raw.replace(/```json|```/g,'').trim();
+      var parsed = JSON.parse(clean);
+      _qcItems = (parsed.items||[]).map(function(it){
+        return { cat: it.cat||'outros', desc: it.desc||'', val: parseFloat(it.val||0) };
+      }).filter(function(it){ return it.val > 0; });
+      renderQCPreview();
+    } catch(e) {
+      toast('Erro ao interpretar. Tente reformular o texto.','err');
+    }
+  })
   .catch(function(){
     el('qc-loading').style.display = 'none';
     el('qc-parse-btn').disabled = false;
     toast('Erro de conexão com a IA.','err');
   });
-}
-
-function qcHandleAIResponse(raw) {
-  el('qc-loading').style.display = 'none';
-  el('qc-parse-btn').disabled = false;
-  try {
-    var clean = raw.replace(/```json|```/g,'').trim();
-    // Handle nested Anthropic response format {content:[{text:...}]}
-    var obj = JSON.parse(clean);
-    if (obj.content && obj.content[0] && obj.content[0].text) {
-      clean = obj.content[0].text.replace(/```json|```/g,'').trim();
-      obj = JSON.parse(clean);
-    }
-    _qcItems = (obj.items||[]).map(function(it){
-      return { cat: it.cat||'outros', desc: it.desc||'', val: parseFloat(it.val||0) };
-    }).filter(function(it){ return it.val > 0; });
-    if (!_qcItems.length) { toast('Nenhum custo identificado na imagem. Tente outra foto.','err'); return; }
-    renderQCPreview();
-  } catch(e) {
-    toast('Erro ao interpretar. Tente reformular o texto ou use outra foto.','err');
-  }
 }
 
 function renderQCPreview() {
@@ -7029,13 +7102,6 @@ function openProjectModal() {
           '<option value="alto">Alto padrão</option>'+
         '</select>'+
       '</div>'+
-      '<div class="proj-opt-field" style="grid-column:1/-1">'+
-        '<label>Escopo do orçamento</label>'+
-        '<select class="fi" id="proj-escopo" style="font-size:13px">'+
-          '<option value="completo" selected>🧱 Mão de obra + Material</option>'+
-          '<option value="mao_de_obra">👷 Somente Mão de Obra</option>'+
-        '</select>'+
-      '</div>'+
     '</div>'+
     '<div class="proj-opt-field" style="margin-bottom:14px">'+
       '<label>Observações para a IA (opcional)</label>'+
@@ -7118,16 +7184,12 @@ function projSetProgress(pct, step) {
 function runProjectAI() {
   if (!_projBase64) { toast('Selecione um arquivo primeiro.','err'); return; }
 
-  var tipo    = (el('proj-tipo')    ? el('proj-tipo').value    : 'residencial');
-  var padrao  = (el('proj-padrao')  ? el('proj-padrao').value  : 'medio');
-  var pEscopo = (el('proj-escopo')  ? el('proj-escopo').value  : 'completo');
-  var obs     = (el('proj-obs')     ? el('proj-obs').value.trim() : '');
+  var tipo   = (el('proj-tipo')   ? el('proj-tipo').value   : 'residencial');
+  var padrao = (el('proj-padrao') ? el('proj-padrao').value : 'medio');
+  var obs    = (el('proj-obs')    ? el('proj-obs').value.trim() : '');
 
   var tipoLabel   = {residencial:'residencial',comercial:'sala comercial',reforma:'reforma geral'}[tipo]||tipo;
   var padraoLabel = {simples:'simples/econômico',medio:'médio/padrão',alto:'alto padrão'}[padrao]||padrao;
-  var escopoProj  = pEscopo==='mao_de_obra'
-    ? 'SOMENTE MÃO DE OBRA — NÃO inclua materiais. O cliente fornece os materiais.'
-    : 'MÃO DE OBRA + MATERIAL — preços finais ao cliente incluindo tudo.';
 
   el('proj-run-btn').disabled = true;
   el('proj-progress').style.display = '';
@@ -7533,310 +7595,157 @@ function buildContratoPanel(panel, bid, b) {
 function exportContratoPDF(bid, b, contrato) {
   var jsPDF = window.jspdf.jsPDF;
   var doc = new jsPDF({unit:'mm', format:'a4'});
-  var W=210, ML=16, MR=16, y=0;
-  var CW = W - ML - MR; // content width = 178mm
-
+  var W=210, M=18, y=0;
   var dados = contrato.dados || {};
-  var pc    = b.paymentConds || defConds();
 
-  // Detect escopo from budget notes or default to completo
-  var escopo = b.escopo || 'completo';
-  var somenteMO = escopo === 'mao_de_obra';
-
-  function checkPage(h) {
-    if (y + h > 272) { doc.addPage(); y = 18; }
+  function check(h){ if(y+h>272){ doc.addPage(); y=20; } }
+  function line(thick, color) {
+    doc.setDrawColor.apply(doc, color||[200,169,110]);
+    doc.setLineWidth(thick||0.3);
+    doc.line(M, y, W-M, y);
+    y += 4;
   }
 
-  function secHeader(title) {
-    checkPage(12);
-    doc.setFillColor(28,43,74);
-    doc.rect(ML, y, CW, 8, 'F');
-    doc.setFillColor(200,169,110);
-    doc.rect(ML, y, 3, 8, 'F');
-    doc.setTextColor(200,169,110);
-    doc.setFont('helvetica','bold');
-    doc.setFontSize(8.5);
-    doc.text(title, ML+7, y+5.5);
-    y += 11;
-    doc.setTextColor(40,55,75);
-    doc.setFont('helvetica','normal');
-    doc.setFontSize(9);
+  // ── Header ──
+  doc.setFillColor(28,43,74); doc.rect(0,0,W,42,'F');
+  try { doc.addImage(_LOGO,'PNG',M,5,30,30); } catch(e){}
+  doc.setTextColor(240,236,228); doc.setFont('helvetica','bold'); doc.setFontSize(16);
+  doc.text('CONTRATO DE PRESTAÇÃO DE SERVIÇOS', W/2, 18, {align:'center'});
+  doc.setFont('helvetica','normal'); doc.setFontSize(9);
+  doc.text('Construção Civil e Reformas · PULSO REFORMAS', W/2, 26, {align:'center'});
+  doc.text('(81) 98365-4027 · pulsoreformas@gmail.com', W/2, 32, {align:'center'});
+  doc.setFillColor(200,169,110); doc.rect(0,42,W,2,'F');
+  y = 52;
+
+  // ── Intro ──
+  doc.setTextColor(40,50,70); doc.setFont('helvetica','normal'); doc.setFontSize(10);
+  var intro = 'Pelo presente instrumento particular, as partes abaixo qualificadas celebram o presente Contrato de Prestação de Serviços de Reforma e Construção Civil, que se regerá pelas seguintes cláusulas e condições:';
+  var introLines = doc.splitTextToSize(intro, W-2*M);
+  doc.text(introLines, M, y); y += introLines.length*5.5 + 6;
+
+  // ── Partes ──
+  function sectionHeader(title) {
+    check(14);
+    doc.setFillColor(28,43,74); doc.rect(M,y,W-2*M,8,'F');
+    doc.setTextColor(200,169,110); doc.setFont('helvetica','bold'); doc.setFontSize(9);
+    doc.text(title, M+4, y+5.5); y+=10;
+    doc.setTextColor(40,50,70); doc.setFont('helvetica','normal'); doc.setFontSize(9.5);
+  }
+  function field(label, value) {
+    check(8);
+    doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(80,100,140);
+    doc.text(label+':', M+2, y);
+    doc.setFont('helvetica','normal'); doc.setTextColor(40,50,70);
+    var vLines = doc.splitTextToSize(value||'Não informado', W-M-50);
+    doc.text(vLines, M+45, y); y += Math.max(6, vLines.length*5);
   }
 
-  function row(label, value, opts) {
-    opts = opts || {};
-    checkPage(7);
-    var labelW = opts.labelW || 48;
-    doc.setFont('helvetica','bold');
-    doc.setFontSize(8.5);
-    doc.setTextColor(80,100,135);
-    doc.text(label+':', ML+2, y);
-    doc.setFont('helvetica','normal');
-    doc.setFontSize(9);
-    doc.setTextColor(40,55,75);
-    var lines = doc.splitTextToSize(value || 'Não informado', CW - labelW - 4);
-    doc.text(lines, ML + labelW, y);
-    y += Math.max(6.5, lines.length * 5.2);
-  }
-
-  function paragrafo(txt, opts) {
-    opts = opts || {};
-    checkPage(10);
-    doc.setFont(opts.bold ? 'helvetica' : 'helvetica', opts.bold ? 'bold' : 'normal');
-    doc.setFontSize(opts.size || 9);
-    doc.setTextColor(opts.color || 40, opts.color ? 0 : 55, opts.color ? 0 : 75);
-    var lines = doc.splitTextToSize(txt, CW - (opts.indent||0));
-    doc.text(lines, ML + (opts.indent||0), y);
-    y += lines.length * (opts.lineH || 5.4) + (opts.after || 2);
-  }
-
-  function bullet(txt) {
-    checkPage(7);
-    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(40,55,75);
-    doc.text('•', ML+2, y);
-    var lines = doc.splitTextToSize(txt, CW-8);
-    doc.text(lines, ML+6, y);
-    y += lines.length*5.2 + 1.5;
-  }
-
-  // ── HEADER ──────────────────────────────────────────────────────
-  doc.setFillColor(28,43,74); doc.rect(0,0,W,40,'F');
-  try { doc.addImage(_LOGO,'PNG',ML,5,28,28); } catch(e){}
-  doc.setTextColor(240,236,228);
-  doc.setFont('helvetica','bold'); doc.setFontSize(14);
-  doc.text('CONTRATO DE PRESTAÇÃO DE SERVIÇOS', W/2, 15, {align:'center'});
-  doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
-  doc.text('Construção Civil e Reformas · PULSO REFORMAS', W/2, 22, {align:'center'});
-  doc.text('(81) 98365-4027  |  (81) 99393-9208  ·  pulsoreformas@gmail.com', W/2, 28, {align:'center'});
-  doc.setFillColor(200,169,110); doc.rect(0,40,W,2,'F');
-
-  // contract number bar
-  doc.setFillColor(17,29,51); doc.rect(0,42,W,11,'F');
-  doc.setTextColor(200,169,110); doc.setFont('helvetica','bold'); doc.setFontSize(9);
-  doc.text('CONTRATO Nº: '+esc(b.num||'—'), ML, 50);
-  doc.setTextColor(200,200,200); doc.setFont('helvetica','normal');
-  doc.text('DATA: '+esc(contrato.geradoEm||new Date().toLocaleDateString('pt-BR')), ML+62, 50);
-  doc.text('ESCOPO: '+(somenteMO?'Somente Mão de Obra':'Mão de Obra + Material'), W-MR, 50, {align:'right'});
-  y = 60;
-
-  // ── INTRO ───────────────────────────────────────────────────────
-  paragrafo(
-    'Pelo presente instrumento particular, as partes abaixo qualificadas celebram o presente Contrato de Prestação de Serviços de Reforma e Construção Civil, que se regerá pelas seguintes cláusulas e condições:',
-    {after:5}
-  );
-
-  // ── CLÁUSULA 1 — PARTES ─────────────────────────────────────────
-  secHeader('CLÁUSULA 1ª — DAS PARTES');
-  doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(28,43,74);
-  doc.text('CONTRATANTE (CLIENTE):', ML+2, y); y+=7;
-  row('Nome', dados.clienteNome || b.client || '');
-  row('CPF / CNPJ', dados.clienteCpfCnpj || '');
-  row('Endereço', dados.clienteEndereco || '');
+  sectionHeader('CLÁUSULA 1ª — DAS PARTES');
+  doc.setFont('helvetica','bold'); doc.text('CONTRATANTE (CLIENTE):', M+2, y); y+=7;
+  field('Nome', dados.clienteNome||b.client||'');
+  field('CPF/CNPJ', dados.clienteCpfCnpj||'');
+  field('Endereço', dados.clienteEndereco||'');
   y += 3;
-  doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(28,43,74);
-  doc.text('CONTRATADA (PRESTADORA):', ML+2, y); y+=7;
-  row('Empresa', 'Pulso Reformas — Construção Civil e Reformas');
-  row('Telefones', '(81) 98365-4027  |  (81) 99393-9208');
-  row('E-mail', 'pulsoreformas@gmail.com');
-  row('Responsável', 'Ednaldo Bezerra');
+  doc.setFont('helvetica','bold'); doc.text('CONTRATADA (PRESTADORA):', M+2, y); y+=7;
+  field('Empresa', 'Pulso Reformas — Construção Civil e Reformas');
+  field('Contato', '(81) 98365-4027 · pulsoreformas@gmail.com');
+  field('Responsável', 'Ednaldo Bezerra');
   y += 4;
 
-  // ── CLÁUSULA 2 — OBJETO ─────────────────────────────────────────
-  secHeader('CLÁUSULA 2ª — DO OBJETO');
-  row('Serviço', dados.obraDescricao || b.obra || '');
-  row('Local da obra', dados.obraEndereco || b.local || '');
-  row('Nº Orçamento', b.num || '');
-  row('Escopo', somenteMO
-    ? 'Mão de obra apenas — os materiais serão fornecidos pelo contratante'
-    : 'Mão de obra e materiais conforme orçamento aprovado');
+  sectionHeader('CLÁUSULA 2ª — DO OBJETO');
+  field('Serviço', dados.obraDescricao||b.obra||'');
+  field('Local da obra', dados.obraEndereco||b.local||'');
+  field('Nº Orçamento', b.num||'');
   y += 4;
 
-  // ── CLÁUSULA 3 — PRAZO ──────────────────────────────────────────
-  secHeader('CLÁUSULA 3ª — DO PRAZO DE EXECUÇÃO');
-  paragrafo(
-    'O prazo para execução dos serviços é de '+(dados.prazoExecucao||'_____ dias úteis')+
-    ', contados a partir da data de assinatura deste contrato e do recebimento do sinal/primeira parcela, podendo ser prorrogado mediante Termo Aditivo em caso de eventos imprevistos, como chuvas excessivas, falta de material, atrasos de fornecedores ou solicitação do contratante.',
-    {after:5}
-  );
+  sectionHeader('CLÁUSULA 3ª — DO PRAZO');
+  check(20);
+  doc.setFontSize(9.5);
+  var prazoTxt = 'O prazo para execução dos serviços é de '+
+    (dados.prazoExecucao||'_____ dias úteis')+
+    ', contados a partir da data de assinatura deste contrato e do recebimento do primeiro pagamento, podendo ser prorrogado mediante aditivo escrito em caso de eventos imprevistos, como chuvas, falta de material ou solicitação do contratante.';
+  var prazoLines = doc.splitTextToSize(prazoTxt, W-2*M-4);
+  doc.text(prazoLines, M+2, y); y += prazoLines.length*5.5 + 6;
 
-  // ── CLÁUSULA 4 — VALOR E PAGAMENTO ──────────────────────────────
-  secHeader('CLÁUSULA 4ª — DO VALOR E CONDIÇÕES DE PAGAMENTO');
-  checkPage(12);
-  doc.setFillColor(240,244,250); doc.roundedRect(ML, y, CW, 10, 1,1,'F');
-  doc.setDrawColor(200,169,110); doc.roundedRect(ML, y, CW, 10, 1,1,'S');
-  doc.setTextColor(28,43,74); doc.setFont('helvetica','bold'); doc.setFontSize(11);
-  doc.text('VALOR TOTAL: '+fmt(dados.valorTotal || calcTotal(b)), ML+6, y+7);
-  y += 14;
+  sectionHeader('CLÁUSULA 4ª — DO VALOR E PAGAMENTO');
+  check(30);
+  doc.setFontSize(12); doc.setFont('helvetica','bold'); doc.setTextColor(28,43,74);
+  doc.text('VALOR TOTAL: '+fmt(dados.valorTotal||calcTotal(b)), M+2, y); y+=8;
+  doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(40,50,70);
 
-  // Payment installments
+  // Payment installments from budget
   var insts = (b.installments && b.installments.length)
     ? b.installments
-    : [{label:'1ª Etapa (Sinal)',pct:40},{label:'2ª Etapa',pct:40},{label:'3ª Etapa',pct:20}];
-  var totalVal = parseFloat(dados.valorTotal) || calcTotal(b);
-
-  // Table header
-  checkPage(8);
-  doc.setFillColor(237,241,248); doc.rect(ML, y, CW, 6.5,'F');
-  doc.setTextColor(80,100,140); doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
-  doc.text('ETAPA / DESCRIÇÃO', ML+3, y+4.5);
-  doc.text('PERCENTUAL', ML+CW*0.6, y+4.5, {align:'center'});
-  doc.text('VALOR', ML+CW-2, y+4.5, {align:'right'});
-  y += 7;
-
-  insts.forEach(function(inst, idx2){
-    checkPage(7);
-    if(idx2%2===0){doc.setFillColor(252,253,255);doc.rect(ML,y,CW,7,'F');}
-    doc.setTextColor(40,55,75); doc.setFont('helvetica','normal'); doc.setFontSize(9);
-    doc.text(esc(inst.label||('Etapa '+(idx2+1))), ML+3, y+5);
-    doc.setFont('helvetica','bold');
-    doc.text((parseFloat(inst.pct)||0).toFixed(1)+'%', ML+CW*0.6, y+5, {align:'center'});
-    doc.text(fmt(totalVal*(parseFloat(inst.pct)||0)/100), ML+CW-2, y+5, {align:'right'});
-    y += 7;
+    : [{label:'1ª Etapa (Entrada)',pct:40},{label:'2ª Etapa',pct:40},{label:'3ª Etapa',pct:20}];
+  var total = dados.valorTotal || calcTotal(b);
+  insts.forEach(function(inst){
+    check(7);
+    var val = total * (parseFloat(inst.pct)||0) / 100;
+    doc.text('• '+esc(inst.label||'Etapa')+': '+fmt(val)+' ('+inst.pct+'%)', M+2, y); y+=6;
   });
   y += 4;
+  var pcTxt = 'Os pagamentos deverão ser realizados conforme o cronograma de obras. Não haverá início dos serviços sem o recebimento do primeiro pagamento.';
+  var pcLines = doc.splitTextToSize(pcTxt, W-2*M-4);
+  doc.text(pcLines, M+2, y); y += pcLines.length*5.5 + 6;
 
-  // Payment conditions from budget
-  var condRows = [
-    ['Prazo de pagamento', pc.deadline||'—'],
-    ['Forma de pagamento', pc.method||'—'],
+  sectionHeader('CLÁUSULA 5ª — DAS OBRIGAÇÕES');
+  check(50);
+  var obs1 = [
+    'DA CONTRATADA: Executar os serviços com qualidade, utilizando mão de obra especializada; fornecer os materiais acordados no orçamento; manter o local de trabalho organizado; comunicar imediatamente qualquer imprevisto.',
+    'DO CONTRATANTE: Fornecer acesso ao local da obra nos horários comerciais; efetuar os pagamentos nas datas acordadas; não interferir no processo de execução sem autorização da contratada.'
   ];
-  if (pc.bankInfo) condRows.push(['Dados bancários', pc.bankInfo]);
-  condRows.push(['Multa por atraso', pc.penalty||'Multa de 2% + 1% a.m. de juros']);
-  condRows.push(['Aditivos', pc.additive||'Itens não previstos serão orçados por aditivo']);
-  if (pc.notes) condRows.push(['Observações', pc.notes]);
-
-  condRows.forEach(function(cr, i){
-    checkPage(7);
-    if(i%2===0){doc.setFillColor(248,249,252);doc.rect(ML,y,CW,6.5,'F');}
-    doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(80,100,140);
-    doc.text(cr[0]+':', ML+3, y+4.5);
-    doc.setFont('helvetica','normal'); doc.setTextColor(40,55,75);
-    var vl = doc.splitTextToSize(cr[1], CW-55);
-    doc.text(vl, ML+52, y+4.5);
-    y += Math.max(6.5, vl.length*5.2);
+  obs1.forEach(function(txt){
+    var ls = doc.splitTextToSize(txt, W-2*M-4);
+    doc.text(ls, M+2, y); y += ls.length*5.5 + 4;
   });
-  y += 5;
 
-  // ── CLÁUSULA 5 — MATERIAIS ──────────────────────────────────────
-  secHeader('CLÁUSULA 5ª — DOS MATERIAIS');
-  if (somenteMO) {
-    paragrafo(
-      'O presente contrato tem como escopo SOMENTE A MÃO DE OBRA. Todos os materiais necessários à execução dos serviços são de responsabilidade exclusiva do CONTRATANTE, que deverá providenciá-los com antecedência suficiente para não gerar atrasos na obra.',
-      {after:3}
-    );
-    bullet('A contratada não se responsabiliza por atrasos decorrentes da falta de materiais.');
-    bullet('A qualidade dos materiais fornecidos é de responsabilidade do contratante.');
-    bullet('Eventuais materiais danificados durante a execução serão informados imediatamente.');
-  } else {
-    paragrafo(
-      'O presente contrato inclui o fornecimento de materiais e mão de obra conforme especificado no orçamento Nº '+esc(b.num||'—')+'. Os materiais serão adquiridos pela CONTRATADA e o custo já está incluído no valor total deste contrato.',
-      {after:3}
-    );
-    bullet('Materiais diferentes dos especificados no orçamento poderão gerar aditivo.');
-    bullet('A contratada zelará pela qualidade dos materiais adquiridos.');
-    bullet('Sobras de materiais após a conclusão ficam à disposição do contratante.');
-  }
-  y += 4;
+  sectionHeader('CLÁUSULA 6ª — DAS ALTERAÇÕES E ADITIVOS');
+  check(20);
+  var aditTxt = 'Qualquer alteração no escopo dos serviços originalmente contratados deverá ser formalizada por meio de Termo Aditivo, com novo orçamento aprovado por ambas as partes antes do início dos serviços adicionais.';
+  var aditLines = doc.splitTextToSize(aditTxt, W-2*M-4);
+  doc.text(aditLines, M+2, y); y += aditLines.length*5.5 + 6;
 
-  // ── CLÁUSULA 6 — OBRIGAÇÕES ─────────────────────────────────────
-  secHeader('CLÁUSULA 6ª — DAS OBRIGAÇÕES DAS PARTES');
-  doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(28,43,74);
-  doc.text('DA CONTRATADA:', ML+2, y); y+=7;
-  bullet('Executar os serviços com qualidade e mão de obra especializada;');
-  bullet('Manter o local de trabalho organizado e limpo ao fim de cada dia;');
-  bullet('Comunicar imediatamente qualquer imprevisto que possa impactar o prazo;');
-  bullet('Cumprir as normas de segurança do trabalho vigentes.');
-  y += 3;
-  doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(28,43,74);
-  doc.text('DO CONTRATANTE:', ML+2, y); y+=7;
-  bullet('Garantir acesso ao local da obra nos horários comerciais (7h às 17h, segunda a sábado);');
-  bullet('Efetuar os pagamentos nas datas acordadas;');
-  bullet('Não interferir no processo de execução sem autorização da contratada;');
-  if (somenteMO) bullet('Fornecer todos os materiais necessários com antecedência mínima de 48 horas;');
-  bullet('Comunicar à contratada qualquer alteração desejada antes da execução.');
-  y += 4;
+  sectionHeader('CLÁUSULA 7ª — DA RESCISÃO');
+  check(20);
+  var rescTxt = 'Este contrato poderá ser rescindido por qualquer das partes mediante comunicação por escrito com antecedência mínima de 7 (sete) dias, cabendo à parte rescindente arcar com os custos proporcionais dos serviços já executados.';
+  var rescLines = doc.splitTextToSize(rescTxt, W-2*M-4);
+  doc.text(rescLines, M+2, y); y += rescLines.length*5.5 + 6;
 
-  // ── CLÁUSULA 7 — ADITIVOS ───────────────────────────────────────
-  secHeader('CLÁUSULA 7ª — DAS ALTERAÇÕES E ADITIVOS');
-  paragrafo(
-    'Qualquer alteração no escopo dos serviços originalmente contratados deverá ser formalizada por meio de Termo Aditivo, com novo orçamento aprovado por ambas as partes antes do início dos serviços adicionais. Serviços realizados sem formalização prévia não serão de responsabilidade da contratada.',
-    {after:5}
-  );
+  sectionHeader('CLÁUSULA 8ª — DO FORO');
+  check(15);
+  var foroTxt = 'As partes elegem o foro da Comarca de Recife/PE para dirimir quaisquer dúvidas ou litígios decorrentes deste contrato, com renúncia expressa a qualquer outro, por mais privilegiado que seja.';
+  var foroLines = doc.splitTextToSize(foroTxt, W-2*M-4);
+  doc.text(foroLines, M+2, y); y += foroLines.length*5.5 + 8;
 
-  // ── CLÁUSULA 8 — GARANTIA ───────────────────────────────────────
-  secHeader('CLÁUSULA 8ª — DA GARANTIA');
-  paragrafo(
-    'A contratada garante os serviços executados pelo prazo de 90 (noventa) dias a partir da data de entrega da obra, excluídos os danos decorrentes de mau uso, umidade estrutural preexistente, intervenções de terceiros ou eventos de força maior.',
-    {after:5}
-  );
-
-  // ── CLÁUSULA 9 — RESCISÃO ───────────────────────────────────────
-  secHeader('CLÁUSULA 9ª — DA RESCISÃO');
-  paragrafo(
-    'Este contrato poderá ser rescindido por qualquer das partes mediante comunicação por escrito com antecedência mínima de 7 (sete) dias. Em caso de rescisão:',
-    {after:2}
-  );
-  bullet('Os serviços já executados serão medidos e cobrados proporcionalmente;');
-  bullet('Materiais já adquiridos e instalados serão cobrados pelo valor de custo;');
-  bullet(''+esc(pc.penalty||'Multa de 2% sobre o saldo restante em caso de rescisão imotivada.'));
-  y += 4;
-
-  // ── CLÁUSULA 10 — FORO ──────────────────────────────────────────
-  secHeader('CLÁUSULA 10ª — DO FORO');
-  paragrafo(
-    'As partes elegem o foro da Comarca de Recife/PE para dirimir quaisquer dúvidas ou litígios decorrentes deste contrato, com renúncia expressa a qualquer outro, por mais privilegiado que seja.',
-    {after:6}
-  );
-
-  // ── ASSINATURAS ─────────────────────────────────────────────────
-  checkPage(55);
-  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(40,55,75);
-  doc.text('Recife/PE, '+esc(contrato.geradoEm||new Date().toLocaleDateString('pt-BR')), ML, y);
-  y += 8;
-
-  doc.setFillColor(28,43,74); doc.rect(ML, y, CW, 1.5,'F'); y += 8;
-
-  // Signature lines side by side
-  var colW = (CW-10)/2;
-  doc.setDrawColor(150,165,185); doc.setLineWidth(0.3);
-  doc.line(ML,    y+20, ML+colW,    y+20);
-  doc.line(ML+colW+10, y+20, ML+CW, y+20);
-
-  doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(28,43,74);
-  doc.text('CONTRATANTE', ML+2, y+25);
-  doc.text('CONTRATADA — PULSO REFORMAS', ML+colW+12, y+25);
-
-  doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(60,75,95);
-  doc.text(esc(dados.clienteNome||b.client||''), ML+2, y+30.5);
-  doc.text('Ednaldo Bezerra', ML+colW+12, y+30.5);
-  doc.text(esc(dados.clienteCpfCnpj||'CPF/CNPJ: ___________________'), ML+2, y+35.5);
-  doc.text('CPF: 000.000.000-00', ML+colW+12, y+35.5);
-  y += 44;
-
-  // Witness lines
-  checkPage(30);
-  doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(100,115,135);
-  doc.text('TESTEMUNHAS (opcional):', ML+2, y); y+=8;
-  doc.line(ML,    y+10, ML+colW,    y+10);
-  doc.line(ML+colW+10, y+10, ML+CW, y+10);
+  // ── Date and Signatures ──
+  check(50);
+  doc.setFont('helvetica','normal'); doc.setFontSize(9.5);
+  doc.text('Recife/PE, '+esc(contrato.geradoEm||new Date().toLocaleDateString('pt-BR')), M, y); y+=10;
+  doc.setFillColor(28,43,74); doc.rect(M,y,W-2*M,1,'F'); y+=8;
+  doc.setDrawColor(150,160,180);
+  doc.line(M,    y+18, M+78,    y+18);
+  doc.line(W-M-78, y+18, W-M, y+18);
+  doc.setFont('helvetica','bold'); doc.setFontSize(9);
+  doc.text('CONTRATANTE', M+2, y+23);
+  doc.text('CONTRATADA — PULSO REFORMAS', W-M-76, y+23);
   doc.setFont('helvetica','normal'); doc.setFontSize(8);
-  doc.text('Testemunha 1 · CPF: ___________________', ML+2, y+14);
-  doc.text('Testemunha 2 · CPF: ___________________', ML+colW+12, y+14);
-  y += 22;
+  doc.text(esc(dados.clienteNome||b.client||''), M+2, y+28);
+  doc.text('Ednaldo Bezerra', W-M-76, y+28);
+  doc.text(esc(dados.clienteCpfCnpj||'CPF/CNPJ: ___________'), M+2, y+33);
+  y += 42;
 
-  // ── FOOTER ──────────────────────────────────────────────────────
+  // ── Footer ──
   var pages = doc.internal.getNumberOfPages();
-  for (var pi=1; pi<=pages; pi++){
-    doc.setPage(pi);
+  for (var i=1;i<=pages;i++){
+    doc.setPage(i);
     doc.setFillColor(28,43,74); doc.rect(0,287,W,10,'F');
     doc.setFillColor(200,169,110); doc.rect(0,287,W,1,'F');
     doc.setTextColor(150,170,200); doc.setFont('helvetica','normal'); doc.setFontSize(7);
     doc.text('PULSO REFORMAS · Contrato Nº '+esc(b.num||'—')+' · (81) 98365-4027 · pulsoreformas@gmail.com', W/2, 292.5, {align:'center'});
-    doc.text('Pág. '+pi+'/'+pages, W-MR, 292.5, {align:'right'});
+    doc.text('Página '+i+' de '+pages, W-M, 292.5, {align:'right'});
   }
 
-  var clientSlug = esc((dados.clienteNome||b.client||'').replace(/[^a-zA-Z0-9]/g,'_').slice(0,20));
-  doc.save('Contrato-'+esc(b.num||'SN')+'-'+clientSlug+'.pdf');
+  doc.save('Contrato-'+esc(b.num||'S-N')+'-'+esc((dados.clienteNome||b.client||'').replace(/[^a-zA-Z0-9]/g,'_').slice(0,20))+'.pdf');
   toast('📄 Contrato PDF gerado!');
 }
 
@@ -8038,50 +7947,8 @@ function openPatModal(id) {
   var contas = (caixaD.contas&&caixaD.contas.length)?caixaD.contas:DEFAULT_CONTAS;
   var today = new Date().toLocaleDateString('pt-BR');
 
-  // Only show NF import tab for new items
-  var showNFTab = !id;
-
   inner.innerHTML =
     '<h2>'+(id?'✏️ Editar':'＋ Novo')+' Equipamento</h2>'+
-
-    (showNFTab
-      ? '<div style="display:flex;gap:0;margin-bottom:16px;border-radius:9px;overflow:hidden;border:1px solid var(--bd)">'+
-          '<button id="pat-tab-manual" onclick="patSwitchTab(&quot;manual&quot;)" style="flex:1;padding:9px 0;font-size:13px;font-weight:700;cursor:pointer;background:var(--gdm);color:var(--gd);border:none;font-family:Barlow,sans-serif">✏️ Preencher manualmente</button>'+
-          '<button id="pat-tab-nf" onclick="patSwitchTab(&quot;nf&quot;)" style="flex:1;padding:9px 0;font-size:13px;font-weight:700;cursor:pointer;background:transparent;color:rgba(180,220,255,.4);border:none;font-family:Barlow,sans-serif">📄 Importar por NF</button>'+
-        '</div>'
-      : '')+
-
-    // ── NF Import panel ──
-    (showNFTab
-      ? '<div id="pat-panel-nf" style="display:none">'+
-          '<div id="pat-nf-drop" style="border:2px dashed rgba(0,212,255,.2);border-radius:12px;padding:28px 20px;text-align:center;cursor:pointer;background:rgba(0,8,24,.4);transition:all .15s" onclick="el(&quot;pat-nf-inp&quot;).click()">'+
-            '<div style="font-size:32px;margin-bottom:8px">📄</div>'+
-            '<div style="font-size:13px;font-weight:700;color:rgba(180,220,255,.7)">Clique para enviar a Nota Fiscal</div>'+
-            '<div style="font-size:11px;color:rgba(0,212,255,.35);margin-top:4px">PDF ou foto da NF · Máx 5MB</div>'+
-          '</div>'+
-          '<input type="file" id="pat-nf-inp" accept="image/*,.pdf" style="display:none">'+
-          '<div id="pat-nf-preview" style="display:none;margin-top:10px">'+
-            '<div id="pat-nf-file-info" style="display:flex;align-items:center;gap:10px;background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.15);border-radius:8px;padding:10px 14px;margin-bottom:12px">'+
-              '<span id="pat-nf-icon" style="font-size:20px">📄</span>'+
-              '<div style="flex:1"><div id="pat-nf-fname" style="font-size:13px;font-weight:700;color:var(--wh)"></div>'+
-              '<div id="pat-nf-fsize" style="font-size:10px;color:rgba(0,212,255,.4)"></div></div>'+
-              '<button onclick="patClearNF()" style="background:transparent;border:none;color:rgba(255,68,102,.4);cursor:pointer;font-size:16px">✕</button>'+
-            '</div>'+
-            '<button class="btn btn-p" style="width:100%" id="pat-nf-read-btn">🔍 Ler e extrair dados da NF</button>'+
-          '</div>'+
-          '<div id="pat-nf-loading" style="display:none" class="qc-loading">'+
-            '<div class="qc-spinner"></div> Lendo a nota fiscal...'+
-          '</div>'+
-          '<div id="pat-nf-result" style="display:none;margin-top:12px;background:rgba(0,255,136,.04);border:1px solid rgba(0,255,136,.15);border-radius:10px;padding:14px">'+
-            '<div style="font-size:11px;font-weight:700;color:var(--gn);margin-bottom:10px">✅ Dados extraídos — revise antes de salvar:</div>'+
-            '<div id="pat-nf-fields" style="display:flex;flex-direction:column;gap:8px"></div>'+
-            '<button class="btn btn-gn" style="width:100%;margin-top:12px" id="pat-nf-apply-btn">✅ Usar esses dados</button>'+
-          '</div>'+
-        '</div>'
-      : '')+
-
-    // ── Manual panel ──
-    '<div id="pat-panel-manual">'+
     '<div style="display:flex;flex-direction:column;gap:12px">'+
       '<div class="field"><label>Nome do equipamento *</label>'+
         '<input class="fi" id="pat-nome" value="'+esc(p.nome||'')+'" placeholder="Ex: Furadeira de Impacto Bosch, Betoneira 400L..."></div>'+
@@ -8124,211 +7991,15 @@ function openPatModal(id) {
           obras.map(function(b){var ov='obra:'+b.id;return'<option value="'+ov+'"'+(p.local===ov?' selected':'')+'>🏗️ '+esc(b.client||b.num||'Obra')+'</option>';}).join('')+
         '</select></div>'+
     '</div>'+
-    '</div>'+ // close pat-panel-manual
     '<div class="mf"><button class="btn btn-gn" id="pat-save">💾 Salvar</button><button class="btn btn-g" id="pat-cancel">Cancelar</button></div>';
 
   el('ov-patrimonio').classList.add('open');
-
-  var _patNFBase64 = null, _patNFMime = null;
 
   setTimeout(function(){
     el('pat-save').addEventListener('click', function(){ savePatrimonio(id); });
     el('pat-cancel').addEventListener('click', function(){ closeOv('ov-patrimonio'); });
     el('pat-nome').focus();
-
-    if (!id) {
-      // Wire NF file input
-      var nfInp = el('pat-nf-inp');
-      if (nfInp) nfInp.addEventListener('change', function(){
-        if (this.files && this.files[0]) patLoadNF(this.files[0]);
-      });
-      var nfDrop = el('pat-nf-drop');
-      if (nfDrop) {
-        nfDrop.addEventListener('dragover', function(e){e.preventDefault();this.style.borderColor='var(--gd)';});
-        nfDrop.addEventListener('dragleave', function(){this.style.borderColor='rgba(0,212,255,.2)';});
-        nfDrop.addEventListener('drop', function(e){
-          e.preventDefault(); this.style.borderColor='rgba(0,212,255,.2)';
-          var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];
-          if(f) patLoadNF(f);
-        });
-      }
-    }
   },0);
-
-  function patLoadNF(file) {
-    if (file.size > 5*1024*1024) { toast('Arquivo muito grande. Máx 5MB.','err'); return; }
-    var reader = new FileReader();
-    reader.onload = function(e){
-      _patNFBase64 = e.target.result.split(',')[1];
-      _patNFMime   = file.type;
-      el('pat-nf-drop').style.display = 'none';
-      el('pat-nf-preview').style.display = '';
-      el('pat-nf-icon').textContent = file.type==='application/pdf' ? '📄' : '🖼️';
-      el('pat-nf-fname').textContent = file.name;
-      el('pat-nf-fsize').textContent = (file.size/1024).toFixed(0)+' KB';
-      el('pat-nf-result').style.display = 'none';
-      el('pat-nf-read-btn').addEventListener('click', patReadNF);
-    };
-    reader.readAsDataURL(file);
-  }
-
-  function patClearNF() {
-    _patNFBase64 = null; _patNFMime = null;
-    el('pat-nf-drop').style.display = '';
-    el('pat-nf-preview').style.display = 'none';
-    el('pat-nf-result').style.display = 'none';
-    el('pat-nf-inp').value = '';
-  }
-
-  function patReadNF() {
-    if (!_patNFBase64) return;
-    el('pat-nf-loading').style.display = 'flex';
-    el('pat-nf-read-btn').disabled = true;
-    el('pat-nf-result').style.display = 'none';
-
-    var catList = PAT_CATS.map(function(c){return c.id+'='+c.label;}).join(', ');
-    var sysPrompt =
-      'Você é um assistente de gestão de patrimônio para uma empresa de construção civil no Brasil. '+
-      'Analise a nota fiscal ou comprovante de compra e extraia as informações do equipamento/ferramenta adquirido. '+
-      'Categorias disponíveis: '+catList+'. '+
-      'Responda SOMENTE com JSON válido sem markdown: '+
-      '{"nome":"nome do produto","valor":1234.56,"dataCompra":"DD/MM/AAAA","categoria":"ferramenta","fornecedor":"nome da loja"}';
-
-    var mime = _patNFMime === 'application/pdf' ? 'application/pdf' : (_patNFMime||'image/jpeg');
-    fetch('/api/ai', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model:'claude-haiku-4-5-20251001',
-        max_tokens:300,
-        system: sysPrompt,
-        messages:[{role:'user', content:[
-          {type: mime==='application/pdf'?'document':'image',
-           source:{type:'base64', media_type:mime, data:_patNFBase64}},
-          {type:'text', text:'Extraia os dados desta nota fiscal para cadastro de patrimônio.'}
-        ]}]
-      })
-    })
-    .then(function(r){return r.text();})
-    .then(function(raw){
-      el('pat-nf-loading').style.display = 'none';
-      el('pat-nf-read-btn').disabled = false;
-      try {
-        // 1. Extract text from proxy wrapper
-        var texto = raw;
-        try {
-          var wrap = JSON.parse(raw);
-          if (wrap.content && Array.isArray(wrap.content)) {
-            var tb = wrap.content.find(function(b){ return b.type==='text'; });
-            if (tb && tb.text) texto = tb.text;
-          } else if (wrap.resposta) {
-            texto = wrap.resposta;
-          }
-        } catch(e){}
-
-        // 2. Clean and find JSON
-        texto = texto.replace(/```json|```/g,'').trim();
-        var jsonMatch = texto.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
-        var parsed = null;
-        if (jsonMatch) {
-          try { parsed = JSON.parse(jsonMatch[0]); } catch(e) {
-            try { parsed = JSON.parse(jsonMatch[0].replace(/\n/g,' ')); } catch(e2){}
-          }
-        }
-
-        console.log('[NF] Parsed:', parsed);
-        if (!parsed) { toast('Não foi possível extrair dados da NF. Tente imagem mais nítida.','err'); return; }
-
-        // 3. Normalize to array of items
-        var itens = [];
-        if (Array.isArray(parsed)) { itens = parsed; }
-        else if (parsed.itens && Array.isArray(parsed.itens)) { itens = parsed.itens; }
-        else if (parsed.nome || parsed.valor) { itens = [parsed]; }
-        if (!itens.length) { toast('Nenhum item identificado.','err'); return; }
-
-        var _nfItens = itens, _nfIdx = 0;
-        var fields = el('pat-nf-fields');
-
-        function renderNFItem(idx) {
-          var obj = _nfItens[idx] || {};
-          fields.innerHTML = [
-            {l:'Nome/Produto', k:'nome',       v:obj.nome||'',       t:'text'},
-            {l:'Valor (R$)',   k:'valor',      v:obj.valor||0,       t:'number'},
-            {l:'Data compra',  k:'dataCompra', v:obj.dataCompra||new Date().toLocaleDateString('pt-BR'), t:'text'},
-            {l:'Fornecedor',   k:'fornecedor', v:obj.fornecedor||'', t:'text'},
-          ].map(function(f){
-            return '<div class="field"><label>'+f.l+'</label>'+
-              '<input class="fi" id="nf-'+f.k+'" value="'+esc(String(f.v))+'" type="'+f.t+'" style="font-size:13px"></div>';
-          }).join('') +
-          '<div class="field"><label>Categoria</label>'+
-            '<select class="fi" id="nf-cat_select" style="font-size:13px">'+
-              PAT_CATS.map(function(c){return'<option value="'+c.id+'"'+(obj.categoria===c.id?' selected':'')+'>'+c.icon+' '+c.label+'</option>';}).join('')+
-            '</select></div>';
-
-          // Nav for multiple items
-          var old = el('pat-nf-nav');
-          if (old) old.remove();
-          if (_nfItens.length > 1) {
-            var nav = document.createElement('div');
-            nav.id = 'pat-nf-nav';
-            nav.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-size:12px;color:rgba(0,212,255,.5)';
-            nav.innerHTML =
-              '<span>Item '+(idx+1)+' de '+_nfItens.length+'</span>'+
-              '<div style="display:flex;gap:6px">'+
-                (idx>0?'<button class="btn btn-g btn-xs" id="nf-prev">← Anterior</button>':'')+
-                (idx<_nfItens.length-1?'<button class="btn btn-g btn-xs" id="nf-next">Próximo →</button>':'')+
-              '</div>';
-            fields.parentNode.insertBefore(nav, fields);
-            setTimeout(function(){
-              var prev=el('nf-prev'); var next=el('nf-next');
-              if (prev) prev.onclick = function(){ _nfIdx--; renderNFItem(_nfIdx); };
-              if (next) next.onclick = function(){ _nfIdx++; renderNFItem(_nfIdx); };
-            },0);
-          }
-        }
-
-        renderNFItem(0);
-        el('pat-nf-result').style.display = '';
-        el('pat-nf-apply-btn').onclick = function(){
-          el('pat-nome').value  = (el('nf-nome').value||'').trim();
-          el('pat-valor').value = el('nf-valor').value||'';
-          el('pat-data').value  = el('nf-dataCompra').value||'';
-          el('pat-cat').value   = el('nf-cat_select').value||'outro';
-          patSwitchTab('manual');
-          toast('Dados preenchidos! Revise e salve.');
-        };
-      } catch(err) {
-        toast('Erro ao processar resposta: '+err.message,'err');
-        console.error('[NF] Error:', err);
-      }
-    })
-    .catch(function(){
-      el('pat-nf-loading').style.display='none';
-      el('pat-nf-read-btn').disabled=false;
-      toast('Erro de conexão com a IA.','err');
-    });
-  }
-}
-
-function patSwitchTab(tab) {
-  var manual = el('pat-panel-manual');
-  var nf     = el('pat-panel-nf');
-  var tMan   = el('pat-tab-manual');
-  var tNF    = el('pat-tab-nf');
-  if (!manual) return;
-  if (tab==='nf') {
-    if(nf) nf.style.display='';
-    manual.style.display='none';
-    el('pat-save').style.display='none';
-    if(tMan){tMan.style.background='transparent';tMan.style.color='rgba(180,220,255,.4)';}
-    if(tNF) {tNF.style.background='var(--gdm)';tNF.style.color='var(--gd)';}
-  } else {
-    if(nf) nf.style.display='none';
-    manual.style.display='';
-    el('pat-save').style.display='';
-    if(tMan){tMan.style.background='var(--gdm)';tMan.style.color='var(--gd)';}
-    if(tNF) {tNF.style.background='transparent';tNF.style.color='rgba(180,220,255,.4)';}
-  }
 }
 
 function patToggleParcelas() {
@@ -8527,12 +8198,13 @@ function buildRelatorioPanel(panel, bid, b, entries, insts, instStatus, receita,
   // % Prazo corrido
   var prazoEmDias = parseInt(obra.prazoEmDias)||0;
   var pctPrazo=0, diasCorridos=0, diasRestantes=0, dataTermino=null;
-  var startDate = obra.startDate ? parseDateBR(obra.startDate) : null;
-  if (startDate && !isNaN(startDate) && prazoEmDias>0) {
+  var startDateRaw = obra.startDate ? parseDateBR(obra.startDate) : null;
+  var startDate = (startDateRaw && !isNaN(startDateRaw)) ? startDateRaw : null;
+  if (startDate && prazoEmDias>0) {
     diasCorridos  = Math.max(0, Math.round((hoje-startDate)/(1000*60*60*24)));
     diasRestantes = Math.max(0, prazoEmDias-diasCorridos);
     pctPrazo      = Math.min(100, Math.round(diasCorridos/prazoEmDias*100));
-    dataTermino   = new Date(startDate.getTime()+prazoEmDias*24*60*60*1000);
+    dataTermino   = new Date(startDate.valueOf()+prazoEmDias*24*60*60*1000);
   }
 
   // Financials
@@ -9027,7 +8699,7 @@ function saveRecebimento(bid, entry) {
   db[bid].recebimentos.push(entry);
   ODB.save(db);
   // Sync to obra caixa
-  var mov = {id:'rec_'+entry.id, tipo:'entrada', conta:entry.conta||CONTA_PADRAO,
+  var mov = {id:'rec_'+entry.id, tipo:'entrada', conta:CONTA_PADRAO,
     desc: entry.desc||'Recebimento', val: parseFloat(entry.val||0),
     date: entry.date||'', createdAt: Date.now(), autoGerado: true};
   addMovObraCaixa(bid, mov);
@@ -9064,25 +8736,15 @@ function duplicateBudget(id) {
   var all = DB.load();
   var orig = all.find(function(b){ return b.id === id; });
   if (!orig) return;
-
   var newNum = 'BVM-' + String(all.length + 1).padStart(4, '0');
-  var copy = JSON.parse(JSON.stringify(orig)); // deep clone
-
-  // Reset identity fields
-  copy.id        = uid();
-  copy.num       = newNum;
-  copy.status    = 'pending';
-  copy.createdAt = Date.now();
-  copy.date      = new Date().toLocaleDateString('pt-BR');
-
-  // Give new IDs to sections and items
+  var copy = JSON.parse(JSON.stringify(orig));
+  copy.id = uid(); copy.num = newNum; copy.status = 'pending';
+  copy.createdAt = Date.now(); copy.date = new Date().toLocaleDateString('pt-BR');
   (copy.sections || []).forEach(function(s) {
     s.id = uid();
     (s.items || []).forEach(function(it){ it.id = uid(); });
   });
-
-  all.push(copy);
-  DB.save(all);
+  all.push(copy); DB.save(all);
   toast('✅ Orçamento duplicado como ' + newNum);
   renderList('');
 }
@@ -9184,21 +8846,14 @@ function runAIGenerate(){
   el('ai-err').style.display='none';
   var priceRef=buildPriceReference();
   var areaInfo=area>0?'\nÁREA: '+area+' m² — use para calcular quantidades.':'';
-  var escopo = (el('ai-escopo') ? el('ai-escopo').value : 'completo');
-  var escopoLabel = escopo === 'mao_de_obra'
-    ? 'SOMENTE MÃO DE OBRA (sem materiais). Os valores NÃO incluem materiais — apenas mão de obra e encargos.'
-    : 'MÃO DE OBRA + MATERIAL. Os preços são valores finais ao cliente, já incluindo material, mão de obra e lucro.';
-  var tabelaPrecos = escopo==='mao_de_obra'
-    ? 'TABELA MÃO DE OBRA RECIFE/PE 2025 (apenas mão de obra, sem material):\nDemolição/preparação: R$25-40/m²\nContrapiso: R$30-45/m²\nReboco/chapisco: R$35-50/m²\nAssentamento piso/azulejo: R$45-70/m²\nPintura parede (mão de obra): R$12-20/m²\nInstalação elétrica (por ponto): R$120-180\nInstalação hidráulica (por ponto): R$150-250\nInstalação porta/janela: R$150-250\nMarcenaria instalação: R$80-140/m²\nGesso/drywall (mão de obra): R$35-55/m²'
-    : 'TABELA DE PREÇOS RECIFE/PE 2025 (valor final ao cliente):\nDemolição/preparação: R$45-70/m²\nContrapiso/regularização: R$55-80/m²\nChapisco+reboco: R$60-85/m²\nPiso cerâmico simples: R$95-130/m²\nPiso porcelanato 60x60: R$130-180/m²\nPiso porcelanato retificado 80x80+: R$160-220/m²\nRevestimento parede: R$110-160/m²\nRodapé porcelanato: R$35-55/ml\nPintura látex: R$22-32/m²\nPintura acrílica premium: R$30-45/m²\nPintura epóxi: R$45-70/m²\nForro gesso liso: R$80-110/m²\nForro gesso com sanca: R$110-160/m²\nForro PVC: R$70-95/m²\nPonto elétrico: R$220-320/pto\nPonto iluminação: R$180-280/pto\nQuadro elétrico: R$1200-2800/un\nInstalação ar condicionado split: R$400-700/un\nPonto hidráulico: R$300-500/pto\nInstalação louça: R$250-400/un\nPorta madeira completa: R$600-1200/un\nBox vidro temperado: R$800-1500/m²\nDivisória drywall: R$150-220/m²';
-  var systemPrompt='Você é um especialista em orçamentos de reformas em Recife/PE para a Pulso Reformas.\n\nA empresa faz obras RESIDENCIAIS e COMERCIAIS. ESCOPO DESTE ORÇAMENTO: '+escopoLabel+'\n\n'+tabelaPrecos+priceRef+areaInfo+'\n\nREGRAS:\n1. Se projeto PDF/imagem foi enviado: analise todos os ambientes, áreas e serviços indicados\n2. Organize por tipo de serviço: Demolição, Piso e Revestimento, Pintura, Elétrica, Hidráulica, Gessaria, Acabamentos\n3. 4 a 9 seções, itens com quantidades realistas\n4. Descrições específicas\n5. Preços são valores finais ao cliente\n\nRESPONDA APENAS JSON válido sem markdown:\n{"sections":[{"name":"Nome","items":[{"desc":"Descrição","qty":10,"unit":"m²","price":150.00}]}]}\nUnidades: m², m, m³, vb, un, pç, hr, pto, saco, kg, ml';
+  var systemPrompt='Você é um especialista em orçamentos de reformas em Recife/PE para a Pulso Reformas.\n\nA empresa faz obras RESIDENCIAIS e COMERCIAIS. Os preços são os valores finais cobrados ao cliente (mão de obra + material + lucro já incluídos).\n\nTABELA DE PREÇOS RECIFE/PE 2025 (valor final ao cliente):\nDemolição/preparação: R$45-70/m²\nContrapiso/regularização: R$55-80/m²\nChapisco+reboco: R$60-85/m²\nPiso cerâmico simples: R$95-130/m²\nPiso porcelanato 60x60: R$130-180/m²\nPiso porcelanato retificado 80x80+: R$160-220/m²\nRevestimento parede: R$110-160/m²\nRodapé porcelanato: R$35-55/ml\nPintura látex: R$22-32/m²\nPintura acrílica premium: R$30-45/m²\nPintura epóxi: R$45-70/m²\nForro gesso liso: R$80-110/m²\nForro gesso com sanca: R$110-160/m²\nForro PVC: R$70-95/m²\nPonto elétrico: R$220-320/pto\nPonto iluminação: R$180-280/pto\nQuadro elétrico: R$1200-2800/un\nInstalação ar condicionado split: R$400-700/un\nPonto hidráulico: R$300-500/pto\nInstalação louça: R$250-400/un\nPorta madeira completa: R$600-1200/un\nBox vidro temperado: R$800-1500/m²\nDivisória drywall: R$150-220/m²'+priceRef+areaInfo+'\n\nREGRAS:\n1. Se projeto PDF/imagem foi enviado: analise todos os ambientes, áreas e serviços indicados\n2. Organize por tipo de serviço: Demolição, Piso e Revestimento, Pintura, Elétrica, Hidráulica, Gessaria, Acabamentos\n3. 4 a 9 seções, itens com quantidades realistas\n4. Descrições específicas\n5. Preços são valores finais ao cliente\n\nRESPONDA APENAS JSON válido sem markdown:\n{"sections":[{"name":"Nome","items":[{"desc":"Descrição","qty":10,"unit":"m²","price":150.00}]}]}\nUnidades: m², m, m³, vb, un, pç, hr, pto, saco, kg, ml';
   var msgContent;
   if(hasFile&&_aiFileData){
     var isPDF=_aiFileData.type==='application/pdf';
     var contentBlock=isPDF?{type:'document',source:{type:'base64',media_type:'application/pdf',data:_aiFileData.data}}:{type:'image',source:{type:'base64',media_type:_aiFileData.type,data:_aiFileData.data}};
-    var textBlock={type:'text',text:(prompt||'Analise este projeto e gere o orçamento completo.')+(escopo==='mao_de_obra'?' IMPORTANTE: apenas mão de obra, sem materiais.':' Inclua materiais e mão de obra.')};
+    var textBlock={type:'text',text:prompt||'Analise este projeto e gere o orçamento completo.'};
     msgContent=[contentBlock,textBlock];
-  }else{msgContent=prompt+(escopo==='mao_de_obra'?'\n\nIMPORTANTE: Este orçamento é SOMENTE MÃO DE OBRA. Não inclua o custo dos materiais — apenas serviço.':'\n\nIncluir materiais e mão de obra nos preços.');}
+  }else{msgContent=prompt;}
   fetch('/api/ai',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
@@ -9232,9 +8887,6 @@ function renderAIPreview(sections){
 function applyAISections(){
   if(!_aiGeneratedSections||!_aiTargetBudgetId)return;
   var all=DB.load(),b=all.find(function(x){return x.id===_aiTargetBudgetId;});if(!b)return;
-  // Save escopo to budget for contract generation
-  var escopoEl = el('ai-escopo');
-  if (escopoEl) b.escopo = escopoEl.value;
   var newSections=_aiGeneratedSections.map(function(sec){return{id:uid(),name:sec.name,manualTotal:'',items:(sec.items||[]).map(function(it){return{id:uid(),desc:it.desc,qty:String(parseFloat(it.qty)||1),unit:it.unit||'vb',price:String(parseFloat(it.price)||0)};})};});
   b.sections=(b.sections||[]).concat(newSections);
   DB.save(all);closeOv('ov-ai');
@@ -9273,18 +8925,9 @@ setTimeout(function(){
 
     <!-- Normal mode fields -->
     <div id="ai-mode-normal">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
-        <div>
-          <label style="font-size:11px;color:rgba(0,212,255,.5);text-transform:uppercase;letter-spacing:.06em;font-weight:700;display:block;margin-bottom:5px">Área total (opcional)</label>
-          <div style="display:flex;align-items:center;gap:8px"><input class="fi" id="ai-area" type="number" min="0" step="0.5" placeholder="Ex: 45" style="max-width:140px"><span style="color:rgba(0,212,255,.4);font-size:13px">m²</span></div>
-        </div>
-        <div>
-          <label style="font-size:11px;color:rgba(0,212,255,.5);text-transform:uppercase;letter-spacing:.06em;font-weight:700;display:block;margin-bottom:5px">Escopo do orçamento</label>
-          <select class="fi" id="ai-escopo" style="font-size:13px">
-            <option value="completo" selected>🧱 Mão de obra + Material</option>
-            <option value="mao_de_obra">👷 Somente Mão de Obra</option>
-          </select>
-        </div>
+      <div style="margin-bottom:14px">
+        <label style="font-size:11px;color:rgba(0,212,255,.5);text-transform:uppercase;letter-spacing:.06em;font-weight:700;display:block;margin-bottom:5px">Área total (opcional)</label>
+        <div style="display:flex;align-items:center;gap:8px"><input class="fi" id="ai-area" type="number" min="0" step="0.5" placeholder="Ex: 45" style="max-width:140px"><span style="color:rgba(0,212,255,.4);font-size:13px">m²</span></div>
       </div>
       <div style="margin-bottom:14px">
         <label style="font-size:11px;color:rgba(0,212,255,.5);text-transform:uppercase;letter-spacing:.06em;font-weight:700;display:block;margin-bottom:6px">Projeto da arquiteta (PDF ou imagem)</label>
@@ -9380,6 +9023,8 @@ setTimeout(function(){
 </div>
 
 <div class="ov" id="ov-adit-rec" onclick="if(event.target===this)closeOv('ov-adit-rec')"><div class="modal sm" id="ov-adit-rec-inner"></div></div>
+
+<div class="ov" id="ov-adit-cost" onclick="if(event.target===this)closeOv('ov-adit-cost')"><div class="modal sm" id="ov-adit-cost-inner"></div></div>
 
 <div class="ov" id="ov-adit-cost" onclick="if(event.target===this)closeOv('ov-adit-cost')"><div class="modal sm" id="ov-adit-cost-inner"></div></div>
 
