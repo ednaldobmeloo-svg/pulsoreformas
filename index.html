@@ -1160,7 +1160,7 @@ select.fi option{background:#06121e}
 .rel-etapa-pct{font-weight:700;color:var(--gd);text-align:right}
 
 
-/* ── CONSOLIDATED KPIs ──────────────────────────────── */
+/* ── CONSOLIDATED KPIs ─────────────────────────────── */
 .consolidado-section{margin-bottom:18px}
 .consolidado-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .consolidado-title{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:rgba(0,255,136,.7);text-transform:uppercase;letter-spacing:.08em}
@@ -1169,81 +1169,51 @@ select.fi option{background:#06121e}
 .stat-consolidado::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gn),transparent)}
 .stat-consolidado .lbl{font-size:11px;color:rgba(0,212,255,.5);text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-bottom:6px}
 .stat-consolidado .val{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;line-height:1.1}
-.stat-consolidado .val.pos{color:var(--gn)}
-.stat-consolidado .val.neg{color:var(--rd)}
-.stat-consolidado .val.neu{color:var(--gd)}
-.stat-consolidado .val.warn{color:var(--yw)}
-/* ── RELATÓRIO ───────────────────────────────────────── */
-.rel-alert{display:flex;align-items:flex-start;gap:10px;padding:12px 16px;border-radius:10px;margin-bottom:8px;font-size:12px}
-.rel-alert.ok{background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.15);color:rgba(0,255,136,.8)}
-.rel-alert.warn{background:rgba(255,209,102,.06);border:1px solid rgba(255,209,102,.15);color:rgba(255,209,102,.8)}
-.rel-alert.danger{background:rgba(255,68,102,.06);border:1px solid rgba(255,68,102,.15);color:rgba(255,68,102,.8)}
-.rel-alert-icon{font-size:16px;flex-shrink:0}
-
-
-/* ── NOTIFICATIONS ─────────────────────────────────────── */
+.stat-consolidado .val.pos{color:var(--gn)}.stat-consolidado .val.neg{color:var(--rd)}
+.stat-consolidado .val.neu{color:var(--gd)}.stat-consolidado .val.warn{color:var(--yw)}
+/* ── ALERTS ──────────────────────────────────────────── */
+.rel-alert,.mrel-alert{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-radius:9px;margin-bottom:8px;font-size:12px}
+.rel-alert.ok,.mrel-alert.ok{background:rgba(0,255,136,.05);border:1px solid rgba(0,255,136,.15);color:rgba(0,255,136,.8)}
+.rel-alert.warn,.mrel-alert.warn{background:rgba(255,209,102,.05);border:1px solid rgba(255,209,102,.15);color:rgba(255,209,102,.8)}
+.rel-alert.danger,.mrel-alert.danger{background:rgba(255,68,102,.05);border:1px solid rgba(255,68,102,.15);color:rgba(255,68,102,.8)}
+/* ── NOTIFICATIONS ──────────────────────────────────── */
 .notif-bell-wrap{position:relative;cursor:pointer;display:flex;align-items:center}
-.notif-bell-btn{background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.15);border-radius:8px;
-  width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;
-  transition:all .15s;position:relative}
-.notif-bell-btn:hover{background:rgba(0,212,255,.14);border-color:rgba(0,212,255,.3)}
-.notif-badge{position:absolute;top:-4px;right:-4px;background:var(--rd);color:#fff;
-  font-size:9px;font-weight:800;padding:1px 5px;border-radius:10px;min-width:16px;text-align:center;
-  border:2px solid var(--bg2)}
-.notif-panel{position:absolute;top:calc(100% + 8px);right:0;width:340px;max-height:480px;
-  background:rgba(8,16,40,.97);border:1px solid rgba(0,212,255,.15);border-radius:14px;
-  box-shadow:0 20px 60px rgba(0,0,0,.6);z-index:1000;overflow:hidden;display:none}
-.notif-panel.open{display:block;animation:fadeSlideDown .15s ease}
-@keyframes fadeSlideDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
-.notif-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;
-  border-bottom:1px solid rgba(0,212,255,.08);font-size:12px;font-weight:700;color:rgba(0,212,255,.6)}
+.notif-bell-btn{background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.15);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;transition:all .15s;position:relative}
+.notif-bell-btn:hover{background:rgba(0,212,255,.14)}
+.notif-badge{position:absolute;top:-4px;right:-4px;background:var(--rd);color:#fff;font-size:9px;font-weight:800;padding:1px 5px;border-radius:10px;min-width:16px;text-align:center;border:2px solid var(--bg2)}
+.notif-panel{position:absolute;top:calc(100% + 8px);right:0;width:340px;max-height:480px;background:rgba(8,16,40,.97);border:1px solid rgba(0,212,255,.15);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.6);z-index:1000;overflow:hidden;display:none}
+.notif-panel.open{display:block}
+.notif-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(0,212,255,.08);font-size:12px;font-weight:700;color:rgba(0,212,255,.6)}
 .notif-list{max-height:380px;overflow-y:auto}
-.notif-item{display:flex;gap:10px;padding:11px 16px;border-bottom:1px solid rgba(0,212,255,.05);
-  cursor:pointer;transition:background .1s}
+.notif-item{display:flex;gap:10px;padding:11px 16px;border-bottom:1px solid rgba(0,212,255,.05);cursor:pointer;transition:background .1s}
 .notif-item:hover{background:rgba(0,212,255,.04)}
 .notif-item.unread{background:rgba(0,212,255,.03)}
 .notif-item .ni-icon{font-size:18px;flex-shrink:0;margin-top:2px}
-.notif-item .ni-body{}
 .notif-item .ni-title{font-size:12px;font-weight:700;color:rgba(220,235,255,.9);margin-bottom:2px}
 .notif-item .ni-msg{font-size:11px;color:rgba(0,212,255,.4);line-height:1.4}
-.notif-item .ni-time{font-size:10px;color:rgba(0,212,255,.25);margin-top:3px}
 .notif-item.danger .ni-title{color:rgba(255,120,120,.9)}
 .notif-item.warn .ni-title{color:rgba(255,209,102,.9)}
 .notif-item.ok .ni-title{color:rgba(0,255,136,.9)}
 .notif-empty{padding:28px;text-align:center;color:rgba(0,212,255,.25);font-size:12px}
-
-/* ── DASHBOARD ENHANCED ─────────────────────────────────── */
-.dash-section-title{font-size:10px;color:rgba(0,212,255,.35);text-transform:uppercase;
-  letter-spacing:.1em;font-weight:700;margin:20px 0 10px;display:flex;align-items:center;gap:10px}
-.dash-section-title::after{content:'';flex:1;height:1px;background:rgba(0,212,255,.07)}
-.dash-chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
-.dash-chart-card{background:rgba(0,8,24,.55);border:1px solid rgba(0,212,255,.1);border-radius:14px;padding:16px}
-.dash-chart-title{font-size:12px;font-weight:700;color:rgba(180,220,255,.7);margin-bottom:4px}
-.dash-chart-sub{font-size:10px;color:rgba(0,212,255,.35);margin-bottom:14px}
-
-/* ── LUCRATIVIDADE ──────────────────────────────────────── */
+/* ── LUCRATIVIDADE ──────────────────────────────────── */
 .lucr-table{width:100%;border-collapse:collapse;margin-bottom:16px}
-.lucr-table th{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:rgba(0,212,255,.4);
-  font-weight:700;padding:8px 10px;text-align:left;border-bottom:1px solid rgba(0,212,255,.1)}
+.lucr-table th{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:rgba(0,212,255,.4);font-weight:700;padding:8px 10px;text-align:left;border-bottom:1px solid rgba(0,212,255,.1)}
 .lucr-table td{padding:9px 10px;font-size:12px;border-bottom:1px solid rgba(0,212,255,.05)}
 .lucr-table tr:hover td{background:rgba(0,212,255,.03)}
 .lucr-rank{font-size:16px;font-weight:800;font-family:'Barlow Condensed',sans-serif;color:rgba(0,212,255,.3)}
 .lucr-rank.top{color:var(--yw)}
 .lucr-margem-bar{height:4px;background:rgba(0,212,255,.08);border-radius:4px;margin-top:4px;overflow:hidden}
-.lucr-margem-fill{height:100%;border-radius:4px;transition:width .4s}
-
-/* ── FORNECEDORES ───────────────────────────────────────── */
+.lucr-margem-fill{height:100%;border-radius:4px}
+/* ── FORNECEDORES ───────────────────────────────────── */
 .forn-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:16px}
 .forn-card{background:rgba(0,8,24,.55);border:1px solid rgba(0,212,255,.1);border-radius:14px;overflow:hidden}
 .forn-card-hd{padding:14px 16px;background:rgba(0,212,255,.03);border-bottom:1px solid rgba(0,212,255,.07)}
-.forn-card-tipo{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;
-  display:inline-block;margin-bottom:5px;background:rgba(0,212,255,.1);color:var(--gd)}
+.forn-card-tipo{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;display:inline-block;margin-bottom:5px;background:rgba(0,212,255,.1);color:var(--gd)}
 .forn-card-nome{font-size:14px;font-weight:700;color:var(--wh)}
 .forn-card-contato{font-size:11px;color:rgba(0,212,255,.4);margin-top:3px}
 .forn-card-bd{padding:12px 16px}
 .forn-card-row{display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px}
-.forn-card-row .lbl{color:rgba(0,212,255,.4)}
-.forn-card-row .val{font-weight:700;color:var(--cr)}
+.forn-card-row .lbl{color:rgba(0,212,255,.4)}.forn-card-row .val{font-weight:700;color:var(--cr)}
 .forn-card-footer{display:flex;gap:6px;padding:10px 16px;border-top:1px solid rgba(0,212,255,.06)}
 
 </style>
@@ -1979,20 +1949,20 @@ function renderConsolidado(appr) {
   hdr.innerHTML='<div class="consolidado-title">✅ Resultado Consolidado</div>'+
     '<div class="consolidado-badge">'+concluidas.length+' obra'+(concluidas.length>1?'s':'')+' concluída'+(concluidas.length>1?'s':'')+'</div>';
   section.appendChild(hdr);
-  var receita  = concluidas.reduce(function(s,b){return s+calcTotal(b)+getAditReceitaAprovada(b.id);},0);
-  var custo    = concluidas.reduce(function(s,b){return s+getCustoTotal(b.id);},0);
-  var recebido = concluidas.reduce(function(s,b){
+  var receita=concluidas.reduce(function(s,b){return s+calcTotal(b)+getAditReceitaAprovada(b.id);},0);
+  var custo=concluidas.reduce(function(s,b){return s+getCustoTotal(b.id);},0);
+  var recebido=concluidas.reduce(function(s,b){
     return s+getRecebimentos(b.id).reduce(function(r,e){return r+parseFloat(e.val||0);},0)+getAditRecTotal(b.id);
   },0);
   var resultado=receita-custo, margem=receita>0?(resultado/receita*100):0, aReceber=Math.max(0,receita-recebido);
   var mColor=margem>=20?'pos':margem>=10?'warn':'neg';
   var kpis=[
-    {lbl:'Receita Total',    val:fmt(receita),   cls:'neu'},
-    {lbl:'Custo Total',      val:fmt(custo),     cls:custo>receita?'neg':'warn'},
-    {lbl:'Resultado Líquido',val:fmt(resultado), cls:resultado>=0?'pos':'neg'},
-    {lbl:'Margem',           val:margem.toFixed(1)+'%', cls:mColor},
-    {lbl:'Recebido',         val:fmt(recebido),  cls:'pos'},
-    {lbl:'A Receber',        val:fmt(aReceber),  cls:aReceber>0?'warn':'pos'},
+    {lbl:'Receita Total',val:fmt(receita),cls:'neu'},
+    {lbl:'Custo Total',val:fmt(custo),cls:custo>receita?'neg':'warn'},
+    {lbl:'Resultado Líquido',val:fmt(resultado),cls:resultado>=0?'pos':'neg'},
+    {lbl:'Margem',val:margem.toFixed(1)+'%',cls:mColor},
+    {lbl:'Recebido',val:fmt(recebido),cls:'pos'},
+    {lbl:'A Receber',val:fmt(aReceber),cls:aReceber>0?'warn':'pos'},
   ];
   var grid=document.createElement('div');
   grid.className='stats-row'; grid.style.cssText='margin-bottom:0';
@@ -2043,7 +2013,7 @@ function renderDash() {
       '<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:100%;background:var(--gd)"></div></div></div>' +
     '<div class="stat"><div class="lbl">Receita Aprovada</div><div class="val gd" style="font-size:18px;margin-top:4px">' + fmt(aVal) + '</div>' +
       '<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:' + taxa + '%;background:var(--gd)"></div></div></div>' +
-    '<div class="stat"><div class="lbl">Custo Total (obras)</div><div class="val ' + (totalCusto>(aVal+aditRecTotal)?'neg':'warn') + '" style="font-size:18px;margin-top:4px">' + fmt(totalCusto) + '</div>' +
+    '<div class="stat"><div class="lbl">Custo Total (obras)</div><div class="val ' + (totalCusto>aVal?'neg':'warn') + '" style="font-size:18px;margin-top:4px">' + fmt(totalCusto) + '</div>' +
       '<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:' + (aVal>0?Math.min(100,totalCusto/aVal*100).toFixed(0):0) + '%;background:var(--rd)"></div></div></div>' +
     '<div class="stat"><div class="lbl">Resultado Líquido</div><div class="val ' + (resultado>=0?'pos':'neg') + '" style="font-size:18px;margin-top:4px">' + fmt(resultado) + '</div>' +
       '<div class="prog-bar" style="margin-top:10px"><div class="prog-fill" style="width:' + Math.min(100,Math.abs(margemNum)).toFixed(0) + '%;background:' + (resultado>=0?'var(--gn)':'var(--rd)') + '"></div></div></div>' +
@@ -3715,7 +3685,6 @@ function buildAditCard(adit, obra) {
     recBtn.innerHTML = '💰 Recebimento';
     recBtn.title = 'Registrar recebimento deste aditivo';
     recBtn.addEventListener('click', function(){
-      // Find budgetId for this aditivo
       var bid = adit.budgetId;
       if (!bid) { toast('Aditivo sem obra vinculada.','err'); return; }
       openAditRecModal(bid, adit.id, function(){ renderAditivos(); });
@@ -5805,7 +5774,7 @@ function migrarCaixaObras() {
       if(!gids[gid]){newGMovs.push({id:gid,tipo:'saida',conta:CONTA_PADRAO,desc:desc+' — '+(b.client||b.num||''),val:parseFloat(e.val||0),date:e.date||'',budgetId:b.id,createdAt:e.createdAt||Date.now(),autoGerado:true});}
     });
     // Dist pagamentos
-    ((db2[b.id]&&db2[b.id].distPagamentos)||[]).forEach(function(e){
+    ((odb[b.id]&&odb[b.id].distPagamentos)||[]).forEach(function(e){
       var oid='dist_'+e.id, gid='gdist_'+e.id;
       var partner2=DIST_PARTNERS.find(function(p){return p.id===e.partnerId;})||{name:'Sócio',icon:'👤'};
       var contaD=e.conta||CONTA_PADRAO;
@@ -5984,6 +5953,7 @@ function renderCaixa(){
     acts.style.cssText='display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end';
     var buttons=[
       {label:'⚡ Importar lançamentos',style:'background:rgba(255,209,102,.12);border:1px solid rgba(255,209,102,.35);color:var(--yw);',cb:function(){if(confirm('Importar todos os recebimentos e custos para o Caixa?'))migrarCaixaObras();}},
+      {label:'🔄 Ressincronizar',cls:'btn btn-g btn-sm',cb:function(){ressincronizarCaixa();}},
       {label:'⇄ Transferência',cls:'btn btn-g btn-sm',cb:function(){openObraTransfModal(null,function(){renderCaixa();},'global');}},
       {label:'＋ Nova Conta',cls:'btn btn-g btn-sm',cb:openCaixaContaModal}
     ];
@@ -6636,32 +6606,27 @@ function openAditRecModal(bid, aditId, cb) {
   var inner=el('ov-adit-rec-inner'); if(!inner) return;
   var caixaD=getCaixaData();
   var contas=(caixaD.contas&&caixaD.contas.length)?caixaD.contas:DEFAULT_CONTAS;
-
-  // Find aditivo info for display
-  var adit = ADIT.load().find(function(a){ return a.id===aditId; });
-  var budget = DB.load().find(function(b){ return b.id===bid; });
-  var aditNome = adit ? (adit.name||'Aditivo ADT-'+String(adit.num||'?').padStart(4,'0')) : 'Aditivo';
-  var aditTotal = adit ? parseFloat(adit.total||0) : 0;
-  var recJaFeito = getAditRecebimentos(bid).filter(function(r){return r.aditId===aditId;})
-                    .reduce(function(s,r){return s+parseFloat(r.val||0);},0);
-  var aReceber = Math.max(0, aditTotal - recJaFeito);
-
+  var adit=ADIT.load().find(function(a){return a.id===aditId;});
+  var budget=DB.load().find(function(b){return b.id===bid;});
+  var aditNome=adit?(adit.name||'Aditivo ADT-'+String(adit.num||'?').padStart(4,'0')):'Aditivo';
+  var aditTotal=adit?parseFloat(adit.total||0):0;
+  var recJaFeito=getAditRecebimentos(bid).filter(function(r){return r.aditId===aditId;}).reduce(function(s,r){return s+parseFloat(r.val||0);},0);
+  var aReceber=Math.max(0,aditTotal-recJaFeito);
   inner.innerHTML=
     '<h2>💰 Recebimento de Aditivo</h2>'+
-    // Aditivo info card
     '<div style="background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.15);border-radius:10px;padding:12px 14px;margin-bottom:14px">'+
       '<div style="font-size:10px;color:rgba(0,212,255,.4);text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-bottom:4px">Aditivo vinculado</div>'+
       '<div style="font-size:14px;font-weight:700;color:var(--wh)">'+esc(aditNome)+'</div>'+
       (budget?'<div style="font-size:11px;color:rgba(0,212,255,.35);margin-top:2px">'+esc(budget.client||budget.num||'')+'</div>':'')+
       '<div style="display:flex;gap:16px;margin-top:8px">'+
-        '<div><div style="font-size:9px;color:rgba(0,212,255,.35)">VALOR TOTAL</div><div style="font-size:13px;font-weight:700;color:var(--gd)">'+fmt(aditTotal)+'</div></div>'+
+        '<div><div style="font-size:9px;color:rgba(0,212,255,.35)">TOTAL</div><div style="font-size:13px;font-weight:700;color:var(--gd)">'+fmt(aditTotal)+'</div></div>'+
         '<div><div style="font-size:9px;color:rgba(0,212,255,.35)">JÁ RECEBIDO</div><div style="font-size:13px;font-weight:700;color:var(--gn)">'+fmt(recJaFeito)+'</div></div>'+
         '<div><div style="font-size:9px;color:rgba(0,212,255,.35)">A RECEBER</div><div style="font-size:13px;font-weight:700;color:'+(aReceber>0?'var(--yw)':'var(--gn)')+'">'+fmt(aReceber)+'</div></div>'+
       '</div>'+
     '</div>'+
     '<div style="display:flex;flex-direction:column;gap:12px">'+
       '<div class="field"><label>Descrição</label>'+
-        '<input class="fi" id="ar-desc" value="'+esc(aditNome)+' — Recebimento" placeholder="Ex: Pagamento parcela 1, Entrada aditivo..."></div>'+
+        '<input class="fi" id="ar-desc" value="'+esc(aditNome)+' — Recebimento" placeholder="Ex: Pagamento parcela 1..."></div>'+
       '<div class="field"><label>Conta de entrada</label>'+
         '<select class="fi" id="ar-conta">'+
           contas.map(function(c){return'<option value="'+c.id+'"'+(c.padrao?' selected':'')+'>'+c.icon+' '+c.nome+(c.banco?' — '+c.banco:'')+'</option>';}).join('')+
@@ -7890,7 +7855,7 @@ function exportContratoPDF(bid, b, contrato) {
     doc.setFillColor(28,43,74); doc.rect(0,287,W,10,'F');
     doc.setFillColor(200,169,110); doc.rect(0,287,W,1,'F');
     doc.setTextColor(150,170,200); doc.setFont('helvetica','normal'); doc.setFontSize(7);
-    doc.text('PULSO REFORMAS - Contrato Nº '+esc(b.num||'—')+' · (81) 98365-4027 · pulsoreformas@gmail.com', W/2, 292.5, {align:'center'});
+    doc.text('PULSO REFORMAS · Contrato Nº '+esc(b.num||'—')+' · (81) 98365-4027 · pulsoreformas@gmail.com', W/2, 292.5, {align:'center'});
     doc.text('Página '+i+' de '+pages, W-M, 292.5, {align:'right'});
   }
 
@@ -8738,9 +8703,9 @@ function exportRelPDF(bid, b, obra, data) {
   fillRect(0,0,W,44,C.navy);
   try{ doc.addImage(_LOGO,'PNG',ML,6,26,26); }catch(e){}
   setFont('bold',14,C.white);
-  doc.text('RELATORIO DE ACOMPANHAMENTO', W/2, 16, {align:'center'});
+  doc.text('RELATÓRIO DE ACOMPANHAMENTO', W/2, 16, {align:'center'});
   setFont('normal',8,[180,200,230]);
-  doc.text('Pulso Reformas - Construcao Civil e Reformas', W/2, 23, {align:'center'});
+  doc.text('Pulso Reformas · Construção Civil e Reformas', W/2, 23, {align:'center'});
 
   // Gold accent line
   fillRect(0,44,W,2,C.gold);
@@ -8895,7 +8860,7 @@ function exportRelPDF(bid, b, obra, data) {
     y+=barH+5;
 
     // Etapas bar
-    doc.text('ETAPAS CONCLUIDAS', ML, y+5);
+    doc.text('ETAPAS CONCLUÍDAS', ML, y+5);
     var eColor = data.pctEtapas>=data.pctPrazo ? C.gn : C.rd;
     setFont('bold',7.5,[eColor[0],eColor[1],eColor[2]]);
     doc.text(data.pctEtapas+'%', W-MR, y+5, {align:'right'});
@@ -8917,7 +8882,7 @@ function exportRelPDF(bid, b, obra, data) {
     fillRect(ML,y,CW,7,C.bgDark);
     doc.setDrawColor(210,220,235); doc.rect(ML,y,CW,7,'S');
     setFont('bold',7,C.sub);
-    doc.text('SECAO',           ML+10, y+5);
+    doc.text('SEÇÃO',           ML+10, y+5);
     doc.text('VALOR',           ML+CW*0.58, y+5, {align:'center'});
     doc.text('% TOTAL',         ML+CW*0.76, y+5, {align:'center'});
     doc.text('STATUS',          W-MR-2, y+5, {align:'right'});
@@ -8943,8 +8908,8 @@ function exportRelPDF(bid, b, obra, data) {
       if(fillW>0){ fillRect(ML,y,fillW,9, done?[200,240,215]:[210,228,248]); }
       doc.setDrawColor(210,220,235); doc.rect(ML,y,CW,9,'S');
 
-      // Status dot (colored square)
-      fillRect(ML+1,y+3,3,3, done?C.gn:[160,175,195]);
+      // Status dot
+      fillRect(ML,y+2.5,4,4, done?C.gn:C.sub);
 
       // Name — NO % prefix, just the section name
       setFont('normal',8.5,C.text);
@@ -8962,7 +8927,7 @@ function exportRelPDF(bid, b, obra, data) {
       // Status pill
       var pillColor = done ? C.gn : C.sub;
       setFont('bold',7,[pillColor[0],pillColor[1],pillColor[2]]);
-      doc.text(done?'CONCLUIDA':'PENDENTE', W-MR-2, y+6.5, {align:'right'});
+      doc.text(done?'✓ CONCLUÍDA':'○ PENDENTE', W-MR-2, y+6.5, {align:'right'});
       y+=9;
     });
 
@@ -8970,7 +8935,7 @@ function exportRelPDF(bid, b, obra, data) {
     var doneCnt = data.workSecs.filter(function(s){return data.secStatus[s.id]==='done';}).length;
     fillRect(ML,y,CW,8,C.navyMid);
     setFont('bold',8,C.gold);
-    doc.text(doneCnt+' de '+data.workSecs.length+' secoes concluidas', ML+4, y+5.5);
+    doc.text(doneCnt+' de '+data.workSecs.length+' seções concluídas', ML+4, y+5.5);
     setFont('bold',8,data.pctEtapas>=80?C.gn:C.yw);
     doc.text(data.pctEtapas+'% concluído', W-MR-2, y+5.5, {align:'right'});
     y+=12;
@@ -8983,8 +8948,8 @@ function exportRelPDF(bid, b, obra, data) {
     fillRect(0,287,W,10,C.navy);
     fillRect(0,287,W,1.5,C.gold);
     setFont('normal',7,[150,170,200]);
-    doc.text('PULSO REFORMAS - Relatorio: '+esc(b.num||'—')+' · '+esc(b.client||''), W/2, 293, {align:'center'});
-    doc.text('Pag. '+pi+'/'+pages, W-MR, 293, {align:'right'});
+    doc.text('PULSO REFORMAS · Relatório: '+esc(b.num||'—')+' · '+esc(b.client||''), W/2, 293, {align:'center'});
+    doc.text('Pág. '+pi+'/'+pages, W-MR, 293, {align:'right'});
   }
 
   doc.save('Relatorio-'+esc(b.num||'SN')+'-'+hoje.toLocaleDateString('pt-BR').replace(/\//g,'-')+'.pdf');
@@ -9492,6 +9457,74 @@ function openFornModal(id) {
   },0);
 }
 
+
+// ═══════════════════════════════════════════════════════════
+// RESSINCRONIZAR CAIXA (rebuild from scratch)
+// ═══════════════════════════════════════════════════════════
+function ressincronizarCaixa() {
+  if (!confirm('Recalcular todo o caixa a partir dos dados reais?\nRecebimentos, custos, distribuições e aditivos serão ressincronizados.')) return;
+
+  var budgets = DB.load().filter(function(b){ return b.status==='approved'; });
+  var odb = ODB.load();
+  var fin = FIN.load();
+  var gd  = getCaixaData();
+
+  // Keep only manual (non-auto) global movs
+  gd.movs = gd.movs.filter(function(m){ return !m.autoGerado; });
+
+  budgets.forEach(function(b){
+    // Keep manual obra movs only
+    var manual = getObraMovs(b.id).filter(function(m){ return !m.autoGerado; });
+    var newMovs = manual.slice();
+    var ids={}, gids={};
+    newMovs.forEach(function(m){ ids[m.id]=true; });
+    gd.movs.forEach(function(m){ gids[m.id]=true; });
+
+    function addObraGlobal(oid, gid, base, suffix) {
+      if(!ids[oid]){ newMovs.push(Object.assign({id:oid}, base)); ids[oid]=true; }
+      if(!gids[gid]){ gd.movs.push(Object.assign({id:gid, budgetId:b.id, desc:base.desc+(suffix?' — '+suffix:'')}, base)); gids[gid]=true; }
+    }
+
+    var cName = b.client||b.num||'';
+
+    // Recebimentos
+    ((odb[b.id]&&odb[b.id].recebimentos)||[]).forEach(function(e){
+      addObraGlobal('rec_'+e.id,'grec_'+e.id,{tipo:'entrada',conta:e.conta||CONTA_PADRAO,desc:e.desc||'Recebimento',val:parseFloat(e.val||0),date:e.date||'',createdAt:e.createdAt||Date.now(),autoGerado:true},cName);
+    });
+
+    // Custos da obra
+    ((fin[b.id]&&fin[b.id].entries)||[]).forEach(function(e){
+      var cat=CATS.find(function(c){return c.id===e.cat;})||{icon:'💸',name:'Custo'};
+      addObraGlobal('fin_'+e.id,'gfin_'+e.id,{tipo:'saida',conta:e.conta||CONTA_PADRAO,desc:cat.icon+' '+cat.name+': '+(e.desc||''),val:parseFloat(e.val||0),date:e.date||'',createdAt:e.createdAt||Date.now(),autoGerado:true},cName);
+    });
+
+    // Distribuições para sócios
+    ((odb[b.id]&&odb[b.id].distPagamentos)||[]).forEach(function(e){
+      var partner=DIST_PARTNERS.find(function(p){return p.id===e.partnerId;})||{name:'Sócio'};
+      addObraGlobal('dist_'+e.id,'gdist_'+e.id,{tipo:'saida',conta:e.conta||CONTA_PADRAO,desc:'Distribuição '+partner.name.split(' ')[0]+': '+(e.desc||''),val:parseFloat(e.val||0),date:e.date||'',createdAt:e.createdAt||Date.now(),autoGerado:true},cName);
+    });
+
+    // Recebimentos de aditivos
+    ((odb[b.id]&&odb[b.id].aditRecebimentos)||[]).forEach(function(e){
+      addObraGlobal('aditrec_'+e.id,'gaditrec_'+e.id,{tipo:'entrada',conta:e.conta||CONTA_PADRAO,desc:e.desc||'Recebimento aditivo',val:parseFloat(e.val||0),date:e.date||'',createdAt:e.createdAt||Date.now(),autoGerado:true},cName);
+    });
+
+    // Custos de aditivos
+    ADIT.load().filter(function(a){return a.budgetId===b.id;}).forEach(function(adit){
+      (adit.custos||[]).forEach(function(e){
+        var cat=CATS.find(function(c){return c.id===e.cat;})||{icon:'💸',name:'Custo'};
+        addObraGlobal('aditcost_'+e.id,'gaditcost_'+e.id,{tipo:'saida',conta:e.conta||CONTA_PADRAO,desc:cat.icon+' '+cat.name+': '+(e.desc||''),val:parseFloat(e.val||0),date:e.date||'',createdAt:e.createdAt||Date.now(),autoGerado:true},cName);
+      });
+    });
+
+    setObraMovs(b.id, newMovs);
+  });
+
+  CAIXA.save(gd);
+  toast('✅ Caixa ressincronizado! Distribuições, custos e recebimentos recalculados.');
+  renderCaixa();
+}
+
 // ── BACKUP / RESTORE ────────────────────────────────────────────
 function exportAllData(){
   var data={exportedAt:new Date().toISOString(),pulso_v3:JSON.stringify(_mem.budgets),pulso_obras:JSON.stringify(_mem.obras),pulso_finance:JSON.stringify(_mem.finance),pulso_aditivos:JSON.stringify(_mem.aditivos)};
@@ -9900,10 +9933,7 @@ setTimeout(function(){
   <div class="modal sm" id="ov-pat-parcela-inner"></div>
 </div>
 
-<div class="ov" id="ov-forn" onclick="if(event.target===this)closeOv('ov-forn')">
-  <div class="modal sm" id="ov-forn-inner"></div>
-</div>
-
+<div class="ov" id="ov-forn" onclick="if(event.target===this)closeOv('ov-forn')"><div class="modal sm" id="ov-forn-inner"></div></div>
 <div class="ov" id="ov-quickcost" onclick="if(event.target===this)closeOv('ov-quickcost')">
   <div class="modal" id="ov-quickcost-inner" style="max-width:560px"></div>
 </div>
