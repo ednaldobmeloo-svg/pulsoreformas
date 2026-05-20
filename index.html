@@ -1216,6 +1216,40 @@ select.fi option{background:#06121e}
 .forn-card-row .lbl{color:rgba(0,212,255,.4)}.forn-card-row .val{font-weight:700;color:var(--cr)}
 .forn-card-footer{display:flex;gap:6px;padding:10px 16px;border-top:1px solid rgba(0,212,255,.06)}
 
+
+/* ── CRONOGRAMA ─────────────────────────────────────────────────── */
+.cron-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px}
+.cron-section-title{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(0,212,255,.35);font-weight:700;margin:16px 0 10px;display:flex;align-items:center;gap:10px}
+.cron-section-title::after{content:'';flex:1;height:1px;background:rgba(0,212,255,.07)}
+.cron-etapa-list{display:flex;flex-direction:column;gap:6px;margin-bottom:20px}
+.cron-etapa-row{background:rgba(0,6,18,.6);border:1px solid rgba(0,212,255,.09);border-radius:10px;padding:11px 14px;display:grid;grid-template-columns:1fr auto auto auto;gap:10px;align-items:center;transition:border-color .15s}
+.cron-etapa-row:hover{border-color:rgba(0,212,255,.2)}
+.cron-etapa-row.done{border-color:rgba(0,255,136,.15)}
+.cron-etapa-row.active{border-color:rgba(0,212,255,.3);background:rgba(0,212,255,.04)}
+.cron-etapa-row.late{border-color:rgba(255,68,102,.2);background:rgba(255,68,102,.03)}
+.cron-etapa-name{font-size:12px;font-weight:700;color:rgba(220,235,255,.9)}
+.cron-etapa-sub{font-size:10px;color:rgba(0,212,255,.35);margin-top:2px}
+.cron-etapa-dates{text-align:right}
+.cron-etapa-dates .de-label{font-size:9px;color:rgba(0,212,255,.3);text-transform:uppercase;letter-spacing:.06em}
+.cron-etapa-dates .de-val{font-size:12px;font-weight:700;color:rgba(180,220,255,.8)}
+.cron-etapa-status{font-size:9px;font-weight:700;padding:3px 9px;border-radius:10px;white-space:nowrap}
+.cron-etapa-status.done{background:rgba(0,255,136,.1);color:rgba(0,255,136,.8);border:1px solid rgba(0,255,136,.2)}
+.cron-etapa-status.active{background:rgba(0,212,255,.1);color:rgba(0,212,255,.8);border:1px solid rgba(0,212,255,.2)}
+.cron-etapa-status.late{background:rgba(255,68,102,.1);color:rgba(255,68,102,.8);border:1px solid rgba(255,68,102,.2)}
+.cron-etapa-status.pending{background:rgba(180,220,255,.06);color:rgba(180,220,255,.35);border:1px solid rgba(180,220,255,.1)}
+.cron-etapa-resp{font-size:10px;color:rgba(0,212,255,.35);white-space:nowrap}
+/* Gantt chart */
+.cron-gantt-wrap{background:rgba(0,6,18,.6);border:1px solid rgba(0,212,255,.1);border-radius:12px;padding:16px;overflow-x:auto;margin-bottom:16px}
+.cron-gantt-grid{min-width:600px}
+.cron-gantt-header{display:flex;margin-bottom:8px;margin-left:160px}
+.cron-gantt-col-label{font-size:9px;color:rgba(0,212,255,.35);text-transform:uppercase;letter-spacing:.06em;flex:1;text-align:center;font-weight:700}
+.cron-gantt-row{display:flex;align-items:center;gap:0;margin-bottom:5px;height:28px}
+.cron-gantt-label{width:160px;flex-shrink:0;font-size:11px;font-weight:700;color:rgba(220,235,255,.8);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:10px}
+.cron-gantt-track{flex:1;background:rgba(0,212,255,.05);border-radius:20px;height:18px;position:relative;overflow:hidden}
+.cron-gantt-bar{height:100%;border-radius:20px;position:absolute;display:flex;align-items:center;padding:0 6px;min-width:4px;transition:all .3s}
+.cron-gantt-bar-label{font-size:9px;font-weight:700;color:rgba(0,0,0,.7);white-space:nowrap;overflow:hidden}
+.cron-today-line{position:absolute;top:0;bottom:0;width:2px;background:rgba(255,209,102,.6);z-index:2}
+
 </style>
 </head>
 <body>
@@ -2596,6 +2630,7 @@ function buildObraCard(b, obra) {
     {id:'aditivos-obra',label:'📝 Aditivos'},
     {id:'distribuicao', label:'💵 Distribuição'},
     {id:'contrato',     label:'📋 Contrato'},
+    {id:'cronograma',   label:'📅 Cronograma'},
     {id:'relatorio',    label:'📊 Relatório'},
     {id:'info',         label:'ℹ️ Informações'}
   ];
@@ -2788,6 +2823,13 @@ function buildObraCard(b, obra) {
   panelContrato.id = 'obc-panel-'+b.id+'-contrato';
   buildContratoPanel(panelContrato, b.id, b);
   body.appendChild(panelContrato);
+
+  // Panel: Cronograma
+  var panelCronograma = document.createElement('div');
+  panelCronograma.className = 'obc-panel' + (activeTab==='cronograma'?' active':'');
+  panelCronograma.id = 'obc-panel-'+b.id+'-cronograma';
+  buildCronogramaPanel(panelCronograma, b.id, b);
+  body.appendChild(panelCronograma);
 
   // Panel: Relatório
   var panelRelatorio = document.createElement('div');
@@ -9523,6 +9565,571 @@ function ressincronizarCaixa() {
   CAIXA.save(gd);
   toast('✅ Caixa ressincronizado! Distribuições, custos e recebimentos recalculados.');
   renderCaixa();
+}
+
+
+// ═══════════════════════════════════════════════════════════
+// CRONOGRAMA DE OBRA
+// ═══════════════════════════════════════════════════════════
+
+function getCronograma(bid) {
+  var db = ODB.load();
+  return (db[bid] && db[bid].cronograma) ? db[bid].cronograma : [];
+}
+function saveCronograma(bid, data) {
+  var db = ODB.load();
+  if (!db[bid]) db[bid] = {};
+  db[bid].cronograma = data;
+  ODB.save(db);
+}
+
+function buildCronogramaPanel(panel, bid, b) {
+  var obra = ODB.load()[bid] || {};
+  var hoje = new Date();
+  var hojeStr = hoje.toLocaleDateString('pt-BR');
+
+  function rebuild() {
+    panel.innerHTML = '';
+    var cron = getCronograma(bid);
+    var fornecedores = FORNDB.load();
+    var startDate = obra.startDate ? new Date(parseDateBR(obra.startDate)) : null;
+    if (startDate && isNaN(startDate)) startDate = null;
+
+    // ── Header ──
+    var hdr = document.createElement('div');
+    hdr.className = 'cron-header';
+    hdr.innerHTML =
+      '<div>'+
+        '<div style="font-size:16px;font-weight:800;color:var(--wh)">📅 Cronograma da Obra</div>'+
+        '<div style="font-size:11px;color:rgba(0,212,255,.4);margin-top:2px">'+
+          esc(b.client||b.num||'')+(b.obra?' · '+esc(b.obra):'')+
+        '</div>'+
+      '</div>';
+
+    var btnGroup = document.createElement('div');
+    btnGroup.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap';
+
+    if (isAdmin()) {
+      var addBtn = document.createElement('button');
+      addBtn.className = 'btn btn-p btn-sm';
+      addBtn.innerHTML = '＋ Adicionar Etapa';
+      addBtn.addEventListener('click', function(){ openCronEtapaModal(bid, null, rebuild); });
+      btnGroup.appendChild(addBtn);
+
+      // Auto-generate from sections
+      if (!cron.length && b.sections && b.sections.length) {
+        var genBtn = document.createElement('button');
+        genBtn.className = 'btn btn-g btn-sm';
+        genBtn.innerHTML = '⚡ Gerar das Seções';
+        genBtn.title = 'Gera etapas automaticamente a partir das seções do orçamento';
+        genBtn.addEventListener('click', function(){
+          gerarCronogramaDeSecoes(bid, b, rebuild);
+        });
+        btnGroup.appendChild(genBtn);
+      }
+    }
+
+    var pdfBtn = document.createElement('button');
+    pdfBtn.className = 'btn btn-g btn-sm';
+    pdfBtn.innerHTML = '📄 Exportar PDF';
+    pdfBtn.addEventListener('click', function(){ exportCronogramaPDF(bid, b, obra, cron); });
+    btnGroup.appendChild(pdfBtn);
+
+    hdr.appendChild(btnGroup);
+    panel.appendChild(hdr);
+
+    if (!cron.length) {
+      var empty = document.createElement('div');
+      empty.style.cssText='text-align:center;padding:40px 20px;color:rgba(180,220,255,.2)';
+      empty.innerHTML=
+        '<div style="font-size:36px;margin-bottom:12px">📅</div>'+
+        '<div style="font-size:14px;font-weight:700;margin-bottom:6px">Nenhuma etapa cadastrada</div>'+
+        '<div style="font-size:12px">'+
+          (b.sections&&b.sections.length
+            ? 'Clique em ⚡ Gerar das Seções para criar automaticamente.'
+            : 'Clique em ＋ Adicionar Etapa para começar.')+
+        '</div>';
+      panel.appendChild(empty);
+      return;
+    }
+
+    // ── Stats strip ──
+    var total = cron.length;
+    var concluidas = cron.filter(function(e){ return e.status==='done'; }).length;
+    var atrasadas  = cron.filter(function(e){
+      if (e.status==='done') return false;
+      if (!startDate || !e.diaInicio || !e.duracao) return false;
+      var fim = new Date(startDate.getTime() + (parseInt(e.diaInicio)+parseInt(e.duracao)-1)*86400000);
+      return fim < hoje;
+    }).length;
+    var pct = total ? Math.round(concluidas/total*100) : 0;
+
+    var stats = document.createElement('div');
+    stats.style.cssText='display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-bottom:18px';
+    [
+      {l:'Total Etapas',   v:total,        c:'var(--gd)'},
+      {l:'Concluídas',     v:concluidas,   c:'var(--gn)'},
+      {l:'Pendentes',      v:total-concluidas-atrasadas, c:'rgba(180,220,255,.5)'},
+      {l:'Atrasadas',      v:atrasadas,    c:atrasadas>0?'var(--rd)':'var(--gn)'},
+      {l:'Progresso',      v:pct+'%',      c:pct>=80?'var(--gn)':pct>=50?'var(--yw)':'var(--gd)'},
+    ].forEach(function(k){
+      stats.innerHTML+=
+        '<div style="background:rgba(0,8,24,.55);border:1px solid rgba(0,212,255,.08);border-radius:9px;padding:10px 12px">'+
+        '<div style="font-size:9px;color:rgba(0,212,255,.4);text-transform:uppercase;letter-spacing:.06em;font-weight:700;margin-bottom:4px">'+k.l+'</div>'+
+        '<div style="font-size:18px;font-weight:800;font-family:\'Barlow Condensed\',sans-serif;color:'+k.c+'">'+k.v+'</div></div>';
+    });
+    panel.appendChild(stats);
+
+    // ── Gantt chart ──
+    var ganttLabel = document.createElement('div');
+    ganttLabel.className = 'cron-section-title';
+    ganttLabel.textContent = 'Gráfico de Gantt';
+    panel.appendChild(ganttLabel);
+    panel.appendChild(buildGanttChart(cron, startDate, hoje));
+
+    // ── Etapa list ──
+    var listLabel = document.createElement('div');
+    listLabel.className = 'cron-section-title';
+    listLabel.textContent = 'Lista de Etapas';
+    panel.appendChild(listLabel);
+
+    var list = document.createElement('div');
+    list.className = 'cron-etapa-list';
+
+    cron.forEach(function(etapa) {
+      var startE = null, endE = null;
+      if (startDate && etapa.diaInicio !== undefined && etapa.duracao) {
+        startE = new Date(startDate.getTime() + parseInt(etapa.diaInicio)*86400000);
+        endE   = new Date(startDate.getTime() + (parseInt(etapa.diaInicio)+parseInt(etapa.duracao)-1)*86400000);
+      }
+
+      var isLate = etapa.status !== 'done' && endE && endE < hoje;
+      var isActive = etapa.status === 'active' || (etapa.status !== 'done' && startE && startE <= hoje && (!endE || endE >= hoje));
+      var statusKey = etapa.status==='done'?'done': isLate?'late': isActive?'active':'pending';
+      var statusLabels = {done:'✅ Concluída', active:'🔨 Em andamento', late:'🚨 Atrasada', pending:'⏳ Pendente'};
+
+      var forn = etapa.responsavelId ? fornecedores.find(function(f){return f.id===etapa.responsavelId;}) : null;
+
+      var row = document.createElement('div');
+      row.className = 'cron-etapa-row ' + statusKey;
+      row.innerHTML =
+        '<div>'+
+          '<div class="cron-etapa-name">'+esc(etapa.nome||'Etapa')+'</div>'+
+          '<div class="cron-etapa-sub">'+
+            (etapa.duracao ? etapa.duracao+' dia(s)' : '')+
+            (etapa.diaInicio !== undefined ? ' · Início no dia '+etapa.diaInicio : '')+
+            (forn ? ' · 👤 '+esc(forn.nome) : '')+
+          '</div>'+
+        '</div>'+
+        '<div class="cron-etapa-dates">'+
+          (startE?'<div class="de-label">Início</div><div class="de-val">'+startE.toLocaleDateString('pt-BR')+'</div>':'<div style="font-size:11px;color:rgba(0,212,255,.25)">Sem datas</div>')+
+        '</div>'+
+        '<div class="cron-etapa-dates">'+
+          (endE?'<div class="de-label">Fim</div><div class="de-val">'+endE.toLocaleDateString('pt-BR')+'</div>':'')+
+        '</div>'+
+        '<span class="cron-etapa-status '+statusKey+'">'+statusLabels[statusKey]+'</span>';
+
+      if (isAdmin()) {
+        var rowActions = document.createElement('div');
+        rowActions.style.cssText = 'display:flex;gap:4px;flex-shrink:0';
+
+        var editBtn = document.createElement('button');
+        editBtn.className = 'btn btn-g btn-xs';
+        editBtn.textContent = '✏️';
+        editBtn.addEventListener('click', function(){ openCronEtapaModal(bid, etapa.id, rebuild); });
+        rowActions.appendChild(editBtn);
+
+        var delBtn = document.createElement('button');
+        delBtn.className = 'btn btn-r btn-xs';
+        delBtn.textContent = '🗑️';
+        delBtn.addEventListener('click', function(){
+          if (!confirm('Remover etapa "'+esc(etapa.nome)+'"?')) return;
+          saveCronograma(bid, getCronograma(bid).filter(function(e){ return e.id!==etapa.id; }));
+          rebuild();
+        });
+        rowActions.appendChild(delBtn);
+        row.appendChild(rowActions);
+      }
+
+      list.appendChild(row);
+    });
+    panel.appendChild(list);
+  }
+
+  rebuild();
+}
+
+function buildGanttChart(cron, startDate, hoje) {
+  var wrap = document.createElement('div');
+  wrap.className = 'cron-gantt-wrap';
+
+  if (!startDate || !cron.length) {
+    wrap.innerHTML = '<div style="text-align:center;padding:20px;color:rgba(0,212,255,.25);font-size:12px">'+
+      'Defina a data de início em ℹ️ Informações para ver o Gantt</div>';
+    return wrap;
+  }
+
+  // Calculate total duration
+  var maxDia = 0;
+  cron.forEach(function(e){
+    var fim = parseInt(e.diaInicio||0) + parseInt(e.duracao||1);
+    if (fim > maxDia) maxDia = fim;
+  });
+  if (maxDia < 7) maxDia = 7;
+
+  // Week columns
+  var semanas = Math.ceil(maxDia/7);
+  var grid = document.createElement('div');
+  grid.className = 'cron-gantt-grid';
+
+  // Header - week numbers
+  var header = document.createElement('div');
+  header.className = 'cron-gantt-header';
+  for (var w = 1; w <= semanas; w++) {
+    var colLabel = document.createElement('div');
+    colLabel.className = 'cron-gantt-col-label';
+    colLabel.textContent = 'Sem ' + w;
+    header.appendChild(colLabel);
+  }
+  grid.appendChild(header);
+
+  // Rows per etapa
+  cron.forEach(function(etapa) {
+    var row = document.createElement('div');
+    row.className = 'cron-gantt-row';
+
+    var label = document.createElement('div');
+    label.className = 'cron-gantt-label';
+    label.textContent = etapa.nome || 'Etapa';
+    label.title = etapa.nome || '';
+    row.appendChild(label);
+
+    var track = document.createElement('div');
+    track.className = 'cron-gantt-track';
+    track.style.position = 'relative';
+
+    // Today line
+    var diasCorridos = Math.round((hoje - startDate) / 86400000);
+    if (diasCorridos >= 0 && diasCorridos <= maxDia) {
+      var todayPct = (diasCorridos / maxDia) * 100;
+      var todayLine = document.createElement('div');
+      todayLine.className = 'cron-today-line';
+      todayLine.style.left = todayPct + '%';
+      todayLine.title = 'Hoje';
+      track.appendChild(todayLine);
+    }
+
+    // Bar
+    var diaI = parseInt(etapa.diaInicio||0);
+    var dur  = parseInt(etapa.duracao||1);
+    var left = (diaI / maxDia) * 100;
+    var width = (dur / maxDia) * 100;
+
+    var isDone   = etapa.status === 'done';
+    var isLateE  = etapa.status !== 'done' && (diaI + dur) <= diasCorridos;
+    var barColor = isDone ? 'linear-gradient(90deg,rgba(0,200,100,.7),rgba(0,255,136,.9))'
+                  : isLateE ? 'linear-gradient(90deg,rgba(220,60,80,.6),rgba(255,68,102,.8))'
+                  : 'linear-gradient(90deg,rgba(0,150,220,.6),rgba(0,212,255,.85))';
+
+    var bar = document.createElement('div');
+    bar.className = 'cron-gantt-bar';
+    bar.style.left  = left + '%';
+    bar.style.width = Math.max(1, width) + '%';
+    bar.style.background = barColor;
+
+    if (width > 8) {
+      var barLabel = document.createElement('span');
+      barLabel.className = 'cron-gantt-bar-label';
+      barLabel.textContent = dur + 'd';
+      bar.appendChild(barLabel);
+    }
+    track.appendChild(bar);
+    row.appendChild(track);
+    grid.appendChild(row);
+  });
+
+  // Legend
+  var legend = document.createElement('div');
+  legend.style.cssText = 'display:flex;gap:16px;margin-top:10px;font-size:10px;color:rgba(0,212,255,.35);flex-wrap:wrap';
+  legend.innerHTML =
+    '<span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:3px;background:rgba(0,212,255,.6);display:inline-block"></span>Em andamento</span>'+
+    '<span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:3px;background:rgba(0,255,136,.8);display:inline-block"></span>Concluída</span>'+
+    '<span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:3px;background:rgba(255,68,102,.7);display:inline-block"></span>Atrasada</span>'+
+    '<span style="display:flex;align-items:center;gap:5px"><span style="width:2px;height:10px;background:rgba(255,209,102,.7);display:inline-block"></span>Hoje</span>';
+  wrap.appendChild(grid);
+  wrap.appendChild(legend);
+  return wrap;
+}
+
+function gerarCronogramaDeSecoes(bid, b, cb) {
+  var secoes = (b.sections||[]).filter(function(s){ return calcSub(s)>0; });
+  if (!secoes.length) { toast('Nenhuma seção com valor encontrada.','err'); return; }
+
+  var cron = [];
+  var diaAtual = 0;
+  var duracaoPadrao = 7; // 7 dias por seção como default
+
+  secoes.forEach(function(s, i) {
+    cron.push({
+      id: uid(),
+      nome: s.nome || s.name || ('Etapa '+(i+1)),
+      secaoId: s.id,
+      diaInicio: diaAtual,
+      duracao: duracaoPadrao,
+      status: 'pending',
+      responsavelId: '',
+      obs: ''
+    });
+    diaAtual += duracaoPadrao;
+  });
+
+  saveCronograma(bid, cron);
+  toast('✅ '+cron.length+' etapas geradas! Ajuste as durações conforme necessário.');
+  if (cb) cb();
+}
+
+function openCronEtapaModal(bid, etapaId, cb) {
+  var cron = getCronograma(bid);
+  var etapa = etapaId ? cron.find(function(e){ return e.id===etapaId; }) : null;
+  var e = etapa || {};
+  var fornecedores = FORNDB.load();
+
+  var ov = document.createElement('div');
+  ov.className = 'ov open';
+  ov.style.zIndex = '2000';
+  ov.addEventListener('click', function(ev){ if(ev.target===ov){ document.body.removeChild(ov); } });
+
+  var inner = document.createElement('div');
+  inner.className = 'modal sm';
+  inner.style.maxWidth = '480px';
+  inner.innerHTML =
+    '<h2>'+(etapaId?'✏️ Editar':'＋ Nova')+' Etapa</h2>'+
+    '<div style="display:flex;flex-direction:column;gap:12px">'+
+      '<div class="field"><label>Nome da etapa *</label>'+
+        '<input class="fi" id="ce-nome" value="'+esc(e.nome||'')+'" placeholder="Ex: Demolição, Alvenaria, Piso..."></div>'+
+      '<div class="fg fg2">'+
+        '<div class="field"><label>Dia de início <span style="font-size:10px;color:rgba(0,212,255,.35)">(a partir do início da obra)</span></label>'+
+          '<input class="fi" id="ce-inicio" type="number" min="0" value="'+esc(e.diaInicio!==undefined?e.diaInicio:0)+'" placeholder="0"></div>'+
+        '<div class="field"><label>Duração (dias)</label>'+
+          '<input class="fi" id="ce-duracao" type="number" min="1" value="'+esc(e.duracao||7)+'" placeholder="7"></div>'+
+      '</div>'+
+      '<div class="fg fg2">'+
+        '<div class="field"><label>Status</label>'+
+          '<select class="fi" id="ce-status">'+
+            [{v:'pending',l:'⏳ Pendente'},{v:'active',l:'🔨 Em andamento'},{v:'done',l:'✅ Concluída'}]
+              .map(function(o){ return '<option value="'+o.v+'"'+(e.status===o.v?' selected':'')+'>'+o.l+'</option>'; }).join('')+
+          '</select></div>'+
+        '<div class="field"><label>Responsável <span style="font-size:10px;color:rgba(0,212,255,.35)">(interno)</span></label>'+
+          '<select class="fi" id="ce-resp">'+
+            '<option value="">— Nenhum —</option>'+
+            fornecedores.map(function(f){
+              return '<option value="'+f.id+'"'+(e.responsavelId===f.id?' selected':'')+'>'+esc(f.nome)+'</option>';
+            }).join('')+
+          '</select></div>'+
+      '</div>'+
+      '<div class="field"><label>Observações</label>'+
+        '<textarea class="fi" id="ce-obs" rows="2" placeholder="Observações para controle interno...">'+esc(e.obs||'')+'</textarea></div>'+
+    '</div>'+
+    '<div class="mf">'+
+      '<button class="btn btn-gn" id="ce-save">💾 Salvar</button>'+
+      '<button class="btn btn-g" id="ce-cancel">Cancelar</button>'+
+    '</div>';
+
+  ov.appendChild(inner);
+  document.body.appendChild(ov);
+
+  setTimeout(function(){
+    el('ce-save').addEventListener('click', function(){
+      var nome = (el('ce-nome').value||'').trim();
+      if (!nome) { toast('Digite o nome da etapa','err'); return; }
+      var all = getCronograma(bid);
+      var entry = {
+        id: etapaId||uid(),
+        nome: nome,
+        diaInicio: parseInt(el('ce-inicio').value)||0,
+        duracao: Math.max(1, parseInt(el('ce-duracao').value)||7),
+        status: el('ce-status').value||'pending',
+        responsavelId: el('ce-resp').value||'',
+        obs: (el('ce-obs').value||'').trim(),
+      };
+      if (etapaId) {
+        var idx = all.findIndex(function(x){ return x.id===etapaId; });
+        if (idx>=0) all[idx]=entry; else all.push(entry);
+      } else {
+        all.push(entry);
+      }
+      // Sort by diaInicio
+      all.sort(function(a,b){ return (a.diaInicio||0)-(b.diaInicio||0); });
+      saveCronograma(bid, all);
+      document.body.removeChild(ov);
+      if (cb) cb();
+      toast('✅ Etapa salva!');
+    });
+    el('ce-cancel').addEventListener('click', function(){ document.body.removeChild(ov); });
+    el('ce-nome').focus();
+  }, 0);
+}
+
+// ── PDF Export ────────────────────────────────────────────────────
+function exportCronogramaPDF(bid, b, obra, cron) {
+  if (!cron || !cron.length) { toast('Nenhuma etapa no cronograma.','err'); return; }
+
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF({unit:'mm', format:'a4'});
+  var W=210, ML=14, MR=14, y=0;
+  var CW=W-ML-MR;
+  var hoje = new Date();
+  var startDate = obra.startDate ? new Date(parseDateBR(obra.startDate)) : null;
+  if (startDate && isNaN(startDate)) startDate = null;
+
+  var C = {
+    navy:[17,28,56], navyMid:[28,43,74], gold:[200,169,110],
+    gn:[0,180,100], gd:[0,160,210], yw:[200,160,40],
+    rd:[200,60,70], bg:[240,244,252], text:[36,48,72], sub:[90,110,150]
+  };
+
+  function checkPage(h){ if(y+h>275){ doc.addPage(); y=18; } }
+  function fillRect(x,yy,w,h,c){ doc.setFillColor(c[0],c[1],c[2]); doc.rect(x,yy,w,h,'F'); }
+  function setFont(s,sz,c){ doc.setFont('helvetica',s||'normal'); doc.setFontSize(sz||9); if(c) doc.setTextColor(c[0],c[1],c[2]); }
+
+  // ── Header ──
+  fillRect(0,0,W,42,C.navy);
+  try{ doc.addImage(_LOGO,'PNG',ML,6,26,26); }catch(e){}
+  setFont('bold',13,[240,236,228]);
+  doc.text('CRONOGRAMA DE OBRA',W/2,15,{align:'center'});
+  setFont('normal',8,[180,200,230]);
+  doc.text('Pulso Reformas - Construcao Civil e Reformas',W/2,22,{align:'center'});
+  fillRect(0,42,W,2,C.gold);
+  fillRect(0,44,W,12,C.navyMid);
+  setFont('bold',9,C.gold);
+  doc.text('OBRA: '+esc(b.num||'—')+' - '+esc(b.client||''),ML,51);
+  setFont('normal',8,[180,200,220]);
+  doc.text('Emitido em: '+hoje.toLocaleDateString('pt-BR'),W-MR,51,{align:'right'});
+  y = 62;
+
+  // ── Info strip ──
+  fillRect(ML,y,CW,14,C.bg);
+  doc.setDrawColor(210,220,235); doc.rect(ML,y,CW,14,'S');
+  var infoItems = [
+    {l:'Servico', v:esc(b.obra||'—')},
+    {l:'Local',   v:esc(b.local||'—')},
+    {l:'Inicio',  v:obra.startDate||'A definir'},
+    {l:'Prazo',   v:(obra.prazoEmDias||'—')+' dias'},
+    {l:'Etapas',  v:cron.length+' etapas'},
+  ];
+  var iw = CW/infoItems.length;
+  infoItems.forEach(function(it,i){
+    var x=ML+i*iw+3;
+    setFont('bold',7,C.sub); doc.text(it.l.toUpperCase(),x,y+5);
+    setFont('bold',8,C.text);
+    var lines=doc.splitTextToSize(it.v,iw-5);
+    doc.text(lines[0]||'—',x,y+11);
+  });
+  y+=19;
+
+  // ── Table header ──
+  fillRect(ML,y,CW,8,C.navyMid);
+  fillRect(ML,y,3,8,C.gold);
+  setFont('bold',7.5,C.gold);
+  doc.text('ETAPA',ML+6,y+5.5);
+  doc.text('DIA INICIO',ML+CW*0.50,y+5.5,{align:'center'});
+  doc.text('DURACAO',ML+CW*0.65,y+5.5,{align:'center'});
+  doc.text('INICIO PREVISTO',ML+CW*0.78,y+5.5,{align:'center'});
+  doc.text('FIM PREVISTO',W-MR-2,y+5.5,{align:'right'});
+  y+=9;
+
+  // ── Rows ──
+  cron.forEach(function(etapa,i){
+    checkPage(9);
+    var diaI = parseInt(etapa.diaInicio||0);
+    var dur  = parseInt(etapa.duracao||1);
+    var startE='—', endE='—';
+    if (startDate) {
+      var sd = new Date(startDate.getTime()+diaI*86400000);
+      var ed = new Date(startDate.getTime()+(diaI+dur-1)*86400000);
+      startE = sd.toLocaleDateString('pt-BR');
+      endE   = ed.toLocaleDateString('pt-BR');
+    }
+
+    var isDone = etapa.status==='done';
+    var rowBg = isDone ? [242,252,246] : (i%2===0?[248,250,255]:[255,255,255]);
+    fillRect(ML,y,CW,9,rowBg);
+    if (isDone) fillRect(ML,y,4,9,C.gn);
+    else        fillRect(ML,y,4,9,[210,220,235]);
+    doc.setDrawColor(210,220,235); doc.rect(ML,y,CW,9,'S');
+
+    setFont('normal',8.5,C.text);
+    doc.text(esc(etapa.nome||'Etapa'),ML+7,y+6);
+
+    setFont('normal',8,[70,90,130]);
+    doc.text('Dia '+diaI,ML+CW*0.50,y+6,{align:'center'});
+    doc.text(dur+' dia(s)',ML+CW*0.65,y+6,{align:'center'});
+
+    setFont(isDone?'bold':'normal',8,isDone?C.gn:C.sub);
+    doc.text(startE,ML+CW*0.78,y+6,{align:'center'});
+    doc.text(endE,W-MR-2,y+6,{align:'right'});
+    y+=9;
+  });
+
+  // ── Summary ──
+  y+=3; checkPage(10);
+  var concl=cron.filter(function(e){return e.status==='done';}).length;
+  fillRect(ML,y,CW,9,C.navyMid);
+  setFont('bold',8,C.gold);
+  doc.text(concl+' de '+cron.length+' etapas concluidas',ML+5,y+6);
+  setFont('bold',8,concl===cron.length?C.gn:C.yw);
+  doc.text(Math.round(concl/cron.length*100)+'% concluido',W-MR-2,y+6,{align:'right'});
+  y+=13;
+
+  // ── Gantt bars (simplified) ──
+  checkPage(30);
+  fillRect(ML,y,CW,8,C.navyMid);
+  fillRect(ML,y,3,8,C.gold);
+  setFont('bold',7.5,C.gold);
+  doc.text('GRAFICO DE GANTT (simplificado)',ML+6,y+5.5);
+  y+=11;
+
+  var maxDia = 0;
+  cron.forEach(function(e){ var f=parseInt(e.diaInicio||0)+parseInt(e.duracao||1); if(f>maxDia)maxDia=f; });
+  if(maxDia<1) maxDia=1;
+
+  var barAreaW = CW-55;
+  var rowH = 7;
+
+  cron.forEach(function(etapa,i){
+    checkPage(rowH+2);
+    var diaI=parseInt(etapa.diaInicio||0), dur=parseInt(etapa.duracao||1);
+    var leftPct=diaI/maxDia, widthPct=dur/maxDia;
+    var x=ML+55+barAreaW*leftPct;
+    var w=Math.max(2,barAreaW*widthPct);
+
+    if(i%2===0){fillRect(ML,y,CW,rowH,[248,250,255]);}
+    setFont('normal',7.5,C.text);
+    var nm=doc.splitTextToSize(esc(etapa.nome||''),50);
+    doc.text(nm[0],ML+2,y+5);
+
+    // Track bg
+    fillRect(ML+55,y+2,barAreaW,rowH-4,[225,230,245]);
+    // Bar
+    var isDone=etapa.status==='done';
+    var bc=isDone?C.gn:C.gd;
+    fillRect(x,y+2,w,rowH-4,bc);
+    y+=rowH;
+  });
+
+  // ── Footer ──
+  var pages=doc.internal.getNumberOfPages();
+  for(var pi=1;pi<=pages;pi++){
+    doc.setPage(pi);
+    fillRect(0,287,W,10,C.navy);
+    fillRect(0,287,W,1.5,C.gold);
+    setFont('normal',7,[150,170,200]);
+    doc.text('PULSO REFORMAS - Cronograma: '+esc(b.num||'—')+' - '+esc(b.client||''),W/2,293,{align:'center'});
+    doc.text('Pag. '+pi+'/'+pages,W-MR,293,{align:'right'});
+  }
+
+  doc.save('Cronograma-'+esc(b.num||'SN')+'-'+esc((b.client||'').replace(/[^a-zA-Z0-9]/g,'_').slice(0,20))+'.pdf');
+  toast('📄 Cronograma PDF exportado!');
 }
 
 // ── BACKUP / RESTORE ────────────────────────────────────────────
