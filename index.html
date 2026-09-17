@@ -1250,6 +1250,20 @@ select.fi option{background:#06121e}
 .cron-gantt-bar-label{font-size:9px;font-weight:700;color:rgba(0,0,0,.7);white-space:nowrap;overflow:hidden}
 .cron-today-line{position:absolute;top:0;bottom:0;width:2px;background:rgba(255,209,102,.6);z-index:2}
 
+
+/* ── BDI ─────────────────────────────────────────────── */
+.bdi-blk{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;
+  background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.15);border-radius:8px;margin:6px 0}
+.bdi-blk label{font-size:10px;color:rgba(0,212,255,.7);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.bdi-desc{font-size:9px;color:rgba(0,212,255,.35);margin-top:1px}
+.bdi-right{display:flex;align-items:center;gap:10px}
+.bdi-pct-wrap{display:flex;align-items:center;gap:4px}
+.bdi-pct-inp{width:64px;text-align:center;font-size:13px;font-weight:700;padding:4px 6px;
+  background:rgba(0,8,24,.6);border:1px solid rgba(0,212,255,.2);border-radius:6px;color:var(--gd)}
+.bdi-pct-inp:focus{outline:none;border-color:var(--gd)}
+.bdi-pct-symbol{font-size:11px;color:rgba(0,212,255,.5);font-weight:700}
+.bdi-val{font-size:13px;font-weight:700;color:rgba(0,212,255,.8);min-width:90px;text-align:right}
+
 </style>
 </head>
 <body>
@@ -1670,11 +1684,10 @@ function esc(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 function calcTotal(b) {
-  var sub = (b.sections||[]).reduce(function(g,s) {
-    return g + calcSub(s);
-  }, 0);
+  var sub  = (b.sections||[]).reduce(function(g,s){ return g+calcSub(s); }, 0);
+  var bdi  = parseFloat(b.bdi || 0);
   var disc = parseFloat(b.discount || 0);
-  return sub * (1 - disc / 100);
+  return sub * (1 + bdi/100) * (1 - disc/100);
 }
 function calcSub(s) {
   // If section has a manual total, use it directly
@@ -4423,6 +4436,16 @@ function renderForm(b) {
     '<div class="sum-section-title">💰 Resumo Financeiro</div>' +
     '<div id="sum-rows">' + sumRowsHtml + '</div>' +
     '<div class="sum-row grand"><span>Subtotal</span><span class="sv" id="grand-sub">' + fmt(total) + '</span></div>' +
+    '<div class="bdi-blk">' +
+      '<div><label>BDI</label><div class="bdi-desc">Bonificação e Despesas Indiretas</div></div>' +
+      '<div class="bdi-right">' +
+        '<div class="bdi-pct-wrap">' +
+          '<input class="bdi-pct-inp" id="bdi-pct" type="number" min="0" max="200" step="0.1" value="' + (b.bdi||0) + '" placeholder="0">' +
+          '<span class="bdi-pct-symbol">%</span>' +
+        '</div>' +
+        '<span class="bdi-val" id="bdi-val">+ ' + fmt((b.sections||[]).reduce(function(g,s){return g+calcSub(s);},0)*(b.bdi||0)/100) + '</span>' +
+      '</div>' +
+    '</div>' +
     '<div class="discount-blk">' +
       '<label>Desconto</label>' +
       '<div class="discount-pct-wrap">' +
@@ -4448,6 +4471,18 @@ function renderForm(b) {
       '<div class="cond-row"><span class="cond-lbl">Observações</span><input class="cond-inp" data-cond="notes" value="' + esc(pc.notes||'') + '" placeholder="Informações adicionais"></div>' +
     '</div>';
   fw.appendChild(sumDiv);
+
+  // Wire BDI input
+  setTimeout(function(){
+    var bpct = el('bdi-pct');
+    if (bpct) bpct.addEventListener('input', function(){
+      var all=DB.load(), bx=all.find(function(x){return x.id===CID;});
+      if (!bx) return;
+      bx.bdi = parseFloat(this.value)||0;
+      DB.save(all);
+      refreshTotals(bx);
+    });
+  }, 0);
 
   // Wire discount input
   setTimeout(function(){
@@ -5300,6 +5335,19 @@ function exportPDF() {
     y+=9;
   }
 
+  // BDI row
+  if (bdiPct > 0) {
+    check(9);
+    doc.setFillColor(230,240,255); doc.rect(M,y,W-2*M,8,'F');
+    doc.setTextColor(40,80,160); doc.setFont('helvetica','bold'); doc.setFontSize(9);
+    doc.text('Custo Direto', M+4, y+5.5);
+    doc.text(fmt(subTotal), W-M-2, y+5.5, {align:'right'});
+    y+=9; check(9);
+    doc.setFillColor(220,235,255); doc.rect(M,y,W-2*M,8,'F');
+    doc.text('BDI ('+bdiPct+'%)', M+4, y+5.5);
+    doc.text('+ '+fmt(bdiAmt), W-M-2, y+5.5, {align:'right'});
+    y+=9;
+  }
   // Only show subtotal and discount rows if discount > 0
   if (discPct > 0) {
     check(9);
