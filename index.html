@@ -4331,6 +4331,7 @@ function newBudget() {
     id: uid(), num: num, client:'', obra:'', local:'', date:today, validity:'15 dias',
     paymentPlan:'parcelado', status:'pending', createdAt: Date.now(),
     discount: 0,
+    bdi: 0,
     installments: [{id:uid(),label:'1ª Etapa',pct:40},{id:uid(),label:'2ª Etapa',pct:40},{id:uid(),label:'3ª Etapa',pct:20}],
     paymentConds: defConds(), sections: defSections()
   };
@@ -4790,46 +4791,41 @@ function delRow(secId, itemId) {
 // TOTALS
 // ═══════════════════════════════════════
 function refreshTotals(b) {
-  // Always reload from DB to get latest saved state
   var fresh = DB.load().find(function(x){ return x.id === (b ? b.id : CID); });
   if (!fresh) fresh = b;
 
+  var bdiPct      = parseFloat(fresh.bdi || 0);
   var discountPct = parseFloat(fresh.discount || 0);
-  var discountMult = (100 - discountPct) / 100;
 
-  var grandSub = 0; // subtotal before discount
+  var grandSub = 0; // custo direto (soma das seções)
   (fresh.sections||[]).forEach(function(s){
-    // Items-only sum (for auto-val display)
     var itemsSum = (s.items||[]).reduce(function(t,it){
       return t + parseFloat(it.qty||0)*parseFloat(it.price||0);
     }, 0);
-    // Effective subtotal (manual override or items sum)
     var sub = calcSub(s);
     grandSub += sub;
 
-    // Section subtotal in header: apply discount proportionally
-    var subAfterDisc = sub * discountMult;
-    var es = el('sub-' + s.id);
-    if (es) es.textContent = fmt(subAfterDisc);
-    // Summary row value: also discounted
-    var ev = el('sv-' + s.id);
-    if (ev) ev.textContent = fmt(subAfterDisc);
-    // Auto-val hint: always shows raw items sum (no discount applied to hint)
+    // Section and summary rows show custo direto proporcional (sem BDI, sem desconto)
+    var es = el('sub-' + s.id); if (es) es.textContent = fmt(sub);
+    var ev = el('sv-'  + s.id); if (ev) ev.textContent = fmt(sub);
     var av = el('auto-val-' + s.id);
     if (av) av.textContent = itemsSum > 0 ? ('Soma: ' + fmt(itemsSum)) : 'Sem itens';
   });
 
-  var discountAmt = grandSub * discountPct / 100;
-  var grandFinal = grandSub - discountAmt;
+  // BDI incide sobre custo direto
+  var bdiAmt      = grandSub * bdiPct / 100;
+  var subComBdi   = grandSub + bdiAmt;
+  // Desconto incide sobre subtotal com BDI
+  var discountAmt = subComBdi * discountPct / 100;
+  var grandFinal  = subComBdi - discountAmt;
 
-  // Subtotal row (before discount)
-  var gs = el('grand-sub'); if (gs) gs.textContent = fmt(grandSub);
-  // Discount value display
+  // Update display elements
+  var gs = el('grand-sub');    if (gs) gs.textContent = fmt(grandSub);
+  var bv = el('bdi-val');      if (bv) bv.textContent = bdiPct > 0 ? '+ ' + fmt(bdiAmt) : '+ ' + fmt(0);
   var dv = el('discount-val'); if (dv) dv.innerHTML = '<span>−</span>' + fmt(discountAmt);
-  // Final total
-  var gt = el('grand-tot'); if (gt) gt.textContent = fmt(grandFinal);
+  var gt = el('grand-tot');    if (gt) gt.textContent = fmt(grandFinal);
 
-  // Refresh installment values (based on final total after discount)
+  // Parcelas baseadas no total final
   var insts = getInstallments(fresh);
   insts.forEach(function(inst){
     var row = el('irow-' + inst.id);
@@ -5280,11 +5276,30 @@ function exportPDF() {
     y+=13;
   });
 
-  // Grand total with discount
-  var discPct = parseFloat(b.discount||0);
+  // Grand total with BDI + discount
+  var bdiPct   = parseFloat(b.bdi||0);
+  var discPct  = parseFloat(b.discount||0);
   var subTotal = (b.sections||[]).reduce(function(g,s){ return g+calcSub(s); }, 0);
-  var discAmt = subTotal * discPct / 100;
-  var total = subTotal - discAmt;
+  var bdiAmt   = subTotal * bdiPct / 100;
+  var subComBdi = subTotal + bdiAmt;
+  var discAmt  = subComBdi * discPct / 100;
+  var total    = subComBdi - discAmt;
+
+  // Show BDI row if bdi > 0
+  if (bdiPct > 0) {
+    check(9);
+    doc.setFillColor(230,240,252); doc.rect(M,y,W-2*M,8,'F');
+    doc.setTextColor(28,43,120); doc.setFont('helvetica','bold'); doc.setFontSize(9);
+    doc.text('Custo Direto', M+4, y+5.5);
+    doc.text(fmt(subTotal), W-M-2, y+5.5, {align:'right'});
+    y+=9; check(9);
+    doc.setFillColor(220,235,255); doc.rect(M,y,W-2*M,8,'F');
+    doc.setTextColor(28,80,160); doc.setFont('helvetica','bold'); doc.setFontSize(9);
+    doc.text('BDI ('+bdiPct+'%)', M+4, y+5.5);
+    doc.text('+ '+fmt(bdiAmt), W-M-2, y+5.5, {align:'right'});
+    y+=9;
+  }
+
   // Only show subtotal and discount rows if discount > 0
   if (discPct > 0) {
     check(9);
